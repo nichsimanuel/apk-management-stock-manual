@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Stock Management System</title>
+
+<!-- LIBRARY EXPORT & IMPORT EXCEL (XLSX) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+/* =========================================================
+   1. RESET & VARIABLE CSS (SISTEM MULTI TEMA)
+========================================================= */
+:root {
+    --primary: #1e88e5;
+    --primary-dark: #1565c0;
+    --primary-light: #e3f2fd;
+    --success: #2e7d32;
+    --success-light: #e8f5e9;
+    --danger: #d32f2f;
+    --danger-light: #ffebee;
+    --warning: #f57c00;
+    --text-dark: #2c3e50;
+    --text-muted: #7f8c8d;
+    --bg-main: #f4f7f9;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --input-bg: #ffffff;
+    --readonly-bg: #edf2f7;
+    --table-hover: #f1f5f9;
+    --thead-bg: #f8fafc;
+    --header-grad: linear-gradient(135deg, #0d47a1, #1e88e5);
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* 1. TEMA MALAM (DARK) */
+body.theme-dark {
+    --primary: #42a5f5;
+    --primary-dark: #1e88e5;
+    --primary-light: #1e3a5f;
+    --success: #4caf50;
+    --success-light: #1b3e20;
+    --danger: #ef5350;
+    --danger-light: #4c1d1d;
+    --warning: #ffb74d;
+    --text-dark: #e2e8f0;
+    --text-muted: #94a3b8;
+    --bg-main: #0f172a;
+    --card-bg: #1e293b;
+    --border-color: #334155;
+    --input-bg: #0f172a;
+    --readonly-bg: #334155;
+    --table-hover: #334155;
+    --thead-bg: #0f172a;
+    --header-grad: linear-gradient(135deg, #020617, #0f172a);
+}
+
+/* 2. TEMA OCEAN BLUE */
+body.theme-ocean {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --primary-light: #e0f2fe;
+    --header-grad: linear-gradient(135deg, #0f172a, #0284c7);
+}
+
+/* 3. TEMA FOREST GREEN */
+body.theme-forest {
+    --primary: #059669;
+    --primary-dark: #047857;
+    --primary-light: #d1fae5;
+    --header-grad: linear-gradient(135deg, #064e3b, #059669);
+}
+
+/* 4. TEMA ROYAL PURPLE */
+body.theme-purple {
+    --primary: #7c3aed;
+    --primary-dark: #6d28d9;
+    --primary-light: #ede9fe;
+    --header-grad: linear-gradient(135deg, #4c1d95, #7c3aed);
+}
+
+/* 5. TEMA SUNSET AMBER */
+body.theme-sunset {
+    --primary: #d97706;
+    --primary-dark: #b45309;
+    --primary-light: #fef3c7;
+    --header-grad: linear-gradient(135deg, #78350f, #d97706);
+}
+
+/* 6. TEMA ROSE PINK */
+body.theme-rose {
+    --primary: #e11d48;
+    --primary-dark: #be123c;
+    --primary-light: #ffe4e6;
+    --header-grad: linear-gradient(135deg, #881337, #e11d48);
+}
+
+/* 7. TEMA SLATE GRAY */
+body.theme-slate {
+    --primary: #475569;
+    --primary-dark: #334155;
+    --primary-light: #f1f5f9;
+    --header-grad: linear-gradient(135deg, #0f172a, #475569);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    line-height: 1.5;
+    padding-bottom: 40px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* =========================================================
+   2. HEADER & NAVIGATION
+========================================================= */
+.header {
+    background: var(--header-grad);
+    color: white;
+    padding: 24px 20px 0 20px;
+    box-shadow: var(--shadow-md);
+    transition: background 0.3s;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-title h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.header-title p {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.header-time {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+
+.header-time strong {
+    font-size: 15px;
+    margin-left: 5px;
+}
+
+.theme-select {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.theme-select option {
+    background: #1e293b;
+    color: white;
+}
+
+/* Navigasi Tab */
+.nav-tabs {
+    max-width: 1400px;
+    margin: 20px auto 0 auto;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px 12px 0 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.tab-btn.active {
+    background: var(--bg-main);
+    color: var(--primary-dark);
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+}
+
+body.theme-dark .tab-btn.active {
+    color: var(--primary);
+}
+
+/* =========================================================
+   3. CONTAINER & PAGES
+========================================================= */
+.container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 24px 20px;
+}
+
+.page {
+    display: none;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   4. DASHBOARD CARDS (DIPERKECIL)
+========================================================= */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+}
+
+.dashboard-card.masuk::before { background: var(--success); }
+.dashboard-card.keluar::before { background: var(--danger); }
+.dashboard-card.sisa::before { background: var(--primary); }
+
+.dashboard-card h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.dashboard-card .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* =========================================================
+   5. CARDS & FORMS
+========================================================= */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-dark);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    font-size: 14px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.12);
+}
+
+.form-group input[readonly] {
+    background: var(--readonly-bg);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.form-help {
+    font-size: 11px;
+    margin-top: 4px;
+    color: var(--text-muted);
+}
+
+.pilih-stok-highlight input {
+    border: 2px solid var(--primary);
+    background-color: var(--primary-light);
+}
+
+/* =========================================================
+   6. BUTTONS & TOOLBAR
+========================================================= */
+.button-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-save { background: var(--primary); color: white; }
+.btn-save:hover { background: var(--primary-dark); }
+
+.btn-reset { background: var(--readonly-bg); color: var(--text-dark); }
+.btn-reset:hover { filter: brightness(0.9); }
+
+.btn-excel { background: var(--success); color: white; }
+.btn-upload { background: #00897b; color: white; }
+.btn-print { background: #34495e; color: white; }
+.btn-backup { background: #8e44ad; color: white; }
+.btn-edit { background: var(--warning); color: white; padding: 6px 12px; font-size: 12px; }
+.btn-delete { background: var(--danger); color: white; padding: 6px 12px; font-size: 12px; }
+.btn-lock { background: #475569; color: white; }
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.search-area {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.search-area input,
+.search-area select {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    font-size: 13px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+}
+
+.search-area input {
+    flex: 1;
+    min-width: 240px;
+}
+
+/* =========================================================
+   7. TABLES & BADGES
+========================================================= */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+    background: var(--card-bg);
+}
+
+thead {
+    background: var(--thead-bg);
+    border-bottom: 2px solid var(--border-color);
+}
+
+th, td {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+    white-space: nowrap;
+    color: var(--text-dark);
+}
+
+th { font-weight: 600; }
+
+tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.15s;
+}
+
+tbody tr:hover { background: var(--table-hover); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-masuk { background: var(--success-light); color: var(--success); }
+.badge-keluar { background: var(--danger-light); color: var(--danger); }
+
+/* BADGE KOTAK TEBAL UNTUK SISA STOK & JUMLAH BARANG PENJUALAN */
+.stok-box {
+    display: inline-block;
+    padding: 5px 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* =========================================================
+   8. MODAL & FOOTER
+========================================================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 750px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    background: var(--primary);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 { font-size: 18px; font-weight: 600; }
+.close-modal { background: transparent; color: white; font-size: 24px; cursor: pointer; }
+.modal-body { padding: 24px; }
+.modal-footer {
+    padding: 16px 24px;
+    background: var(--thead-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.empty { padding: 40px; text-align: center; color: var(--text-muted); }
+.footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; }
+#uploadExcelInput { display: none; }
+
+@media(max-width: 1024px) {
+    .dashboard { grid-template-columns: repeat(3, 1fr); }
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 768px) {
+    .dashboard { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .search-area, .button-area { flex-direction: column; width: 100%; }
+    .search-area input, .search-area select, .button-area button { width: 100%; }
+}
+
+@media print {
+    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+    body { background: white; color: black; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER UTAMA -->
+<header class="header">
+    <div class="header-content">
+        <div class="header-title">
+            <h1>Manual Stock Management System</h1>
+            <p>Sistem Pencatatan Transaksi & Operasional Stok Barang</p>
+        </div>
+        <div class="header-right">
+            <div class="header-time">
+                Tanggal: <strong id="headerDate">-</strong>
+            </div>
+            <!-- PILIHAN TEMA LENGKAP -->
+            <select class="theme-select" id="themeSelect" onchange="changeTheme(this.value)">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="ocean">Ocean Blue</option>
+                <option value="forest">Forest Green</option>
+                <option value="purple">Royal Purple</option>
+                <option value="sunset">Sunset Amber</option>
+                <option value="rose">Rose Pink</option>
+                <option value="slate">Slate Gray</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- TABS NAVIGASI UTAMA -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="tabInputBtn" onclick="switchPage('inputPage')">
+            Form Input
+        </button>
+        <button class="tab-btn" id="tabPenjualanBtn" onclick="switchPage('penjualanPage')">
+            Penjualan
+        </button>
+        <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
+            Sisa Stok Barang
+        </button>
+        <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
+            🔒︎ Riwayat Transaksi
+        </button>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- =========================================================
+         HALAMAN 1: INPUT TRANSAKSI
+    ========================================================= -->
+    <div class="page active" id="inputPage">
+       
+        <div class="card">
+            <div class="card-title">
+                <span>Form Input Barang</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="text" id="tanggal" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Jam</label>
+                    <input type="text" id="jam" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Barang</label>
+                    <select id="jenis" onchange="handleJenisChange()">
+                        <option value="masuk">Barang Masuk</option>
+                        <option value="keluar">Barang Keluar</option>
+                    </select>
+                </div>
+
+                <!-- INPUT NAMA CUSTOMER (TAMPIL HANYA PADA BARANG KELUAR) -->
+                <div class="form-group" id="containerCustomer" style="display:none;">
+                    <label>Nama Customer</label>
+                    <input type="text" id="customer" placeholder="Masukkan Nama Customer" autocomplete="off">
+                </div>
+
+                <!-- SEARCHABLE DATALIST BARANG KELUAR -->
+                <div class="form-group pilih-stok-highlight" id="containerPilihStok" style="display:none;">
+                    <label>Cari Barang Stok (Tersedia)</label>
+                    <input type="text" id="searchBarangKeluar" list="listBarangStok" placeholder="Ketik kode, nama, atau warna..." oninput="handleBarangKeluarSelect(this.value)">
+                    <datalist id="listBarangStok"></datalist>
+                    <div class="form-help">Pilih barang untuk diisi otomatis</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Kode Barang</label>
+                    <input type="text" id="kode" placeholder="Masukkan Kode Barang" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Barang</label>
+                    <input type="text" id="nama" placeholder="Masukkan Nama Barang" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="text" id="warna" placeholder="Masukkan Warna" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Jumlah Barang</label>
+                    <input type="number" id="jumlah" min="1" step="1" placeholder="Masukkan Jumlah Barang">
+                </div>
+            </div>
+
+            <div class="button-area">
+                <button class="btn-save" onclick="simpanTransaksi()">SAVE FORM</button>
+                <button class="btn-reset" onclick="resetForm()">RESET FORM</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         HALAMAN PENJUALAN (BARANG KELUAR / PENJUALAN)
+    ========================================================= -->
+    <div class="page" id="penjualanPage">
+       
+        <div class="card">
+            <div class="card-title">
+                <span>Data Penjualan Barang</span>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-area">
+                    <input type="text" id="searchPenjualan" placeholder="Cari tanggal, nama customer, atau barang..." oninput="renderPenjualan()">
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Tanggal</th>
+                            <th>Jam</th>
+                            <th>Nama Customer</th>
+                            <th class="text-right">Jumlah Barang yang di beli</th>
+                        </tr>
+                    </thead>
+                    <tbody id="penjualanBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         HALAMAN 2: SISA STOK BARANG & DASHBOARD (DIPERKECIL + BOX STOK)
+    ========================================================= -->
+    <div class="page" id="stokPage">
+       
+        <!-- DASHBOARD RINGKASAN STOK (COMPACT) -->
+        <div class="dashboard">
+            <div class="dashboard-card masuk">
+                <h3>Grand Total Masuk</h3>
+                <div class="value" id="totalMasuk">0</div>
+            </div>
+            <div class="dashboard-card keluar">
+                <h3>Grand Total Keluar</h3>
+                <div class="value" id="totalKeluar">0</div>
+            </div>
+            <div class="dashboard-card sisa">
+                <h3>Grand Total Sisa Stok</h3>
+                <div class="value" id="totalStok">0</div>
+            </div>
+        </div>
+
+        <!-- TABEL RINCIAN SISA STOK -->
+        <div class="card">
+            <div class="card-title">
+                <span>Rekapitulasi Sisa Stok Barang</span>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-area">
+                    <input type="text" id="searchStok" placeholder="Cari berdasarkan kode, nama barang, atau warna..." oninput="renderStok()">
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Warna</th>
+                            <th class="text-right">Total Masuk</th>
+                            <th class="text-right">Total Keluar</th>
+                            <th class="text-right">Sisa Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stokBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         HALAMAN 3: RIWAYAT TRANSAKSI (PROTEKSI PIN)
+    ========================================================= -->
+    <div class="page" id="transaksiPage">
+       
+        <div class="card">
+            <div class="card-title">
+                <span>Riwayat Transaksi Barang</span>
+                <div>
+                    <button class="btn-reset" onclick="bukaModalUbahPin()" style="font-size:12px;">Ubah PIN</button>
+                    <button class="btn-lock" onclick="kunciAkses()" style="font-size:12px;">Kunci Kembali</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-area">
+                    <input type="text" id="searchTransaksi" placeholder="Cari kode, nama, warna, customer, atau tanggal..." oninput="renderTransaksi()">
+                    <select id="filterJenis" onchange="renderTransaksi()">
+                        <option value="semua">Semua Transaksi</option>
+                        <option value="masuk">Barang Masuk</option>
+                        <option value="keluar">Barang Keluar</option>
+                    </select>
+                </div>
+
+                <div class="button-area" style="margin-top:0;">
+                    <button class="btn-upload" onclick="document.getElementById('uploadExcelInput').click()">UPLOAD EXCEL</button>
+                    <input type="file" id="uploadExcelInput" accept=".xlsx,.xls" onchange="importExcel(event)">
+                    <button class="btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
+                    <button class="btn-print" onclick="window.print()">PRINT LAPORAN</button>
+                    <button class="btn-backup" onclick="backupJSON()">BACKUP DATA</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Tanggal</th>
+                            <th>Jam</th>
+                            <th>Jenis</th>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Warna</th>
+                            <th>Customer</th>
+                            <th class="text-right">Jumlah Barang</th>
+                            <th class="text-center">Edit / Hapus</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaksiBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     MODAL PIN AKSES RIWAYAT TRANSAKSI
+========================================================= -->
+<div class="modal" id="pinModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header">
+            <h2>🔒︎ Verifikasi Akses Masuk</h2>
+            <button class="close-modal" onclick="tutupModalPin()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
+                Masukkan Kode PIN khusus untuk melihat atau mengedit riwayat transaksi.
+            </p>
+            <div class="form-group">
+                <label>PIN Akses</label>
+                <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalPin()">BATAL</button>
+            <button class="btn-save" onclick="verifikasiPin()">MASUK</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UBAH PIN -->
+<div class="modal" id="ubahPinModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header">
+            <h2>Ubah PIN Akses</h2>
+            <button class="close-modal" onclick="tutupModalUbahPin()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>PIN Lama</label>
+                <input type="password" id="pinLama" placeholder="Masukkan PIN Lama">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>PIN Baru</label>
+                <input type="password" id="pinBaru" placeholder="Masukkan PIN Baru">
+            </div>
+            <div class="form-group">
+                <label>Konfirmasi PIN Baru</label>
+                <input type="password" id="pinKonfirmasi" placeholder="Ulangi PIN Baru">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalUbahPin()">BATAL</button>
+            <button class="btn-save" onclick="simpanPinBaru()">SIMPAN PIN BARU</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT TRANSAKSI -->
+<div class="modal" id="editModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Edit Data Transaksi</h2>
+            <button class="close-modal" onclick="tutupEdit()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="text" id="editTanggal" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Jam</label>
+                    <input type="text" id="editJam" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Barang</label>
+                    <select id="editJenis">
+                        <option value="masuk">Barang Masuk</option>
+                        <option value="keluar">Barang Keluar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nama Customer</label>
+                    <input type="text" id="editCustomer" placeholder="-">
+                </div>
+                <div class="form-group">
+                    <label>Kode Barang</label>
+                    <input type="text" id="editKode">
+                </div>
+                <div class="form-group">
+                    <label>Nama Barang</label>
+                    <input type="text" id="editNama">
+                </div>
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="text" id="editWarna">
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Barang</label>
+                    <input type="number" id="editJumlah" min="1" step="1">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupEdit()">BATAL</button>
+            <button class="btn-save" onclick="simpanEdit()">SIMPAN PERUBAHAN</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    Manual Stock Management System &bull; by Nicholas Sulistio
+</div>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+const STORAGE_KEY = "SISTEM_POTONG_STOK_DATA_PERMANEN";
+const PIN_KEY = "SISTEM_STOK_PIN_AKSES";
+const THEME_KEY = "SISTEM_STOK_THEME_MODE";
+const DEFAULT_PIN = "1234";
+
+const OLD_STORAGE_KEYS = [
+    "stok_barang_local_storage_v4",
+    "stok_barang_local_storage_v3",
+    "stok_barang_local_storage_v2",
+    "sistem_potong_stok_v1"
+];
+
+let transaksi = [];
+let editIndex = null;
+let isAuthorized = false;
+
+const namaBulan = [
+    "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+    "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+];
+
+/* 1. SISTEM GANTI TEMA WARNA */
+function initTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+    changeTheme(savedTheme);
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect) themeSelect.value = savedTheme;
+}
+
+function changeTheme(themeName) {
+    document.body.className = '';
+    if (themeName !== 'light') {
+        document.body.classList.add('theme-' + themeName);
+    }
+    localStorage.setItem(THEME_KEY, themeName);
+}
+
+/* 2. KEAMANAN & VERIFIKASI PIN */
+function getStoredPin() {
+    return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
+}
+
+function tryAccessTransaksi() {
+    if (isAuthorized) {
+        switchPage('transaksiPage');
+    } else {
+        document.getElementById('inputPinAkses').value = '';
+        document.getElementById('pinModal').classList.add('active');
+        setTimeout(() => document.getElementById('inputPinAkses').focus(), 100);
+    }
+}
+
+function verifikasiPin() {
+    const inputPin = document.getElementById('inputPinAkses').value;
+    const storedPin = getStoredPin();
+
+    if (inputPin === storedPin) {
+        isAuthorized = true;
+        tutupModalPin();
+        switchPage('transaksiPage');
+        document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi (Terbuka)";
+    } else {
+        alert("Kode PIN salah! Akses ditolak.");
+        document.getElementById('inputPinAkses').value = '';
+    }
+}
+
+function tutupModalPin() {
+    document.getElementById('pinModal').classList.remove('active');
+}
+
+function kunciAkses() {
+    isAuthorized = false;
+    document.getElementById('tabTransaksiBtn').innerHTML = "🔒︎ Riwayat Transaksi";
+    switchPage('inputPage');
+    alert("Akses ke halaman Riwayat Transaksi berhasil dikunci kembali.");
+}
+
+function bukaModalUbahPin() {
+    document.getElementById('pinLama').value = '';
+    document.getElementById('pinBaru').value = '';
+    document.getElementById('pinKonfirmasi').value = '';
+    document.getElementById('ubahPinModal').classList.add('active');
+}
+
+function tutupModalUbahPin() {
+    document.getElementById('ubahPinModal').classList.remove('active');
+}
+
+function simpanPinBaru() {
+    const pinLama = document.getElementById('pinLama').value;
+    const pinBaru = document.getElementById('pinBaru').value;
+    const pinKonfirmasi = document.getElementById('pinKonfirmasi').value;
+
+    if (pinLama !== getStoredPin()) {
+        alert("PIN lama yang Anda masukkan salah!");
+        return;
+    }
+
+    if (!pinBaru || pinBaru.length < 4) {
+        alert("PIN baru minimal harus 4 karakter/digit!");
+        return;
+    }
+
+    if (pinBaru !== pinKonfirmasi) {
+        alert("Konfirmasi PIN baru tidak cocok!");
+        return;
+    }
+
+    localStorage.setItem(PIN_KEY, pinBaru);
+    alert("PIN Akses berhasil diperbarui!");
+    tutupModalUbahPin();
+}
+
+/* 3. MANAGEMENT NAVIGASI TABS */
+function switchPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(pageId).classList.add('active');
+
+    if (pageId === 'inputPage') {
+        document.getElementById('tabInputBtn').classList.add('active');
+    } else if (pageId === 'penjualanPage') {
+        document.getElementById('tabPenjualanBtn').classList.add('active');
+        renderPenjualan();
+    } else if (pageId === 'stokPage') {
+        document.getElementById('tabStokBtn').classList.add('active');
+        updateDashboard();
+        renderStok();
+    } else if (pageId === 'transaksiPage') {
+        document.getElementById('tabTransaksiBtn').classList.add('active');
+        renderTransaksi();
+    }
+}
+
+/* 4. LOCAL STORAGE MANAGEMENT */
+function loadData() {
+    try {
+        const dataUtama = localStorage.getItem(STORAGE_KEY);
+        if (dataUtama) {
+            const parsed = JSON.parse(dataUtama);
+            if (Array.isArray(parsed)) {
+                transaksi = parsed;
+                return;
+            }
+        }
+
+        for (const oldKey of OLD_STORAGE_KEYS) {
+            const oldData = localStorage.getItem(oldKey);
+            if (oldData) {
+                const parsed = JSON.parse(oldData);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    transaksi = parsed;
+                    saveData();
+                    return;
+                }
+            }
+        }
+        transaksi = [];
+    } catch (e) {
+        console.error("Gagal membaca storage:", e);
+        transaksi = [];
+    }
+}
+
+function saveData() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(transaksi));
+    } catch (e) {
+        alert("Gagal menyimpan data ke Local Storage browser!");
+    }
+}
+
+/* 5. FORMATTER & HELPERS */
+function formatAngka(num) {
+    return Number(num || 0).toLocaleString("id-ID");
+}
+
+function escapeHTML(str) {
+    return String(str ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function normalizeKode(val) { return String(val || "").trim().toUpperCase(); }
+function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
+function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
+function pad(num) { return String(num).padStart(2, "0"); }
+
+function formatTanggalIndonesia(date) {
+    return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
+}
+
+function getCurrentDateTime() {
+    const now = new Date();
+    return {
+        tanggal: now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()),
+        jam: pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds())
+    };
+}
+
+function updateClock() {
+    const now = new Date();
+    document.getElementById("headerDate").textContent = formatTanggalIndonesia(now);
+   
+    const dt = getCurrentDateTime();
+    if (document.getElementById("tanggal")) document.getElementById("tanggal").value = dt.tanggal;
+    if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
+}
+
+/* 6. LOGIKA HITUNG STOK & DASHBOARD */
+function hitungStokPerBarang() {
+    const mapStok = {};
+    transaksi.forEach(item => {
+        const key = getStockKey(item.kode, item.warna);
+        if (!mapStok[key]) {
+            mapStok[key] = {
+                kode: item.kode,
+                nama: item.nama,
+                warna: item.warna,
+                masuk: 0,
+                keluar: 0,
+                sisa: 0
+            };
+        }
+        const qty = parseInt(item.jumlah) || 0;
+        if (item.jenis === 'masuk') mapStok[key].masuk += qty;
+        else if (item.jenis === 'keluar') mapStok[key].keluar += qty;
+        mapStok[key].sisa = mapStok[key].masuk - mapStok[key].keluar;
+    });
+    return mapStok;
+}
+
+function updateDashboard() {
+    let tMasuk = 0, tKeluar = 0;
+    transaksi.forEach(item => {
+        const qty = parseInt(item.jumlah) || 0;
+        if (item.jenis === 'masuk') tMasuk += qty;
+        else if (item.jenis === 'keluar') tKeluar += qty;
+    });
+    if (document.getElementById('totalMasuk')) document.getElementById('totalMasuk').textContent = formatAngka(tMasuk);
+    if (document.getElementById('totalKeluar')) document.getElementById('totalKeluar').textContent = formatAngka(tKeluar);
+    if (document.getElementById('totalStok')) document.getElementById('totalStok').textContent = formatAngka(tMasuk - tKeluar);
+}
+
+/* 7. SEARCHABLE DATALIST BARANG KELUAR */
+function handleJenisChange() {
+    const jenis = document.getElementById('jenis').value;
+    const containerPilih = document.getElementById('containerPilihStok');
+    const containerCustomer = document.getElementById('containerCustomer');
+    const inputKode = document.getElementById('kode');
+    const inputNama = document.getElementById('nama');
+    const inputWarna = document.getElementById('warna');
+
+    if (jenis === 'keluar') {
+        containerPilih.style.display = 'flex';
+        containerCustomer.style.display = 'flex';
+        inputKode.readOnly = true;
+        inputNama.readOnly = true;
+        inputWarna.readOnly = true;
+        populateDatalistStok();
+    } else {
+        containerPilih.style.display = 'none';
+        containerCustomer.style.display = 'none';
+        inputKode.readOnly = false;
+        inputNama.readOnly = false;
+        inputWarna.readOnly = false;
+        resetFormInput();
+    }
+}
+
+function populateDatalistStok() {
+    const list = document.getElementById('listBarangStok');
+    if (!list) return;
+    list.innerHTML = '';
+    const mapStok = hitungStokPerBarang();
+
+    Object.values(mapStok).forEach(item => {
+        if (item.sisa > 0) {
+            const option = document.createElement('option');
+            option.value = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+            list.appendChild(option);
+        }
+    });
+}
+
+function handleBarangKeluarSelect(selectedVal) {
+    if (!selectedVal) {
+        document.getElementById('kode').value = '';
+        document.getElementById('nama').value = '';
+        document.getElementById('warna').value = '';
+        return;
+    }
+
+    const mapStok = hitungStokPerBarang();
+    const barangFound = Object.values(mapStok).find(item => {
+        const fullString = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+        return item.sisa > 0 && (fullString === selectedVal || item.kode === selectedVal);
+    });
+
+    if (barangFound) {
+        document.getElementById('kode').value = barangFound.kode;
+        document.getElementById('nama').value = barangFound.nama;
+        document.getElementById('warna').value = barangFound.warna;
+        document.getElementById('jumlah').placeholder = `Maksimal: ${barangFound.sisa}`;
+    }
+}
+
+/* 8. PROSES SIMPAN TRANSAKSI */
+function simpanTransaksi() {
+    const jenis = document.getElementById('jenis').value;
+    const kode = normalizeKode(document.getElementById('kode').value);
+    const nama = document.getElementById('nama').value.trim();
+    const warna = document.getElementById('warna').value.trim();
+    const customer = document.getElementById('customer') ? document.getElementById('customer').value.trim() : '';
+    const jumlah = parseInt(document.getElementById('jumlah').value) || 0;
+
+    if (!kode || !nama || !warna || jumlah <= 0) {
+        alert("Mohon isi form transaksi dengan lengkap dan benar!");
+        return;
+    }
+
+    if (jenis === 'keluar') {
+        if (!customer) {
+            alert("Mohon isi Nama Customer untuk Barang Keluar!");
+            return;
+        }
+        const mapStok = hitungStokPerBarang();
+        const key = getStockKey(kode, warna);
+        const stokSaatIni = mapStok[key] ? mapStok[key].sisa : 0;
+
+        if (jumlah > stokSaatIni) {
+            alert(`Jumlah melebihi stok yang ada!\nSisa stok [${kode} - ${warna}] saat ini hanya: ${stokSaatIni}`);
+            return;
+        }
+    }
+
+    const time = getCurrentDateTime();
+    transaksi.unshift({
+        tanggal: time.tanggal,
+        jam: time.jam,
+        jenis: jenis,
+        kode: kode,
+        nama: nama,
+        warna: warna,
+        customer: jenis === 'keluar' ? customer : '-',
+        jumlah: jumlah
+    });
+
+    saveData();
+    resetFormInput();
+    updateApp();
+    alert("Transaksi berhasil disimpan!");
+}
+
+function resetFormInput() {
+    if (document.getElementById('searchBarangKeluar')) document.getElementById('searchBarangKeluar').value = '';
+    if (document.getElementById('customer')) document.getElementById('customer').value = '';
+    if (document.getElementById('kode')) document.getElementById('kode').value = '';
+    if (document.getElementById('nama')) document.getElementById('nama').value = '';
+    if (document.getElementById('warna')) document.getElementById('warna').value = '';
+    if (document.getElementById('jumlah')) {
+        document.getElementById('jumlah').value = '';
+        document.getElementById('jumlah').placeholder = 'Masukkan Jumlah Barang';
+    }
+}
+
+function resetForm() {
+    resetFormInput();
+}
+
+/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
+function renderPenjualan() {
+    const tbody = document.getElementById('penjualanBody');
+    if (!tbody) return;
+    const query = (document.getElementById('searchPenjualan').value || '').toLowerCase();
+
+    tbody.innerHTML = '';
+    const filtered = transaksi.filter(item => {
+        if (item.jenis !== 'keluar') return false;
+        const matchQuery = (item.customer || '').toLowerCase().includes(query) ||
+                           item.tanggal.includes(query) ||
+                           item.nama.toLowerCase().includes(query) ||
+                           item.kode.toLowerCase().includes(query);
+        return matchQuery;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">Belum ada data penjualan Recorded.</td></tr>`;
+        return;
+    }
+
+    filtered.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="text-center">${index + 1}</td>
+            <td>${escapeHTML(item.tanggal)}</td>
+            <td>${escapeHTML(item.jam)}</td>
+            <td><strong>${escapeHTML(item.customer || '-')}</strong></td>
+            <td class="text-right"><span class="stok-box">${formatAngka(item.jumlah)}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderStok() {
+    const tbody = document.getElementById('stokBody');
+    if (!tbody) return;
+    const query = (document.getElementById('searchStok').value || '').toLowerCase();
+    const mapStok = hitungStokPerBarang();
+
+    tbody.innerHTML = '';
+    const listStok = Object.values(mapStok).filter(item => {
+        return item.kode.toLowerCase().includes(query) ||
+               item.nama.toLowerCase().includes(query) ||
+               item.warna.toLowerCase().includes(query);
+    });
+
+    if (listStok.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">Tidak ada data stok barang.</td></tr>`;
+        return;
+    }
+
+    listStok.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${escapeHTML(item.kode)}</strong></td>
+            <td>${escapeHTML(item.nama)}</td>
+            <td>${escapeHTML(item.warna)}</td>
+            <td class="text-right">${formatAngka(item.masuk)}</td>
+            <td class="text-right">${formatAngka(item.keluar)}</td>
+            <td class="text-right"><span class="stok-box">${formatAngka(item.sisa)}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderTransaksi() {
+    const tbody = document.getElementById('transaksiBody');
+    if (!tbody) return;
+    const query = (document.getElementById('searchTransaksi').value || '').toLowerCase();
+    const filterJenis = document.getElementById('filterJenis').value;
+
+    tbody.innerHTML = '';
+    const filtered = transaksi.filter(item => {
+        const matchQuery = item.kode.toLowerCase().includes(query) ||
+                           item.nama.toLowerCase().includes(query) ||
+                           item.warna.toLowerCase().includes(query) ||
+                           (item.customer || '').toLowerCase().includes(query) ||
+                           item.tanggal.includes(query);
+        const matchJenis = (filterJenis === 'semua') || (item.jenis === filterJenis);
+        return matchQuery && matchJenis;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="empty">Belum ada riwayat transaksi recorded.</td></tr>`;
+        return;
+    }
+
+    filtered.forEach((item, index) => {
+        const realIndex = transaksi.indexOf(item);
+        const badgeClass = item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar';
+        const jenisLabel = item.jenis === 'masuk' ? 'Masuk' : 'Keluar';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="text-center">${index + 1}</td>
+            <td>${escapeHTML(item.tanggal)}</td>
+            <td>${escapeHTML(item.jam)}</td>
+            <td><span class="badge ${badgeClass}">${jenisLabel}</span></td>
+            <td><strong>${escapeHTML(item.kode)}</strong></td>
+            <td>${escapeHTML(item.nama)}</td>
+            <td>${escapeHTML(item.warna)}</td>
+            <td>${escapeHTML(item.customer || '-')}</td>
+            <td class="text-right">${formatAngka(item.jumlah)}</td>
+            <td class="text-center">
+                <button class="btn-edit" onclick="bukaEdit(${realIndex})">Edit</button>
+                <button class="btn-delete" onclick="hapusTransaksi(${realIndex})">Hapus</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* 10. MODAL EDIT & DELETE */
+function bukaEdit(index) {
+    editIndex = index;
+    const item = transaksi[index];
+
+    document.getElementById('editTanggal').value = item.tanggal;
+    document.getElementById('editJam').value = item.jam;
+    document.getElementById('editJenis').value = item.jenis;
+    document.getElementById('editCustomer').value = item.customer || '';
+    document.getElementById('editKode').value = item.kode;
+    document.getElementById('editNama').value = item.nama;
+    document.getElementById('editWarna').value = item.warna;
+    document.getElementById('editJumlah').value = item.jumlah;
+
+    document.getElementById('editModal').classList.add('active');
+}
+
+function tutupEdit() {
+    editIndex = null;
+    document.getElementById('editModal').classList.remove('active');
+}
+
+function simpanEdit() {
+    if (editIndex === null) return;
+
+    const jenis = document.getElementById('editJenis').value;
+    const customer = document.getElementById('editCustomer').value.trim();
+    const kode = normalizeKode(document.getElementById('editKode').value);
+    const nama = document.getElementById('editNama').value.trim();
+    const warna = document.getElementById('editWarna').value.trim();
+    const jumlah = parseInt(document.getElementById('editJumlah').value) || 0;
+
+    if (!kode || !nama || !warna || jumlah <= 0) {
+        alert("Mohon periksa kembali isian form edit!");
+        return;
+    }
+
+    transaksi[editIndex] = {
+        ...transaksi[editIndex],
+        jenis, kode, nama, warna, customer: jenis === 'keluar' ? customer : '-', jumlah
+    };
+
+    saveData();
+    tutupEdit();
+    updateApp();
+    alert("Data transaksi berhasil diperbarui!");
+}
+
+function hapusTransaksi(index) {
+    if (confirm("Apakah Anda yakin ingin menghapus catatan transaksi ini?")) {
+        transaksi.splice(index, 1);
+        saveData();
+        updateApp();
+    }
+}
+
+/* 11. EXPORT & IMPORT EXCEL / BACKUP */
+function exportExcel() {
+    if (transaksi.length === 0) {
+        alert("Tidak ada data transaksi untuk di-export!");
+        return;
+    }
+
+    const dataExcel = transaksi.map((item, idx) => ({
+        "No": idx + 1,
+        "Tanggal": item.tanggal,
+        "Jam": item.jam,
+        "Jenis": item.jenis === 'masuk' ? 'Barang Masuk' : 'Barang Keluar',
+        "Nama Customer": item.customer || '-',
+        "Kode Barang": item.kode,
+        "Nama Barang": item.nama,
+        "Warna": item.warna,
+        "Jumlah": item.jumlah
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Stok");
+    XLSX.writeFile(workbook, `Report_Stok_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+function importExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet);
+
+            let counter = 0;
+            json.forEach(row => {
+                const kode = normalizeKode(row["Kode Barang"] || row["kode"] || "");
+                const nama = String(row["Nama Barang"] || row["nama"] || "").trim();
+                const warna = String(row["Warna"] || row["warna"] || "").trim();
+                const customer = String(row["Nama Customer"] || row["customer"] || "-").trim();
+                const jumlah = parseInt(row["Jumlah"] || row["jumlah"] || 0);
+                const jenisRaw = String(row["Jenis"] || row["jenis"] || "").toLowerCase();
+                const jenis = jenisRaw.includes('keluar') ? 'keluar' : 'masuk';
+
+                if (kode && nama && jumlah > 0) {
+                    const time = getCurrentDateTime();
+                    transaksi.unshift({
+                        tanggal: row["Tanggal"] || time.tanggal,
+                        jam: row["Jam"] || time.jam,
+                        jenis, kode, nama, warna, customer, jumlah
+                    });
+                    counter++;
+                }
+            });
+
+            saveData();
+            updateApp();
+            alert(`Berhasil mengimpor ${counter} data transaksi dari Excel!`);
+        } catch (err) {
+            alert("Gagal membaca file Excel. Pastikan format kolom sesuai!");
+        }
+        event.target.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function backupJSON() {
+    if (transaksi.length === 0) {
+        alert("Tidak ada data untuk di-backup!");
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transaksi, null, 2));
+    const dl = document.createElement('a');
+    dl.setAttribute("href", dataStr);
+    dl.setAttribute("download", `backup_stok_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(dl);
+    dl.click();
+    dl.remove();
+}
+
+/* 12. SINKRONISASI APLIKASI */
+function updateApp() {
+    updateDashboard();
+   
+    if (document.getElementById('penjualanPage').classList.contains('active')) {
+        renderPenjualan();
+    }
+    if (document.getElementById('stokPage').classList.contains('active')) {
+        renderStok();
+    }
+    if (document.getElementById('transaksiPage').classList.contains('active')) {
+        renderTransaksi();
+    }
+    if (document.getElementById('jenis') && document.getElementById('jenis').value === 'keluar') {
+        populateDatalistStok();
+    }
+}
+
+/* INITIALIZATION */
+window.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    loadData();
+    updateClock();
+    setInterval(updateClock, 1000);
+    updateApp();
+});
+   
+</script>
+</body>
+</html>

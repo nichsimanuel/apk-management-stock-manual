@@ -1294,6 +1294,35 @@ tbody tr:hover { background: var(--table-hover); }
     </div>
 </div>
 
+<!-- MODAL KONFIRMASI PIN SAAT HAPUS TRANSAKSI -->
+<div class="modal" id="deletePinModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header" style="background: var(--danger);">
+            <h2>🗑️ Konfirmasi Hapus Data</h2>
+            <button class="close-modal" onclick="tutupModalDeletePin()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-dark); margin-bottom:12px; font-weight: 600;">
+                Apakah Anda yakin ingin menghapus data ini?
+            </p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">
+                Masukkan PIN Akses Anda untuk mengonfirmasi penghapusan permanen.
+            </p>
+            <div class="form-group">
+                <label>PIN Akses</label>
+                <div class="password-wrapper">
+                    <input type="password" id="inputPinDelete" placeholder="Masukkan PIN Akses" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusDenganPin()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinDelete', this)">👁️</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalDeletePin()">BATAL</button>
+            <button class="btn-delete" style="padding: 10px 18px; font-size: 13px;" onclick="eksekusiHapusDenganPin()">HAPUS TRANSAKSI</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL UBAH PIN (LENGKAP IKON MATA PADA 3 INPUT) -->
 <div class="modal" id="ubahPinModal">
     <div class="modal-box" style="max-width: 420px;">
@@ -1408,6 +1437,7 @@ const OLD_STORAGE_KEYS = [
 
 let transaksi = [];
 let editIndex = null;
+let deleteTargetIndex = null;
 let isAuthorized = false;
 let forgotTargetUser = null;
 
@@ -2057,14 +2087,14 @@ function renderTransaksi() {
             <td class="text-center">${formatAngka(item.jumlah)}</td>
             <td class="text-center">
                 <button class="btn-edit" onclick="bukaEdit(${realIndex})">Edit</button>
-                <button class="btn-delete" onclick="hapusTransaksi(${realIndex})">Hapus</button>
+                <button class="btn-delete" onclick="konfirmasiHapusPin(${realIndex})">Hapus</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-/* 10. MODAL EDIT & DELETE */
+/* 10. MODAL EDIT & DELETE DENGAN PROTEKSI PIN */
 function bukaEdit(index) {
     editIndex = index;
     const item = transaksi[index];
@@ -2112,11 +2142,43 @@ function simpanEdit() {
     alert("Data transaksi berhasil diperbarui!");
 }
 
-function hapusTransaksi(index) {
-    if (confirm("Apakah Anda yakin ingin menghapus catatan transaksi ini?")) {
-        transaksi.splice(index, 1);
+/* LOGIKA HAPUS DENGAN VERIFIKASI PIN */
+function konfirmasiHapusPin(index) {
+    deleteTargetIndex = index;
+    const inputPin = document.getElementById('inputPinDelete');
+    if (inputPin) {
+        inputPin.value = '';
+        inputPin.type = 'password';
+    }
+    const eyeBtn = document.querySelector('#deletePinModal .toggle-password');
+    if (eyeBtn) eyeBtn.textContent = '👁️';
+
+    document.getElementById('deletePinModal').classList.add('active');
+    setTimeout(() => {
+        if (inputPin) inputPin.focus();
+    }, 100);
+}
+
+function tutupModalDeletePin() {
+    deleteTargetIndex = null;
+    document.getElementById('deletePinModal').classList.remove('active');
+}
+
+function eksekusiHapusDenganPin() {
+    if (deleteTargetIndex === null) return;
+
+    const inputPin = document.getElementById('inputPinDelete').value;
+    const storedPin = getStoredPin();
+
+    if (inputPin === storedPin) {
+        transaksi.splice(deleteTargetIndex, 1);
         saveData();
         updateApp();
+        tutupModalDeletePin();
+        alert("Catatan transaksi berhasil dihapus!");
+    } else {
+        alert("Kode PIN salah! Penghapusan dibatalkan.");
+        document.getElementById('inputPinDelete').value = '';
     }
 }
 

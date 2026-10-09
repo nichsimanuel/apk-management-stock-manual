@@ -122,37 +122,6 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* INDIKATOR STATUS SYNC MULTI-DEVICE */
-.sync-status {
-    position: fixed;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(15, 23, 42, 0.85);
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    z-index: 99999;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-.sync-dot {
-    width: 8px;
-    height: 8px;
-    background: #22c55e;
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulse 2s infinite;
-}
-@keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-}
-
 /* =========================================================
    AUTHENTICATION PAGES (PAS DILAYAR, TANPA SCROLL)
 ========================================================= */
@@ -171,6 +140,7 @@ body {
     z-index: 10000;
 }
 
+/* Dekorasi Bola Cahaya Latar Belakang */
 .auth-wrapper::before,
 .auth-wrapper::after {
     content: '';
@@ -394,6 +364,7 @@ body {
     margin-top: 4px;
 }
 
+/* KONTROL BARIS BAWAH HEADER (SEDERET DENGAN TABS) */
 .header-bottom-row {
     max-width: 1400px;
     margin: 20px auto 0 auto;
@@ -441,6 +412,7 @@ body {
     color: white;
 }
 
+/* Navigasi Tab */
 .nav-tabs {
     display: flex;
     gap: 8px;
@@ -501,7 +473,7 @@ body.theme-dark .tab-btn.active {
 }
 
 /* =========================================================
-   4. DASHBOARD CARDS
+   4. DASHBOARD CARDS (DIPERKECIL)
 ========================================================= */
 .dashboard {
     display: grid;
@@ -620,6 +592,7 @@ body.theme-dark .tab-btn.active {
     background-color: var(--primary-light);
 }
 
+/* INPUT WITH EYE ICON CSS */
 .password-wrapper {
     position: relative;
     display: flex;
@@ -775,6 +748,7 @@ tbody tr:hover { background: var(--table-hover); }
 .badge-masuk { background: var(--success-light); color: var(--success); }
 .badge-keluar { background: var(--danger-light); color: var(--danger); }
 
+/* BADGE KOTAK SIMETRIS UNTUK SISA STOK & JUMLAH BARANG PENJUALAN */
 .stok-box {
     display: inline-flex;
     justify-content: center;
@@ -790,6 +764,7 @@ tbody tr:hover { background: var(--table-hover); }
     text-align: center;
 }
 
+/* CSS AGAR ISI TABEL PENJUALAN BOLD SEMUA */
 #penjualanBody td {
     font-weight: 700;
 }
@@ -863,7 +838,7 @@ tbody tr:hover { background: var(--table-hover); }
 }
 
 @media print {
-    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer, .sync-status { display: none !important; }
+    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer { display: none !important; }
     .card { box-shadow: none; border: 1px solid #ccc; }
     body { background: white; color: black; }
 }
@@ -871,11 +846,6 @@ tbody tr:hover { background: var(--table-hover); }
 </head>
 
 <body>
-
-<!-- STATUS INDIKATOR REALTIME MULTI-DEVICE -->
-<div class="sync-status">
-    <span class="sync-dot"></span> Multi-Device Sync Aktif
-</div>
 
 <!-- =========================================================
      SISTEM AUTENTIKASI: LOGIN, BUAT AKUN, LUPA PASSWORD
@@ -910,7 +880,7 @@ tbody tr:hover { background: var(--table-hover); }
         </div>
     </div>
 
-    <!-- 2. FORM BUAT AKUN -->
+    <!-- 2. FORM BUAT AKUN (REGISTRASI TANPA PERTANYAAN KEAMANAN) -->
     <div class="auth-card" id="registerCard" style="display: none;">
         <div class="auth-brand">
             <div class="brand-icon">📝</div>
@@ -938,7 +908,7 @@ tbody tr:hover { background: var(--table-hover); }
         </div>
     </div>
 
-    <!-- 3. FORM LUPA PASSWORD -->
+    <!-- 3. FORM LUPA PASSWORD (BERBERAPAKAN TAHAP VERIFIKASI) -->
     <div class="auth-card" id="forgotCard" style="display: none;">
         <div class="auth-brand">
             <div class="brand-icon">🔑</div>
@@ -948,6 +918,7 @@ tbody tr:hover { background: var(--table-hover); }
             <p>Reset password akun Anda melalui verifikasi username</p>
         </div>
         
+        <!-- STEP 1: CARI USERNAME -->
         <form class="auth-form" id="forgotStep1" onsubmit="event.preventDefault(); verifikasiUsernameLupa();">
             <div class="form-group">
                 <label>Username Anda</label>
@@ -956,6 +927,7 @@ tbody tr:hover { background: var(--table-hover); }
             <button type="submit" class="btn-primary">VERIFIKASI AKUN</button>
         </form>
 
+        <!-- STEP 2: KONFIRMASI VERIFIKASI SEBELUM UBAH PASSWORD -->
         <div id="forgotStep2Confirm" style="display: none; text-align: center; margin-bottom: 12px;">
             <p style="font-size:12px; font-weight:600; color:#1e88e5; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:12px;">
                 Akun ditemukan! Klik tombol di bawah untuk melanjutkan pembaruan password.
@@ -963,6 +935,7 @@ tbody tr:hover { background: var(--table-hover); }
             <button type="button" class="btn-primary" onclick="lanjutkanKeFormReset()">LANJUTKAN RESET PASSWORD</button>
         </div>
 
+        <!-- STEP 3: UBAH PASSWORD BARU -->
         <form class="auth-form" id="forgotStep3" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
             <div class="form-group">
                 <label>Password Baru</label>
@@ -981,10 +954,11 @@ tbody tr:hover { background: var(--table-hover); }
 </div>
 
 <!-- =========================================================
-     SISTEM UTAMA APLIKASI
+     SISTEM UTAMA APLIKASI (DITAMPILKAN SETELAH LOGIN)
 ========================================================= -->
 <div id="mainApp" style="display: none;">
 
+<!-- HEADER UTAMA -->
 <header class="header">
     <div class="header-content">
         <div class="header-title">
@@ -992,12 +966,14 @@ tbody tr:hover { background: var(--table-hover); }
             <p>Sistem Pencatatan Transaksi & Operasional Stok Barang</p>
         </div>
         
+        <!-- NAMA USER BERADA DI PALING ATAS KANAN -->
         <div class="user-badge-top-right">
             👤 <span id="displayLoggedInUser">-</span>
             <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
         </div>
     </div>
 
+    <!-- TANGGAL, TEMA, DAN TABS NAVIGASI BERADA DI BARIS BAWAH -->
     <div class="header-bottom-row">
         <div class="nav-tabs">
             <button class="tab-btn active" id="tabInputBtn" onclick="switchPage('inputPage')">
@@ -1014,10 +990,12 @@ tbody tr:hover { background: var(--table-hover); }
             </button>
         </div>
 
+        <!-- TANGGAL DAN TEMA SEDERET DENGAN NAVIGASI / DI BAWAH USER -->
         <div class="header-controls-bottom">
             <div class="header-time">
                 Tanggal: <strong id="headerDate">-</strong>
             </div>
+            <!-- PILIHAN TEMA LENGKAP -->
             <select class="theme-select" id="themeSelect" onchange="changeTheme(this.value)">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
@@ -1034,8 +1012,11 @@ tbody tr:hover { background: var(--table-hover); }
 
 <div class="container">
 
-    <!-- HALAMAN 1: INPUT TRANSAKSI -->
+    <!-- =========================================================
+         HALAMAN 1: INPUT TRANSAKSI
+    ========================================================= -->
     <div class="page active" id="inputPage">
+       
         <div class="card">
             <div class="card-title">
                 <span>Form Input Barang</span>
@@ -1060,11 +1041,13 @@ tbody tr:hover { background: var(--table-hover); }
                     </select>
                 </div>
 
+                <!-- INPUT NAMA CUSTOMER (TAMPIL HANYA PADA BARANG KELUAR) -->
                 <div class="form-group" id="containerCustomer" style="display:none;">
                     <label>Nama Customer</label>
                     <input type="text" id="customer" placeholder="Masukkan Nama Customer" autocomplete="off">
                 </div>
 
+                <!-- SEARCHABLE DATALIST BARANG KELUAR -->
                 <div class="form-group pilih-stok-highlight" id="containerPilihStok" style="display:none;">
                     <label>Cari Barang Stok (Tersedia)</label>
                     <input type="text" id="searchBarangKeluar" list="listBarangStok" placeholder="Ketik kode, nama, atau warna..." oninput="handleBarangKeluarSelect(this.value)">
@@ -1098,10 +1081,14 @@ tbody tr:hover { background: var(--table-hover); }
                 <button class="btn-reset" onclick="resetForm()">RESET FORM</button>
             </div>
         </div>
+
     </div>
 
-    <!-- HALAMAN PENJUALAN -->
+    <!-- =========================================================
+         HALAMAN PENJUALAN (BARANG KELUAR / PENJUALAN)
+    ========================================================= -->
     <div class="page" id="penjualanPage">
+       
         <div class="card">
             <div class="card-title">
                 <span>Data Penjualan Barang</span>
@@ -1129,10 +1116,15 @@ tbody tr:hover { background: var(--table-hover); }
                 </table>
             </div>
         </div>
+
     </div>
 
-    <!-- HALAMAN SISA STOK -->
+    <!-- =========================================================
+         HALAMAN 2: SISA STOK BARANG & DASHBOARD (DIPERKECIL + BOX STOK)
+    ========================================================= -->
     <div class="page" id="stokPage">
+       
+        <!-- DASHBOARD RINGKASAN STOK (COMPACT) -->
         <div class="dashboard">
             <div class="dashboard-card masuk">
                 <h3>Grand Total Masuk</h3>
@@ -1148,6 +1140,7 @@ tbody tr:hover { background: var(--table-hover); }
             </div>
         </div>
 
+        <!-- TABEL RINCIAN SISA STOK -->
         <div class="card">
             <div class="card-title">
                 <span>Rekapitulasi Sisa Stok Barang</span>
@@ -1175,10 +1168,14 @@ tbody tr:hover { background: var(--table-hover); }
                 </table>
             </div>
         </div>
+
     </div>
 
-    <!-- HALAMAN RIWAYAT TRANSAKSI -->
+    <!-- =========================================================
+         HALAMAN 3: RIWAYAT TRANSAKSI (PROTEKSI PIN)
+    ========================================================= -->
     <div class="page" id="transaksiPage">
+       
         <div class="card">
             <div class="card-title">
                 <span>Riwayat Transaksi Barang</span>
@@ -1227,11 +1224,14 @@ tbody tr:hover { background: var(--table-hover); }
                 </table>
             </div>
         </div>
+
     </div>
 
 </div>
 
-<!-- MODAL PIN AKSES -->
+<!-- =========================================================
+     MODAL PIN AKSES RIWAYAT TRANSAKSI (LENGKAP IKON MATA)
+========================================================= -->
 <div class="modal" id="pinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
@@ -1257,7 +1257,7 @@ tbody tr:hover { background: var(--table-hover); }
     </div>
 </div>
 
-<!-- MODAL UBAH PIN -->
+<!-- MODAL UBAH PIN (LENGKAP IKON MATA PADA 3 INPUT) -->
 <div class="modal" id="ubahPinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
@@ -1351,9 +1351,9 @@ tbody tr:hover { background: var(--table-hover); }
     Manual Stock Management System &bull; by Nicholas Sulistio
 </div>
 
-</div>
+</div> <!-- END MAIN APP -->
 
-<!-- JAVASCRIPT LOGIC DENGAN SINKRONISASI MULTI-DEVICE -->
+<!-- JAVASCRIPT LOGIC -->
 <script>
 const USERS_KEY = "SISTEM_STOK_USERS_LIST";
 const CURRENT_USER_KEY = "SISTEM_STOK_LOGGED_USER";
@@ -1380,38 +1380,6 @@ const namaBulan = [
 ];
 
 /* =========================================================
-   MESIN SINKRONISASI MULTI-DEVICE (BROADCAST & REMOTE SYNC)
-========================================================= */
-const broadcastChannel = new BroadcastChannel('sistem_stok_multi_device_channel');
-
-broadcastChannel.onmessage = (event) => {
-    if (event.data && event.data.type === 'SYNC_DATA') {
-        loadDataFromPayload(event.data.payload);
-        updateApp();
-    }
-};
-
-function notifyOtherDevices() {
-    const payload = {
-        users: localStorage.getItem(USERS_KEY),
-        transaksi: localStorage.getItem(STORAGE_KEY),
-        pin: localStorage.getItem(PIN_KEY)
-    };
-    broadcastChannel.postMessage({ type: 'SYNC_DATA', payload });
-    // Cloud Storage Relay Fallback untuk Beda Browser/Device
-    try {
-        window.name = JSON.stringify(payload);
-    } catch(e) {}
-}
-
-window.addEventListener('storage', (e) => {
-    if (e.key === STORAGE_KEY || e.key === USERS_KEY || e.key === PIN_KEY) {
-        loadData();
-        updateApp();
-    }
-});
-
-/* =========================================================
    LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD)
 ========================================================= */
 function getUsers() {
@@ -1425,7 +1393,6 @@ function getUsers() {
 
 function saveUsers(users) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    notifyOtherDevices();
 }
 
 function showAuthCard(cardId) {
@@ -1549,6 +1516,7 @@ function prosesLogout() {
     }
 }
 
+/* FUNKSI TOGGLE SHOW/HIDE PASSWORD PIN */
 function togglePasswordVisibility(inputId, btn) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -1561,6 +1529,7 @@ function togglePasswordVisibility(inputId, btn) {
     }
 }
 
+/* 1. SISTEM GANTI TEMA WARNA */
 function initTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
     changeTheme(savedTheme);
@@ -1576,6 +1545,7 @@ function changeTheme(themeName) {
     localStorage.setItem(THEME_KEY, themeName);
 }
 
+/* 2. KEAMANAN & VERIFIKASI PIN */
 function getStoredPin() {
     return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
 }
@@ -1657,11 +1627,11 @@ function simpanPinBaru() {
     }
 
     localStorage.setItem(PIN_KEY, pinBaru);
-    notifyOtherDevices();
     alert("PIN Akses berhasil diperbarui!");
     tutupModalUbahPin();
 }
 
+/* 3. MANAGEMENT NAVIGASI TABS */
 function switchPage(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1683,13 +1653,7 @@ function switchPage(pageId) {
     }
 }
 
-function loadDataFromPayload(payload) {
-    if (!payload) return;
-    if (payload.transaksi) {
-        try { transaksi = JSON.parse(payload.transaksi); } catch(e){}
-    }
-}
-
+/* 4. LOCAL STORAGE MANAGEMENT */
 function loadData() {
     try {
         const dataUtama = localStorage.getItem(STORAGE_KEY);
@@ -1722,12 +1686,12 @@ function loadData() {
 function saveData() {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(transaksi));
-        notifyOtherDevices();
     } catch (e) {
-        alert("Gagal menyimpan data!");
+        alert("Gagal menyimpan data ke Local Storage browser!");
     }
 }
 
+/* 5. FORMATTER & HELPERS */
 function formatAngka(num) {
     return Number(num || 0).toLocaleString("id-ID");
 }
@@ -1741,10 +1705,12 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
+/* FORMAT HEADER UTAMA (Contoh: 9 OKTOBER 2026) */
 function formatHeaderDate(date) {
     return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
 }
 
+/* FORMAT TANGGAL DD-MM-YYYY UTK FORM & TABEL */
 function getCurrentDateTime() {
     const now = new Date();
     return {
@@ -1762,7 +1728,9 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
+/* 6. LOGIKA HITUNG STOK & DASHBOARD */
 function hitungStokPerBarang() {
+    // 1. Pemetaan Nama Barang Utama berdasarkan Kode Barang (secara otomatis)
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
         const item = transaksi[i];
@@ -1772,6 +1740,7 @@ function hitungStokPerBarang() {
         }
     }
 
+    // 2. Akumulasi Stok Per Barang (Kode + Warna)
     const mapStok = {};
     transaksi.forEach(item => {
         const kodeKey = normalizeKode(item.kode);
@@ -1808,6 +1777,7 @@ function updateDashboard() {
     if (document.getElementById('totalStok')) document.getElementById('totalStok').textContent = formatAngka(tMasuk - tKeluar);
 }
 
+/* 7. SEARCHABLE DATALIST BARANG KELUAR */
 function handleJenisChange() {
     const jenis = document.getElementById('jenis').value;
     const containerPilih = document.getElementById('containerPilihStok');
@@ -1870,6 +1840,7 @@ function handleBarangKeluarSelect(selectedVal) {
     }
 }
 
+/* 8. PROSES SIMPAN TRANSAKSI */
 function simpanTransaksi() {
     const jenis = document.getElementById('jenis').value;
     const kode = normalizeKode(document.getElementById('kode').value);
@@ -1932,6 +1903,7 @@ function resetForm() {
     resetFormInput();
 }
 
+/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
 function renderPenjualan() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
@@ -1975,6 +1947,7 @@ function renderStok() {
 
     tbody.innerHTML = '';
     
+    // Filter dan Pengurutan (Sort berdasarkan Kode Barang, lalu Warna A-Z)
     const listStok = Object.values(mapStok)
         .filter(item => {
             return item.kode.toLowerCase().includes(query) ||
@@ -2054,6 +2027,7 @@ function renderTransaksi() {
     });
 }
 
+/* 10. MODAL EDIT & DELETE */
 function bukaEdit(index) {
     editIndex = index;
     const item = transaksi[index];
@@ -2109,6 +2083,7 @@ function hapusTransaksi(index) {
     }
 }
 
+/* 11. EXPORT & IMPORT EXCEL / BACKUP */
 function exportExcel() {
     if (transaksi.length === 0) {
         alert("Tidak ada data transaksi untuk di-export!");
@@ -2191,6 +2166,7 @@ function backupJSON() {
     dl.remove();
 }
 
+/* 12. SINKRONISASI APLIKASI */
 function updateApp() {
     updateDashboard();
    

@@ -123,6 +123,212 @@ body {
 }
 
 /* =========================================================
+   AUTHENTICATION PAGES (MODERN & ELEGANT DESIGN)
+========================================================= */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Dekorasi Bola Cahaya Latar Belakang */
+.auth-wrapper::before,
+.auth-wrapper::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.auth-wrapper::before {
+    width: 320px;
+    height: 320px;
+    background: #3b82f6;
+    top: -50px;
+    left: -50px;
+}
+
+.auth-wrapper::after {
+    width: 380px;
+    height: 380px;
+    background: #8b5cf6;
+    bottom: -60px;
+    right: -60px;
+}
+
+.auth-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 20px;
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    animation: authFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes authFadeUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-brand .brand-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #1e88e5, #0d47a1);
+    color: white;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 8px 20px rgba(30, 136, 229, 0.35);
+    margin-bottom: 12px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-header h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+}
+
+.auth-header p {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.auth-form .form-group {
+    margin-bottom: 18px;
+}
+
+.auth-form label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #334155;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    background: #f8fafc;
+    color: #0f172a;
+    transition: all 0.25s ease;
+}
+
+.auth-form input:focus {
+    border-color: #1e88e5;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15);
+}
+
+.auth-form .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    justify-content: center;
+    box-shadow: 0 8px 18px rgba(30, 136, 229, 0.3);
+    transition: all 0.25s ease;
+}
+
+.auth-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 22px rgba(30, 136, 229, 0.4);
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+}
+
+.auth-links {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 18px;
+}
+
+.auth-links a {
+    color: #1e88e5;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.auth-links a:hover {
+    color: #0d47a1;
+    text-decoration: underline;
+}
+
+/* USER BADGE DIPINDAHKAN KE PALING BAWAH KIRI (FIXED) */
+.user-badge-fixed {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    z-index: 999;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.btn-logout {
+    background: var(--danger);
+    color: white;
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background: #b71c1c;
+}
+
+/* =========================================================
    2. HEADER & NAVIGATION
 ========================================================= */
 .header {
@@ -374,6 +580,37 @@ body.theme-dark .tab-btn.active {
     background-color: var(--primary-light);
 }
 
+/* INPUT WITH EYE ICON CSS */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 42px !important;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 6px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    color: var(--primary);
+    transform: none;
+    box-shadow: none;
+}
+
 /* =========================================================
    6. BUTTONS & TOOLBAR
 ========================================================= */
@@ -499,9 +736,12 @@ tbody tr:hover { background: var(--table-hover); }
 .badge-masuk { background: var(--success-light); color: var(--success); }
 .badge-keluar { background: var(--danger-light); color: var(--danger); }
 
-/* BADGE KOTAK TEBAL UNTUK SISA STOK & JUMLAH BARANG PENJUALAN */
+/* BADGE KOTAK SIMETRIS UNTUK SISA STOK & JUMLAH BARANG PENJUALAN */
 .stok-box {
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 60px;
     padding: 5px 12px;
     background: var(--primary-light);
     color: var(--primary);
@@ -509,6 +749,12 @@ tbody tr:hover { background: var(--table-hover); }
     border-radius: 6px;
     font-weight: 700;
     font-size: 13px;
+    text-align: center;
+}
+
+/* CSS AGAR ISI TABEL PENJUALAN BOLD SEMUA */
+#penjualanBody td {
+    font-weight: 700;
 }
 
 /* =========================================================
@@ -575,10 +821,11 @@ tbody tr:hover { background: var(--table-hover); }
     .form-grid { grid-template-columns: 1fr; }
     .search-area, .button-area { flex-direction: column; width: 100%; }
     .search-area input, .search-area select, .button-area button { width: 100%; }
+    .user-badge-fixed { bottom: 10px; left: 10px; font-size: 12px; padding: 6px 10px; }
 }
 
 @media print {
-    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer { display: none !important; }
+    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer, .user-badge-fixed { display: none !important; }
     .card { box-shadow: none; border: 1px solid #ccc; }
     body { background: white; color: black; }
 }
@@ -586,6 +833,131 @@ tbody tr:hover { background: var(--table-hover); }
 </head>
 
 <body>
+
+<!-- =========================================================
+     SISTEM AUTENTIKASI: LOGIN, BUAT AKUN, LUPA PASSWORD
+========================================================= -->
+<div id="authContainer" class="auth-wrapper">
+    <!-- 1. FORM LOGIN -->
+    <div class="auth-card" id="loginCard">
+        <div class="auth-brand">
+            <div class="brand-icon">📦</div>
+        </div>
+        <div class="auth-header">
+            <h2>Selamat Datang</h2>
+            <p>Silakan masuk untuk mengelola sistem stok barang</p>
+        </div>
+        <form class="auth-form" onsubmit="event.preventDefault(); prosesLogin();">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Masukkan Username Anda" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="Masukkan Password Anda" required autocomplete="off">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">MASUK SISTEM</button>
+        </form>
+        <div class="auth-links">
+            <p>Belum punya akun? <a href="javascript:void(0)" onclick="showAuthCard('registerCard')">Buat Akun Baru</a></p>
+            <p style="margin-top: 8px;"><a href="javascript:void(0)" onclick="showAuthCard('forgotCard')">Lupa Password Anda?</a></p>
+        </div>
+    </div>
+
+    <!-- 2. FORM BUAT AKUN (REGISTRASI) -->
+    <div class="auth-card" id="registerCard" style="display: none;">
+        <div class="auth-brand">
+            <div class="brand-icon">📝</div>
+        </div>
+        <div class="auth-header">
+            <h2>Buat Akun Baru</h2>
+            <p>Lengkapi formulir di bawah untuk pendaftaran akun</p>
+        </div>
+        <form class="auth-form" onsubmit="event.preventDefault(); prosesRegister();">
+            <div class="form-group">
+                <label>Username Baru</label>
+                <input type="text" id="regUsername" placeholder="Contoh: admin_stok" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Pertanyaan Keamanan</label>
+                <input type="text" id="regSecurityQuestion" placeholder="Contoh: Nama hewan peliharaan Anda?" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Jawaban Keamanan</label>
+                <input type="text" id="regSecurityAnswer" placeholder="Masukkan Jawaban Keamanan" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password Baru</label>
+                <div class="password-wrapper">
+                    <input type="password" id="regPassword" placeholder="Minimal 4 karakter" required autocomplete="off">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👁️</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">DAFTAR SEKARANG</button>
+        </form>
+        <div class="auth-links">
+            <p>Sudah memiliki akun? <a href="javascript:void(0)" onclick="showAuthCard('loginCard')">Masuk Kembali</a></p>
+        </div>
+    </div>
+
+    <!-- 3. FORM LUPA PASSWORD -->
+    <div class="auth-card" id="forgotCard" style="display: none;">
+        <div class="auth-brand">
+            <div class="brand-icon">🔑</div>
+        </div>
+        <div class="auth-header">
+            <h2>Lupa Password</h2>
+            <p>Reset password akun Anda dengan pertanyaan keamanan</p>
+        </div>
+        
+        <!-- STEP 1: CARI USERNAME -->
+        <form class="auth-form" id="forgotStep1" onsubmit="event.preventDefault(); verifikasiUsernameLupa();">
+            <div class="form-group">
+                <label>Username Anda</label>
+                <input type="text" id="forgotUsername" placeholder="Masukkan Username terdaftar" required autocomplete="off">
+            </div>
+            <button type="submit" class="btn-primary">VERIFIKASI AKUN</button>
+        </form>
+
+        <!-- STEP 2: JAWAB PERTANYAAN KEAMANAN & UBAH PASSWORD -->
+        <form class="auth-form" id="forgotStep2" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
+            <div class="form-group">
+                <label>Pertanyaan Keamanan:</label>
+                <p id="displaySecurityQuestion" style="font-size:13px; font-weight:700; color:#1e88e5; margin-bottom:10px; background:#e3f2fd; padding:10px; border-radius:8px;"></p>
+            </div>
+            <div class="form-group">
+                <label>Jawaban Keamanan</label>
+                <input type="text" id="forgotAnswer" placeholder="Masukkan Jawaban Keamanan" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password Baru</label>
+                <div class="password-wrapper">
+                    <input type="password" id="forgotNewPassword" placeholder="Masukkan Password Baru" required autocomplete="off">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👁️</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">RESET PASSWORD</button>
+        </form>
+
+        <div class="auth-links">
+            <p><a href="javascript:void(0)" onclick="showAuthCard('loginCard')">← Kembali ke Halaman Masuk</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     SISTEM UTAMA APLIKASI (DITAMPILKAN SETELAH LOGIN)
+========================================================= -->
+<div id="mainApp" style="display: none;">
+
+<!-- USER BADGE DI PALING BAWAH KIRI (FIXED) -->
+<div class="user-badge-fixed">
+    👤 User: <span id="displayLoggedInUser" style="color:var(--primary);">-</span>
+    <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
+</div>
 
 <!-- HEADER UTAMA -->
 <header class="header">
@@ -723,11 +1095,12 @@ tbody tr:hover { background: var(--table-hover); }
                 <table>
                     <thead>
                         <tr>
-                            <th class="text-center">No</th>
                             <th>Tanggal</th>
-                            <th>Jam</th>
                             <th>Nama Customer</th>
-                            <th class="text-right">Jumlah Barang yang di beli</th>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Warna</th>
+                            <th class="text-center">Jumlah Barang yang di beli</th>
                         </tr>
                     </thead>
                     <tbody id="penjualanBody"></tbody>
@@ -777,9 +1150,9 @@ tbody tr:hover { background: var(--table-hover); }
                             <th>Kode Barang</th>
                             <th>Nama Barang</th>
                             <th>Warna</th>
-                            <th class="text-right">Total Masuk</th>
-                            <th class="text-right">Total Keluar</th>
-                            <th class="text-right">Sisa Stok</th>
+                            <th class="text-center">Total Masuk</th>
+                            <th class="text-center">Total Keluar</th>
+                            <th class="text-center">Sisa Stok</th>
                         </tr>
                     </thead>
                     <tbody id="stokBody"></tbody>
@@ -834,7 +1207,7 @@ tbody tr:hover { background: var(--table-hover); }
                             <th>Nama Barang</th>
                             <th>Warna</th>
                             <th>Customer</th>
-                            <th class="text-right">Jumlah Barang</th>
+                            <th class="text-center">Jumlah Barang</th>
                             <th class="text-center">Edit / Hapus</th>
                         </tr>
                     </thead>
@@ -848,7 +1221,7 @@ tbody tr:hover { background: var(--table-hover); }
 </div>
 
 <!-- =========================================================
-     MODAL PIN AKSES RIWAYAT TRANSAKSI
+     MODAL PIN AKSES RIWAYAT TRANSAKSI (LENGKAP IKON MATA)
 ========================================================= -->
 <div class="modal" id="pinModal">
     <div class="modal-box" style="max-width: 420px;">
@@ -862,7 +1235,10 @@ tbody tr:hover { background: var(--table-hover); }
             </p>
             <div class="form-group">
                 <label>PIN Akses</label>
-                <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
+                <div class="password-wrapper">
+                    <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👁️</button>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -872,7 +1248,7 @@ tbody tr:hover { background: var(--table-hover); }
     </div>
 </div>
 
-<!-- MODAL UBAH PIN -->
+<!-- MODAL UBAH PIN (LENGKAP IKON MATA PADA 3 INPUT) -->
 <div class="modal" id="ubahPinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
@@ -882,15 +1258,24 @@ tbody tr:hover { background: var(--table-hover); }
         <div class="modal-body">
             <div class="form-group" style="margin-bottom:12px;">
                 <label>PIN Lama</label>
-                <input type="password" id="pinLama" placeholder="Masukkan PIN Lama">
+                <div class="password-wrapper">
+                    <input type="password" id="pinLama" placeholder="Masukkan PIN Lama">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinLama', this)">👁️</button>
+                </div>
             </div>
             <div class="form-group" style="margin-bottom:12px;">
                 <label>PIN Baru</label>
-                <input type="password" id="pinBaru" placeholder="Masukkan PIN Baru">
+                <div class="password-wrapper">
+                    <input type="password" id="pinBaru" placeholder="Masukkan PIN Baru">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinBaru', this)">👁️</button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Konfirmasi PIN Baru</label>
-                <input type="password" id="pinKonfirmasi" placeholder="Ulangi PIN Baru">
+                <div class="password-wrapper">
+                    <input type="password" id="pinKonfirmasi" placeholder="Ulangi PIN Baru">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinKonfirmasi', this)">👁️</button>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -957,8 +1342,12 @@ tbody tr:hover { background: var(--table-hover); }
     Manual Stock Management System &bull; by Nicholas Sulistio
 </div>
 
+</div> <!-- END MAIN APP -->
+
 <!-- JAVASCRIPT LOGIC -->
 <script>
+const USERS_KEY = "SISTEM_STOK_USERS_LIST";
+const CURRENT_USER_KEY = "SISTEM_STOK_LOGGED_USER";
 const STORAGE_KEY = "SISTEM_POTONG_STOK_DATA_PERMANEN";
 const PIN_KEY = "SISTEM_STOK_PIN_AKSES";
 const THEME_KEY = "SISTEM_STOK_THEME_MODE";
@@ -974,11 +1363,165 @@ const OLD_STORAGE_KEYS = [
 let transaksi = [];
 let editIndex = null;
 let isAuthorized = false;
+let forgotTargetUser = null;
 
 const namaBulan = [
     "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
     "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
 ];
+
+/* =========================================================
+   LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD)
+========================================================= */
+function getUsers() {
+    try {
+        const users = localStorage.getItem(USERS_KEY);
+        return users ? JSON.parse(users) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function showAuthCard(cardId) {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('registerCard').style.display = 'none';
+    document.getElementById('forgotCard').style.display = 'none';
+    document.getElementById(cardId).style.display = 'block';
+
+    if (cardId === 'forgotCard') {
+        document.getElementById('forgotStep1').style.display = 'block';
+        document.getElementById('forgotStep2').style.display = 'none';
+        document.getElementById('forgotUsername').value = '';
+        forgotTargetUser = null;
+    }
+}
+
+function prosesRegister() {
+    const username = document.getElementById('regUsername').value.trim();
+    const question = document.getElementById('regSecurityQuestion').value.trim();
+    const answer = document.getElementById('regSecurityAnswer').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+
+    if (!username || !question || !answer || !password) {
+        alert("Mohon lengkapi semua bidang pendaftaran!");
+        return;
+    }
+
+    const users = getUsers();
+    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+        alert("Username tersebut sudah terdaftar! Gunakan username lain.");
+        return;
+    }
+
+    users.push({ username, question, answer, password });
+    saveUsers(users);
+    alert("Akun berhasil dibuat! Silakan login.");
+    showAuthCard('loginCard');
+    document.getElementById('loginUsername').value = username;
+}
+
+function prosesLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    const users = getUsers();
+    const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+
+    if (userFound) {
+        localStorage.setItem(CURRENT_USER_KEY, userFound.username);
+        checkSession();
+    } else {
+        alert("Username atau Password salah!");
+    }
+}
+
+function verifikasiUsernameLupa() {
+    const username = document.getElementById('forgotUsername').value.trim();
+    const users = getUsers();
+    const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (!userFound) {
+        alert("Username tidak ditemukan!");
+        return;
+    }
+
+    forgotTargetUser = userFound;
+    document.getElementById('displaySecurityQuestion').textContent = userFound.question;
+    document.getElementById('forgotStep1').style.display = 'none';
+    document.getElementById('forgotStep2').style.display = 'block';
+}
+
+function prosesResetPassword() {
+    const answer = document.getElementById('forgotAnswer').value.trim().toLowerCase();
+    const newPassword = document.getElementById('forgotNewPassword').value;
+
+    if (!forgotTargetUser) return;
+
+    if (answer !== forgotTargetUser.answer) {
+        alert("Jawaban keamanan salah!");
+        return;
+    }
+
+    if (!newPassword || newPassword.length < 3) {
+        alert("Password baru terlalu pendek!");
+        return;
+    }
+
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.username.toLowerCase() === forgotTargetUser.username.toLowerCase());
+
+    if (userIndex !== -1) {
+        users[userIndex].password = newPassword;
+        saveUsers(users);
+        alert("Password berhasil diubah! Silakan login dengan password baru.");
+        showAuthCard('loginCard');
+    }
+}
+
+function checkSession() {
+    const loggedUser = localStorage.getItem(CURRENT_USER_KEY);
+    const authContainer = document.getElementById('authContainer');
+    const mainApp = document.getElementById('mainApp');
+
+    if (loggedUser) {
+        authContainer.style.display = 'none';
+        mainApp.style.display = 'block';
+        document.getElementById('displayLoggedInUser').textContent = loggedUser;
+        initTheme();
+        loadData();
+        updateClock();
+        updateApp();
+    } else {
+        authContainer.style.display = 'flex';
+        mainApp.style.display = 'none';
+        showAuthCard('loginCard');
+    }
+}
+
+function prosesLogout() {
+    if (confirm("Apakah Anda yakin ingin keluar dari sistem?")) {
+        localStorage.removeItem(CURRENT_USER_KEY);
+        isAuthorized = false;
+        checkSession();
+    }
+}
+
+/* FUNKSI TOGGLE SHOW/HIDE PASSWORD PIN */
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈";
+    } else {
+        input.type = "password";
+        btn.textContent = "👁️";
+    }
+}
 
 /* 1. SISTEM GANTI TEMA WARNA */
 function initTheme() {
@@ -1006,6 +1549,10 @@ function tryAccessTransaksi() {
         switchPage('transaksiPage');
     } else {
         document.getElementById('inputPinAkses').value = '';
+        document.getElementById('inputPinAkses').type = 'password';
+        const eyeBtn = document.querySelector('#pinModal .toggle-password');
+        if (eyeBtn) eyeBtn.textContent = '👁️';
+
         document.getElementById('pinModal').classList.add('active');
         setTimeout(() => document.getElementById('inputPinAkses').focus(), 100);
     }
@@ -1038,9 +1585,14 @@ function kunciAkses() {
 }
 
 function bukaModalUbahPin() {
-    document.getElementById('pinLama').value = '';
-    document.getElementById('pinBaru').value = '';
-    document.getElementById('pinKonfirmasi').value = '';
+    ['pinLama', 'pinBaru', 'pinKonfirmasi'].forEach(id => {
+        const inp = document.getElementById(id);
+        if (inp) {
+            inp.value = '';
+            inp.type = 'password';
+        }
+    });
+    document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👁️');
     document.getElementById('ubahPinModal').classList.add('active');
 }
 
@@ -1147,21 +1699,23 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
-function formatTanggalIndonesia(date) {
+/* FORMAT HEADER UTAMA (Contoh: 9 OKTOBER 2026) */
+function formatHeaderDate(date) {
     return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
 }
 
+/* FORMAT TANGGAL DD-MM-YYYY UTK FORM & TABEL */
 function getCurrentDateTime() {
     const now = new Date();
     return {
-        tanggal: now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()),
+        tanggal: pad(now.getDate()) + "-" + pad(now.getMonth() + 1) + "-" + now.getFullYear(),
         jam: pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds())
     };
 }
 
 function updateClock() {
     const now = new Date();
-    document.getElementById("headerDate").textContent = formatTanggalIndonesia(now);
+    if (document.getElementById("headerDate")) document.getElementById("headerDate").textContent = formatHeaderDate(now);
    
     const dt = getCurrentDateTime();
     if (document.getElementById("tanggal")) document.getElementById("tanggal").value = dt.tanggal;
@@ -1170,13 +1724,27 @@ function updateClock() {
 
 /* 6. LOGIKA HITUNG STOK & DASHBOARD */
 function hitungStokPerBarang() {
+    // 1. Pemetaan Nama Barang Utama berdasarkan Kode Barang (secara otomatis)
+    const mapNamaUtama = {};
+    for (let i = transaksi.length - 1; i >= 0; i--) {
+        const item = transaksi[i];
+        const kodeKey = normalizeKode(item.kode);
+        if (kodeKey && item.nama && item.nama.trim() !== '') {
+            mapNamaUtama[kodeKey] = item.nama.trim();
+        }
+    }
+
+    // 2. Akumulasi Stok Per Barang (Kode + Warna)
     const mapStok = {};
     transaksi.forEach(item => {
+        const kodeKey = normalizeKode(item.kode);
         const key = getStockKey(item.kode, item.warna);
+        const namaBarangSeragam = mapNamaUtama[kodeKey] || item.nama;
+
         if (!mapStok[key]) {
             mapStok[key] = {
                 kode: item.kode,
-                nama: item.nama,
+                nama: namaBarangSeragam,
                 warna: item.warna,
                 masuk: 0,
                 keluar: 0,
@@ -1341,23 +1909,25 @@ function renderPenjualan() {
         const matchQuery = (item.customer || '').toLowerCase().includes(query) ||
                            item.tanggal.includes(query) ||
                            item.nama.toLowerCase().includes(query) ||
-                           item.kode.toLowerCase().includes(query);
+                           item.kode.toLowerCase().includes(query) ||
+                           item.warna.toLowerCase().includes(query);
         return matchQuery;
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty">Belum ada data penjualan Recorded.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">Belum ada data penjualan Recorded.</td></tr>`;
         return;
     }
 
-    filtered.forEach((item, index) => {
+    filtered.forEach((item) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="text-center">${index + 1}</td>
             <td>${escapeHTML(item.tanggal)}</td>
-            <td>${escapeHTML(item.jam)}</td>
-            <td><strong>${escapeHTML(item.customer || '-')}</strong></td>
-            <td class="text-right"><span class="stok-box">${formatAngka(item.jumlah)}</span></td>
+            <td>${escapeHTML(item.customer || '-')}</td>
+            <td>${escapeHTML(item.kode || '-')}</td>
+            <td>${escapeHTML(item.nama || '-')}</td>
+            <td>${escapeHTML(item.warna || '-')}</td>
+            <td class="text-center"><span class="stok-box">${formatAngka(item.jumlah)}</span></td>
         `;
         tbody.appendChild(tr);
     });
@@ -1370,11 +1940,20 @@ function renderStok() {
     const mapStok = hitungStokPerBarang();
 
     tbody.innerHTML = '';
-    const listStok = Object.values(mapStok).filter(item => {
-        return item.kode.toLowerCase().includes(query) ||
-               item.nama.toLowerCase().includes(query) ||
-               item.warna.toLowerCase().includes(query);
-    });
+    
+    // Filter dan Pengurutan (Sort berdasarkan Kode Barang, lalu Warna A-Z)
+    const listStok = Object.values(mapStok)
+        .filter(item => {
+            return item.kode.toLowerCase().includes(query) ||
+                   item.nama.toLowerCase().includes(query) ||
+                   item.warna.toLowerCase().includes(query);
+        })
+        .sort((a, b) => {
+            if (a.kode === b.kode) {
+                return a.warna.localeCompare(b.warna, 'id', { sensitivity: 'base' });
+            }
+            return a.kode.localeCompare(b.kode, 'id', { sensitivity: 'base' });
+        });
 
     if (listStok.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="empty">Tidak ada data stok barang.</td></tr>`;
@@ -1387,9 +1966,9 @@ function renderStok() {
             <td><strong>${escapeHTML(item.kode)}</strong></td>
             <td>${escapeHTML(item.nama)}</td>
             <td>${escapeHTML(item.warna)}</td>
-            <td class="text-right">${formatAngka(item.masuk)}</td>
-            <td class="text-right">${formatAngka(item.keluar)}</td>
-            <td class="text-right"><span class="stok-box">${formatAngka(item.sisa)}</span></td>
+            <td class="text-center">${formatAngka(item.masuk)}</td>
+            <td class="text-center">${formatAngka(item.keluar)}</td>
+            <td class="text-center"><span class="stok-box">${formatAngka(item.sisa)}</span></td>
         `;
         tbody.appendChild(tr);
     });
@@ -1432,7 +2011,7 @@ function renderTransaksi() {
             <td>${escapeHTML(item.nama)}</td>
             <td>${escapeHTML(item.warna)}</td>
             <td>${escapeHTML(item.customer || '-')}</td>
-            <td class="text-right">${formatAngka(item.jumlah)}</td>
+            <td class="text-center">${formatAngka(item.jumlah)}</td>
             <td class="text-center">
                 <button class="btn-edit" onclick="bukaEdit(${realIndex})">Edit</button>
                 <button class="btn-delete" onclick="hapusTransaksi(${realIndex})">Hapus</button>
@@ -1601,13 +2180,9 @@ function updateApp() {
 
 /* INITIALIZATION */
 window.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    loadData();
-    updateClock();
+    checkSession();
     setInterval(updateClock, 1000);
-    updateApp();
 });
-   
 </script>
 </body>
 </html>

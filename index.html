@@ -1047,10 +1047,10 @@ tbody tr:hover { background: var(--table-hover); }
                 Form Input
             </button>
             <button class="tab-btn" id="tabPenjualanBtn" onclick="switchPage('penjualanPage')">
-                Penjualan
+                Report Penjualan
             </button>
             <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
-                Sisa Stok Barang
+                Report Stok Barang
             </button>
             <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
                 🔒︎ Riwayat Transaksi
@@ -1139,7 +1139,7 @@ tbody tr:hover { background: var(--table-hover); }
 
                 <div class="form-group">
                     <label>Jumlah Barang</label>
-                    <input type="number" id="jumlah" min="1" step="1" placeholder="Masukkan Jumlah Barang">
+                    <input type="number" id="jumlah" min="1" step="1" placeholder="Masukkan Jumlah Barang" oninput="validateJumlahStok(this)">
                 </div>
             </div>
 
@@ -1475,6 +1475,7 @@ const STORAGE_KEY = "SISTEM_POTONG_STOK_DATA_PERMANEN";
 const PIN_KEY = "SISTEM_STOK_PIN_AKSES";
 const THEME_KEY = "SISTEM_STOK_THEME_MODE";
 const PAGE_KEY = "SISTEM_STOK_LAST_ACTIVE_PAGE";
+const AUTH_STATUS_KEY = "SISTEM_STOK_IS_AUTHORIZED";
 const DEFAULT_PIN = "1234";
 
 const OLD_STORAGE_KEYS = [
@@ -1617,18 +1618,20 @@ function checkSession() {
         loadData();
         updateClock();
         
-        // Cek halaman terakhir sebelum direfresh
-        const savedPage = localStorage.getItem(PAGE_KEY);
-        if (savedPage && savedPage !== 'inputPage') {
-            if (savedPage === 'transaksiPage' && !isAuthorized) {
-                switchPage('inputPage');
-            } else {
-                switchPage(savedPage);
-            }
-        } else {
-            switchPage('inputPage');
+        // Membaca status otorisasi PIN yang tersimpan
+        if (sessionStorage.getItem(AUTH_STATUS_KEY) === 'true') {
+            isAuthorized = true;
+            document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi (Terbuka)";
         }
-        
+
+        // Buka halaman terakhir yang tersimpan saat di-refresh
+        const savedPage = localStorage.getItem(PAGE_KEY) || 'inputPage';
+        if (savedPage === 'transaksiPage' && !isAuthorized) {
+            switchPage('inputPage');
+        } else {
+            switchPage(savedPage);
+        }
+
         updateApp();
     } else {
         authContainer.style.display = 'flex';
@@ -1641,6 +1644,7 @@ function prosesLogout() {
     if (confirm("Apakah Anda yakin ingin keluar dari sistem?")) {
         localStorage.removeItem(CURRENT_USER_KEY);
         localStorage.removeItem(PAGE_KEY);
+        sessionStorage.removeItem(AUTH_STATUS_KEY);
         isAuthorized = false;
         checkSession();
     }
@@ -1700,6 +1704,7 @@ function verifikasiPin() {
 
     if (inputPin === storedPin) {
         isAuthorized = true;
+        sessionStorage.setItem(AUTH_STATUS_KEY, 'true');
         tutupModalPin();
         switchPage('transaksiPage');
         document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi (Terbuka)";
@@ -1715,6 +1720,7 @@ function tutupModalPin() {
 
 function kunciAkses() {
     isAuthorized = false;
+    sessionStorage.removeItem(AUTH_STATUS_KEY);
     document.getElementById('tabTransaksiBtn').innerHTML = "🔒︎ Riwayat Transaksi";
     switchPage('inputPage');
     alert("Akses ke halaman Riwayat Transaksi berhasil dikunci kembali.");
@@ -1925,7 +1931,7 @@ function updateDashboard() {
     if (document.getElementById('totalStok')) document.getElementById('totalStok').textContent = formatAngka(tMasuk - tKeluar);
 }
 
-/* 7. SEARCHABLE DATALIST BARANG KELUAR */
+/* 7. SEARCHABLE DATALIST BARANG KELUAR & VALIDASI STOK MAX */
 function handleJenisChange() {
     const jenis = document.getElementById('jenis').value;
     const containerPilih = document.getElementById('containerPilihStok');
@@ -1933,6 +1939,7 @@ function handleJenisChange() {
     const inputKode = document.getElementById('kode');
     const inputNama = document.getElementById('nama');
     const inputWarna = document.getElementById('warna');
+    const inputJumlah = document.getElementById('jumlah');
 
     if (jenis === 'keluar') {
         containerPilih.style.display = 'flex';
@@ -1947,6 +1954,9 @@ function handleJenisChange() {
         inputKode.readOnly = false;
         inputNama.readOnly = false;
         inputWarna.readOnly = false;
+        if (inputJumlah) {
+            inputJumlah.removeAttribute('max');
+        }
         resetFormInput();
     }
 }
@@ -1967,10 +1977,16 @@ function populateDatalistStok() {
 }
 
 function handleBarangKeluarSelect(selectedVal) {
+    const inputJumlah = document.getElementById('jumlah');
+
     if (!selectedVal) {
         document.getElementById('kode').value = '';
         document.getElementById('nama').value = '';
         document.getElementById('warna').value = '';
+        if (inputJumlah) {
+            inputJumlah.placeholder = 'Masukkan Jumlah Barang';
+            inputJumlah.removeAttribute('max');
+        }
         return;
     }
 
@@ -1984,7 +2000,27 @@ function handleBarangKeluarSelect(selectedVal) {
         document.getElementById('kode').value = barangFound.kode;
         document.getElementById('nama').value = barangFound.nama;
         document.getElementById('warna').value = barangFound.warna;
-        document.getElementById('jumlah').placeholder = `Maksimal: ${barangFound.sisa}`;
+        if (inputJumlah) {
+            inputJumlah.placeholder = `Maksimal: ${barangFound.sisa}`;
+            inputJumlah.setAttribute('max', barangFound.sisa);
+            if (parseInt(inputJumlah.value) > barangFound.sisa) {
+                inputJumlah.value = barangFound.sisa;
+            }
+        }
+    }
+}
+
+/* VALIDASI REALTIME JUMLAH BARANG KELUAR TIDAK BISA MELEBIHI SISA STOK */
+function validateJumlahStok(inputElem) {
+    const jenis = document.getElementById('jenis').value;
+    if (jenis !== 'keluar') return;
+
+    const maxVal = parseInt(inputElem.getAttribute('max'));
+    const val = parseInt(inputElem.value);
+
+    if (maxVal && val > maxVal) {
+        alert(`Jumlah barang tidak bisa melebihi sisa stok yang tersedia!\nSisa stok maksimum: ${maxVal}`);
+        inputElem.value = maxVal;
     }
 }
 
@@ -2013,6 +2049,7 @@ function simpanTransaksi() {
 
         if (jumlah > stokSaatIni) {
             alert(`Jumlah melebihi stok yang ada!\nSisa stok [${kode} - ${warna}] saat ini hanya: ${stokSaatIni}`);
+            document.getElementById('jumlah').value = stokSaatIni;
             return;
         }
     }
@@ -2044,6 +2081,7 @@ function resetFormInput() {
     if (document.getElementById('jumlah')) {
         document.getElementById('jumlah').value = '';
         document.getElementById('jumlah').placeholder = 'Masukkan Jumlah Barang';
+        document.getElementById('jumlah').removeAttribute('max');
     }
 }
 

@@ -587,24 +587,17 @@ body.theme-dark .tab-btn.active {
     box-shadow: none;
 }
 
-/* TOMBOL LIHAT TOTAL SELURUH STOK DI HEADER KARTU */
-.btn-toggle-total-stok {
+/* TAMPILAN TOTAL SELURUH STOK DI HEADER KARTU */
+.badge-total-stok {
     background: var(--primary);
     color: white;
     padding: 6px 14px;
-    font-size: 12px;
+    font-size: 13px;
     border-radius: var(--radius-md);
     font-weight: 700;
-    cursor: pointer;
-    border: none;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.2s ease;
-}
-
-.btn-toggle-total-stok:hover {
-    background: var(--primary-dark);
 }
 
 /* =========================================================
@@ -858,6 +851,11 @@ tbody tr:hover { background: var(--table-hover); }
 .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; }
 #uploadExcelInput { display: none; }
 
+/* DOKUMEN CETAK ELEGAN (HANYA TAMPIL SAAT CETAK) */
+.print-only-header {
+    display: none;
+}
+
 /* =========================================================
    MEDIA QUERIES (OPTIMASI HANDPHONE / MOBILE)
 ========================================================= */
@@ -894,10 +892,139 @@ tbody tr:hover { background: var(--table-hover); }
     .modal-footer button { width: 100%; }
 }
 
+/* =========================================================
+   DESAIN LAYOUT PRINT SANGAT RAPI DAN FORMAL
+========================================================= */
 @media print {
-    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer { display: none !important; }
-    .card { box-shadow: none; border: 1px solid #ccc; }
-    body { background: white; color: black; }
+    @page {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: 'Segoe UI', Arial, sans-serif !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer, .auth-wrapper {
+        display: none !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+    }
+
+    .card-title {
+        border-bottom: 2px solid #000000;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .card-title span {
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-total-stok {
+        background: transparent !important;
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+        padding: 4px 10px !important;
+        font-size: 13px !important;
+        border-radius: 4px !important;
+    }
+
+    /* HEADER KHUSUS CETAK DOKUMEN LAPORAN */
+    .print-only-header {
+        display: block !important;
+        margin-bottom: 20px;
+        border-bottom: 3px double #000000;
+        padding-bottom: 12px;
+    }
+
+    .print-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .print-header-brand h1 {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+        color: #000;
+        text-transform: uppercase;
+    }
+
+    .print-header-brand p {
+        font-size: 11px;
+        color: #444;
+        margin-top: 2px;
+    }
+
+    .print-header-meta {
+        text-align: right;
+        font-size: 11px;
+        color: #333;
+    }
+
+    .table-wrapper {
+        border: 1px solid #000000 !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+    }
+
+    table {
+        width: 100% !important;
+        min-width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th {
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+        font-weight: 700 !important;
+        border: 1px solid #000000 !important;
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        text-transform: uppercase;
+    }
+
+    td {
+        border: 1px solid #000000 !important;
+        padding: 7px 10px !important;
+        font-size: 12px !important;
+        color: #000000 !important;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    .stok-box, .stok-habis-box {
+        border: none !important;
+        background: transparent !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        min-width: auto !important;
+    }
 }
 </style>
 </head>
@@ -915,7 +1042,7 @@ tbody tr:hover { background: var(--table-hover); }
         </div>
         <div class="auth-header">
             <h2>Selamat Datang</h2>
-            <p>Silakan masuk untuk mengelola sistem stok barang</p>
+            <p>Manual Stock System</p>
         </div>
         <form class="auth-form" onsubmit="event.preventDefault(); prosesLogin();">
             <div class="form-group">
@@ -929,7 +1056,7 @@ tbody tr:hover { background: var(--table-hover); }
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👀</button>
                 </div>
             </div>
-            <button type="submit" class="btn-primary">MASUK SISTEM</button>
+            <button type="submit" class="btn-primary">LOGIN</button>
         </form>
         <div class="auth-links">
             <p>Belum punya akun? <a href="javascript:void(0)" onclick="showAuthCard('registerCard')">Buat Akun Baru</a></p>
@@ -948,11 +1075,11 @@ tbody tr:hover { background: var(--table-hover); }
         </div>
         <form class="auth-form" onsubmit="event.preventDefault(); prosesRegister();">
             <div class="form-group">
-                <label>Username Baru</label>
-                <input type="text" id="regUsername" placeholder="Contoh: admin_stok" required autocomplete="off">
+                <label>Username</label>
+                <input type="text" id="regUsername" placeholder="Nama Anda" required autocomplete="off">
             </div>
             <div class="form-group">
-                <label>Password Baru</label>
+                <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="regPassword" placeholder="Minimal 4 karakter" required autocomplete="off">
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👀</button>
@@ -1020,7 +1147,7 @@ tbody tr:hover { background: var(--table-hover); }
     <div class="header-content">
         <div class="header-title">
             <h1>Manual Stock Management System</h1>
-            <p>Sistem Pencatatan Transaksi & Operasional Stok Barang</p>
+            <p>Sistem Pencatatan & Operasional Stock Barang</p>
         </div>
         
         <!-- NAMA USER BERADA DI PALING ATAS KANAN -->
@@ -1040,7 +1167,7 @@ tbody tr:hover { background: var(--table-hover); }
                 Report Penjualan
             </button>
             <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
-                Report Stok Barang
+                Report Stock Barang
             </button>
             <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
                 🔒︎ Riwayat Transaksi
@@ -1068,6 +1195,20 @@ tbody tr:hover { background: var(--table-hover); }
 </header>
 
 <div class="container">
+
+    <!-- HEADER INFORMASI SAAT MENCETAK (PRINT ONLY) -->
+    <div class="print-only-header">
+        <div class="print-header-top">
+            <div class="print-header-brand">
+                <h1>Manual Stock Management System</h1>
+                <p>Laporan Resmi Rekapitulasi Stok Barang</p>
+            </div>
+            <div class="print-header-meta">
+                <div>Tanggal Cetak: <strong id="printHeaderDate">-</strong></div>
+                <div>Dicetak Oleh: <strong id="printHeaderUser">-</strong></div>
+            </div>
+        </div>
+    </div>
 
     <!-- =========================================================
          HALAMAN 1: INPUT TRANSAKSI
@@ -1175,7 +1316,7 @@ tbody tr:hover { background: var(--table-hover); }
                             <th>Kode Barang</th>
                             <th>Nama Barang</th>
                             <th>Warna</th>
-                            <th class="text-center">Jumlah Barang yang di beli</th>
+                            <th class="text-center">Jumlah Barang</th>
                         </tr>
                     </thead>
                     <tbody id="penjualanBody"></tbody>
@@ -1186,7 +1327,7 @@ tbody tr:hover { background: var(--table-hover); }
     </div>
 
     <!-- =========================================================
-         HALAMAN 2: SISA STOK BARANG (DENGAN TOMBOL LIHAT TOTAL SELURUH STOK DI KANAN NAMA TITLE)
+         HALAMAN 2: SISA STOK BARANG (LANGSUNG TAMPIL TOTAL SELURUH STOK)
     ========================================================= -->
     <div class="page" id="stokPage">
 
@@ -1194,15 +1335,19 @@ tbody tr:hover { background: var(--table-hover); }
         <div class="card">
             <div class="card-title">
                 <span>Stok Barang</span>
-                <!-- TOMBOL LIHAT TOTAL STOK DI SAMPING TULISAN STOK BARANG PALING KANAN -->
-                <button class="btn-toggle-total-stok" id="btnToggleTotalStok" onclick="toggleTotalStok()">
-                    Lihat Total Seluruh Stok
-                </button>
+                <!-- LANGSUNG TAMPILKAN HASIL TOTAL SELURUH STOK -->
+                <div class="badge-total-stok" id="displayTotalStok">
+                    Grand Total Stock 0 
+                </div>
             </div>
 
             <div class="toolbar">
                 <div class="search-area">
                     <input type="text" id="searchStok" placeholder="Cari berdasarkan kode, nama barang, atau warna..." oninput="renderStok()">
+                </div>
+                <!-- BUTTON PRINT SEKARANG TERSEDIA DI REPORT STOK BARANG -->
+                <div class="button-area" style="margin-top:0;">
+                    <button class="btn-print" onclick="cetakLaporanStok()">PRINT STOK</button>
                 </div>
             </div>
 
@@ -1213,7 +1358,7 @@ tbody tr:hover { background: var(--table-hover); }
                             <th>Kode Barang</th>
                             <th>Nama Barang</th>
                             <th>Warna</th>
-                            <th class="text-center">Sisa Stok</th>
+                            <th class="text-center">Sisa Stock</th>
                         </tr>
                     </thead>
                     <tbody id="stokBody"></tbody>
@@ -1232,8 +1377,8 @@ tbody tr:hover { background: var(--table-hover); }
             <div class="card-title">
                 <span>Riwayat Transaksi Barang</span>
                 <div>
-                    <button class="btn-reset" onclick="bukaModalUbahPin()" style="font-size:12px;">Ubah PIN</button>
-                    <button class="btn-lock" onclick="kunciAkses()" style="font-size:12px;">Kunci Kembali</button>
+                    <button class="btn-reset" onclick="bukaModalUbahPin()" style="font-size:12px;">Change PIN</button>
+                    <button class="btn-lock" onclick="kunciAkses()" style="font-size:12px;">Lock</button>
                 </div>
             </div>
 
@@ -1260,7 +1405,7 @@ tbody tr:hover { background: var(--table-hover); }
                     <button class="btn-upload" onclick="document.getElementById('uploadExcelInput').click()">UPLOAD EXCEL</button>
                     <input type="file" id="uploadExcelInput" accept=".xlsx,.xls" onchange="importExcel(event)">
                     <button class="btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
-                    <button class="btn-print" onclick="window.print()">PRINT LAPORAN</button>
+                    <!-- PRINT LAPORAN DI SINI SUDAH DIHILANGKAN DENGAN RAPI -->
                     <button class="btn-backup" onclick="backupJSON()">BACKUP DATA</button>
                 </div>
             </div>
@@ -1466,7 +1611,6 @@ let editIndex = null;
 let deleteTargetIndex = null;
 let isAuthorized = false;
 let forgotTargetUser = null;
-let showTotalStok = false;
 
 const namaBulan = [
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -1891,7 +2035,18 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-/* 6. LOGIKA HITUNG STOK & TOMBOL LIHAT TOTAL STOK */
+/* FUNKSI CETAK RAPI UNTUK STOK BARANG */
+function cetakLaporanStok() {
+    const now = new Date();
+    const userLog = localStorage.getItem(CURRENT_USER_KEY) || '-';
+    
+    document.getElementById('printHeaderDate').textContent = formatHeaderDate(now) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+    document.getElementById('printHeaderUser').textContent = userLog;
+
+    window.print();
+}
+
+/* 6. LOGIKA HITUNG STOK & TAMPILAN TOTAL STOK HASIL LANGSUNG */
 function hitungStokPerBarang(excludeIndex = null) {
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
@@ -1928,11 +2083,6 @@ function hitungStokPerBarang(excludeIndex = null) {
     return mapStok;
 }
 
-function toggleTotalStok() {
-    showTotalStok = !showTotalStok;
-    updateDashboard();
-}
-
 function updateDashboard() {
     let tMasuk = 0, tKeluar = 0;
     transaksi.forEach(item => {
@@ -1942,14 +2092,10 @@ function updateDashboard() {
     });
 
     const totalSisa = tMasuk - tKeluar;
-    const btn = document.getElementById('btnToggleTotalStok');
+    const displayElement = document.getElementById('displayTotalStok');
 
-    if (btn) {
-        if (showTotalStok) {
-            btn.innerHTML = `Total Stok: ${formatAngka(totalSisa)}`;
-        } else {
-            btn.innerHTML = `Lihat Total Seluruh Stok`;
-        }
+    if (displayElement) {
+        displayElement.innerHTML = `${formatAngka(totalSisa)} Roll`;
     }
 }
 

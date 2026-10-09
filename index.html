@@ -854,7 +854,7 @@ tbody tr:hover { background: var(--table-hover); }
     <!-- 1. FORM LOGIN -->
     <div class="auth-card" id="loginCard">
         <div class="auth-brand">
-            <div class="brand-icon">📦</div>
+            <div class="brand-icon">KYN</div>
         </div>
         <div class="auth-header">
             <h2>Selamat Datang</h2>
@@ -1353,49 +1353,129 @@ tbody tr:hover { background: var(--table-hover); }
 
 </div> <!-- END MAIN APP -->
 
-<!-- JAVASCRIPT LOGIC -->
-<script>
-const USERS_KEY = "SISTEM_STOK_USERS_LIST";
+<!-- JAVASCRIPT LOGIC DENGAN FIREBASE FIRESTORE MULTI-DEVICE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { 
+    getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Firebase Configuration Variables provided by environment
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'manual-stock-app';
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+    apiKey: "demo-key",
+    authDomain: "demo.firebaseapp.com",
+    projectId: "demo-project",
+    storageBucket: "demo.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:demo"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let firebaseUser = null;
+let currentAppUser = null;
+
+// References to Public Collection Paths
+const TRANSAKSI_COLL = collection(db, 'artifacts', appId, 'public', 'data', 'transaksi');
+const USERS_COLL = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+const CONFIG_DOC = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings');
+
 const CURRENT_USER_KEY = "SISTEM_STOK_LOGGED_USER";
-const STORAGE_KEY = "SISTEM_POTONG_STOK_DATA_PERMANEN";
-const PIN_KEY = "SISTEM_STOK_PIN_AKSES";
 const THEME_KEY = "SISTEM_STOK_THEME_MODE";
 const DEFAULT_PIN = "1234";
 
-const OLD_STORAGE_KEYS = [
-    "stok_barang_local_storage_v4",
-    "stok_barang_local_storage_v3",
-    "stok_barang_local_storage_v2",
-    "sistem_potong_stok_v1"
-];
-
 let transaksi = [];
 let editIndex = null;
+let editDocId = null;
 let isAuthorized = false;
 let forgotTargetUser = null;
+let currentCloudPin = DEFAULT_PIN;
 
 const namaBulan = [
     "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
     "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
 ];
 
-/* =========================================================
-   LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD)
-========================================================= */
-function getUsers() {
+// Initialize Auth Flow
+async function initAuth() {
     try {
-        const users = localStorage.getItem(USERS_KEY);
-        return users ? JSON.parse(users) : [];
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
+        }
+    } catch (err) {
+        console.error("Auth init error:", err);
+    }
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        firebaseUser = user;
+        setupRealtimeListeners();
+        checkSession();
+    }
+});
+
+/* =========================================================
+   SINKRONISASI FIRESTORE REALTIME (ALL DEVICES)
+========================================================= */
+function setupRealtimeListeners() {
+    if (!firebaseUser) return;
+
+    // Listen to Transaksi Realtime
+    onSnapshot(TRANSAKSI_COLL, (snapshot) => {
+        const temp = [];
+        snapshot.forEach((docSnap) => {
+            temp.push({
+                docId: docSnap.id,
+                ...docSnap.data()
+            });
+        });
+        
+        // Urutkan transaksi secara lokal berdasarkan timestamp / urutan input
+        temp.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        transaksi = temp;
+        updateApp();
+    }, (err) => {
+        console.error("Error Listening Transaksi:", err);
+    });
+
+    // Listen to PIN Config Realtime
+    onSnapshot(CONFIG_DOC, (docSnap) => {
+        if (docSnap.exists() && docSnap.data().pin) {
+            currentCloudPin = docSnap.data().pin;
+        } else {
+            currentCloudPin = DEFAULT_PIN;
+        }
+    }, (err) => {
+        console.error("Error Listening PIN:", err);
+    });
+}
+
+/* =========================================================
+   LOGIKA AUTENTIKASI DENGAN CLOUD DATABASE
+========================================================= */
+async function getUsersCloud() {
+    if (!firebaseUser) return [];
+    try {
+        const snap = await getDocs(USERS_COLL);
+        const users = [];
+        snap.forEach(docSnap => {
+            users.push(docSnap.data());
+        });
+        return users;
     } catch (e) {
+        console.error("Gagal mengambil data user cloud:", e);
         return [];
     }
 }
 
-function saveUsers(users) {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function showAuthCard(cardId) {
+window.showAuthCard = function(cardId) {
     document.getElementById('loginCard').style.display = 'none';
     document.getElementById('registerCard').style.display = 'none';
     document.getElementById('forgotCard').style.display = 'none';
@@ -1408,9 +1488,9 @@ function showAuthCard(cardId) {
         document.getElementById('forgotUsername').value = '';
         forgotTargetUser = null;
     }
-}
+};
 
-function prosesRegister() {
+window.prosesRegister = async function() {
     const username = document.getElementById('regUsername').value.trim();
     const password = document.getElementById('regPassword').value;
 
@@ -1419,24 +1499,28 @@ function prosesRegister() {
         return;
     }
 
-    const users = getUsers();
+    const users = await getUsersCloud();
     if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
         alert("Username tersebut sudah terdaftar! Gunakan username lain.");
         return;
     }
 
-    users.push({ username, password });
-    saveUsers(users);
-    alert("Akun berhasil dibuat! Silakan login.");
-    showAuthCard('loginCard');
-    document.getElementById('loginUsername').value = username;
-}
+    try {
+        const userDocRef = doc(USERS_COLL, username.toLowerCase());
+        await setDoc(userDocRef, { username, password });
+        alert("Akun berhasil dibuat! Silakan login.");
+        showAuthCard('loginCard');
+        document.getElementById('loginUsername').value = username;
+    } catch (e) {
+        alert("Gagal mendaftarkan akun ke cloud database!");
+    }
+};
 
-function prosesLogin() {
+window.prosesLogin = async function() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
 
-    const users = getUsers();
+    const users = await getUsersCloud();
     const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
 
     if (userFound) {
@@ -1445,11 +1529,11 @@ function prosesLogin() {
     } else {
         alert("Username atau Password salah!");
     }
-}
+};
 
-function verifikasiUsernameLupa() {
+window.verifikasiUsernameLupa = async function() {
     const username = document.getElementById('forgotUsername').value.trim();
-    const users = getUsers();
+    const users = await getUsersCloud();
     const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
     if (!userFound) {
@@ -1460,14 +1544,14 @@ function verifikasiUsernameLupa() {
     forgotTargetUser = userFound;
     document.getElementById('forgotStep1').style.display = 'none';
     document.getElementById('forgotStep2Confirm').style.display = 'block';
-}
+};
 
-function lanjutkanKeFormReset() {
+window.lanjutkanKeFormReset = function() {
     document.getElementById('forgotStep2Confirm').style.display = 'none';
     document.getElementById('forgotStep3').style.display = 'block';
-}
+};
 
-function prosesResetPassword() {
+window.prosesResetPassword = async function() {
     const newPassword = document.getElementById('forgotNewPassword').value;
 
     if (!forgotTargetUser) return;
@@ -1477,16 +1561,15 @@ function prosesResetPassword() {
         return;
     }
 
-    const users = getUsers();
-    const userIndex = users.findIndex(u => u.username.toLowerCase() === forgotTargetUser.username.toLowerCase());
-
-    if (userIndex !== -1) {
-        users[userIndex].password = newPassword;
-        saveUsers(users);
+    try {
+        const userDocRef = doc(USERS_COLL, forgotTargetUser.username.toLowerCase());
+        await setDoc(userDocRef, { username: forgotTargetUser.username, password: newPassword }, { merge: true });
         alert("Password berhasil diubah! Silakan login dengan password baru.");
         showAuthCard('loginCard');
+    } catch (e) {
+        alert("Gagal mengubah password!");
     }
-}
+};
 
 function checkSession() {
     const loggedUser = localStorage.getItem(CURRENT_USER_KEY);
@@ -1494,11 +1577,11 @@ function checkSession() {
     const mainApp = document.getElementById('mainApp');
 
     if (loggedUser) {
+        currentAppUser = loggedUser;
         authContainer.style.display = 'none';
         mainApp.style.display = 'block';
         document.getElementById('displayLoggedInUser').textContent = loggedUser;
         initTheme();
-        loadData();
         updateClock();
         updateApp();
     } else {
@@ -1508,16 +1591,16 @@ function checkSession() {
     }
 }
 
-function prosesLogout() {
+window.prosesLogout = function() {
     if (confirm("Apakah Anda yakin ingin keluar dari sistem?")) {
         localStorage.removeItem(CURRENT_USER_KEY);
         isAuthorized = false;
         checkSession();
     }
-}
+};
 
-/* FUNKSI TOGGLE SHOW/HIDE PASSWORD PIN */
-function togglePasswordVisibility(inputId, btn) {
+/* TOGGLE VISIBILITAS PASSWORD */
+window.togglePasswordVisibility = function(inputId, btn) {
     const input = document.getElementById(inputId);
     if (!input) return;
     if (input.type === "password") {
@@ -1527,7 +1610,7 @@ function togglePasswordVisibility(inputId, btn) {
         input.type = "password";
         btn.textContent = "👁️";
     }
-}
+};
 
 /* 1. SISTEM GANTI TEMA WARNA */
 function initTheme() {
@@ -1537,20 +1620,16 @@ function initTheme() {
     if (themeSelect) themeSelect.value = savedTheme;
 }
 
-function changeTheme(themeName) {
+window.changeTheme = function(themeName) {
     document.body.className = '';
     if (themeName !== 'light') {
         document.body.classList.add('theme-' + themeName);
     }
     localStorage.setItem(THEME_KEY, themeName);
-}
+};
 
-/* 2. KEAMANAN & VERIFIKASI PIN */
-function getStoredPin() {
-    return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
-}
-
-function tryAccessTransaksi() {
+/* 2. KEAMANAN & VERIFIKASI PIN CLOUD */
+window.tryAccessTransaksi = function() {
     if (isAuthorized) {
         switchPage('transaksiPage');
     } else {
@@ -1562,13 +1641,12 @@ function tryAccessTransaksi() {
         document.getElementById('pinModal').classList.add('active');
         setTimeout(() => document.getElementById('inputPinAkses').focus(), 100);
     }
-}
+};
 
-function verifikasiPin() {
+window.verifikasiPin = function() {
     const inputPin = document.getElementById('inputPinAkses').value;
-    const storedPin = getStoredPin();
 
-    if (inputPin === storedPin) {
+    if (inputPin === currentCloudPin) {
         isAuthorized = true;
         tutupModalPin();
         switchPage('transaksiPage');
@@ -1577,20 +1655,20 @@ function verifikasiPin() {
         alert("Kode PIN salah! Akses ditolak.");
         document.getElementById('inputPinAkses').value = '';
     }
-}
+};
 
-function tutupModalPin() {
+window.tutupModalPin = function() {
     document.getElementById('pinModal').classList.remove('active');
-}
+};
 
-function kunciAkses() {
+window.kunciAkses = function() {
     isAuthorized = false;
     document.getElementById('tabTransaksiBtn').innerHTML = "🔒︎ Riwayat Transaksi";
     switchPage('inputPage');
     alert("Akses ke halaman Riwayat Transaksi berhasil dikunci kembali.");
-}
+};
 
-function bukaModalUbahPin() {
+window.bukaModalUbahPin = function() {
     ['pinLama', 'pinBaru', 'pinKonfirmasi'].forEach(id => {
         const inp = document.getElementById(id);
         if (inp) {
@@ -1600,18 +1678,18 @@ function bukaModalUbahPin() {
     });
     document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👁️');
     document.getElementById('ubahPinModal').classList.add('active');
-}
+};
 
-function tutupModalUbahPin() {
+window.tutupModalUbahPin = function() {
     document.getElementById('ubahPinModal').classList.remove('active');
-}
+};
 
-function simpanPinBaru() {
+window.simpanPinBaru = async function() {
     const pinLama = document.getElementById('pinLama').value;
     const pinBaru = document.getElementById('pinBaru').value;
     const pinKonfirmasi = document.getElementById('pinKonfirmasi').value;
 
-    if (pinLama !== getStoredPin()) {
+    if (pinLama !== currentCloudPin) {
         alert("PIN lama yang Anda masukkan salah!");
         return;
     }
@@ -1626,13 +1704,17 @@ function simpanPinBaru() {
         return;
     }
 
-    localStorage.setItem(PIN_KEY, pinBaru);
-    alert("PIN Akses berhasil diperbarui!");
-    tutupModalUbahPin();
-}
+    try {
+        await setDoc(CONFIG_DOC, { pin: pinBaru }, { merge: true });
+        alert("PIN Akses berhasil diperbarui di Cloud!");
+        tutupModalUbahPin();
+    } catch (e) {
+        alert("Gagal memperbarui PIN di cloud!");
+    }
+};
 
 /* 3. MANAGEMENT NAVIGASI TABS */
-function switchPage(pageId) {
+window.switchPage = function(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -1651,47 +1733,9 @@ function switchPage(pageId) {
         document.getElementById('tabTransaksiBtn').classList.add('active');
         renderTransaksi();
     }
-}
+};
 
-/* 4. LOCAL STORAGE MANAGEMENT */
-function loadData() {
-    try {
-        const dataUtama = localStorage.getItem(STORAGE_KEY);
-        if (dataUtama) {
-            const parsed = JSON.parse(dataUtama);
-            if (Array.isArray(parsed)) {
-                transaksi = parsed;
-                return;
-            }
-        }
-
-        for (const oldKey of OLD_STORAGE_KEYS) {
-            const oldData = localStorage.getItem(oldKey);
-            if (oldData) {
-                const parsed = JSON.parse(oldData);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    transaksi = parsed;
-                    saveData();
-                    return;
-                }
-            }
-        }
-        transaksi = [];
-    } catch (e) {
-        console.error("Gagal membaca storage:", e);
-        transaksi = [];
-    }
-}
-
-function saveData() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(transaksi));
-    } catch (e) {
-        alert("Gagal menyimpan data ke Local Storage browser!");
-    }
-}
-
-/* 5. FORMATTER & HELPERS */
+/* 4. FORMATTER & HELPERS */
 function formatAngka(num) {
     return Number(num || 0).toLocaleString("id-ID");
 }
@@ -1705,7 +1749,7 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
-/* FORMAT HEADER UTAMA (Contoh: 9 OKTOBER 2026) */
+/* FORMAT HEADER UTAMA */
 function formatHeaderDate(date) {
     return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
 }
@@ -1728,9 +1772,8 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-/* 6. LOGIKA HITUNG STOK & DASHBOARD */
+/* 5. LOGIKA HITUNG STOK & DASHBOARD */
 function hitungStokPerBarang() {
-    // 1. Pemetaan Nama Barang Utama berdasarkan Kode Barang (secara otomatis)
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
         const item = transaksi[i];
@@ -1740,7 +1783,6 @@ function hitungStokPerBarang() {
         }
     }
 
-    // 2. Akumulasi Stok Per Barang (Kode + Warna)
     const mapStok = {};
     transaksi.forEach(item => {
         const kodeKey = normalizeKode(item.kode);
@@ -1777,8 +1819,8 @@ function updateDashboard() {
     if (document.getElementById('totalStok')) document.getElementById('totalStok').textContent = formatAngka(tMasuk - tKeluar);
 }
 
-/* 7. SEARCHABLE DATALIST BARANG KELUAR */
-function handleJenisChange() {
+/* 6. SEARCHABLE DATALIST BARANG KELUAR */
+window.handleJenisChange = function() {
     const jenis = document.getElementById('jenis').value;
     const containerPilih = document.getElementById('containerPilihStok');
     const containerCustomer = document.getElementById('containerCustomer');
@@ -1801,7 +1843,7 @@ function handleJenisChange() {
         inputWarna.readOnly = false;
         resetFormInput();
     }
-}
+};
 
 function populateDatalistStok() {
     const list = document.getElementById('listBarangStok');
@@ -1818,7 +1860,7 @@ function populateDatalistStok() {
     });
 }
 
-function handleBarangKeluarSelect(selectedVal) {
+window.handleBarangKeluarSelect = function(selectedVal) {
     if (!selectedVal) {
         document.getElementById('kode').value = '';
         document.getElementById('nama').value = '';
@@ -1838,10 +1880,12 @@ function handleBarangKeluarSelect(selectedVal) {
         document.getElementById('warna').value = barangFound.warna;
         document.getElementById('jumlah').placeholder = `Maksimal: ${barangFound.sisa}`;
     }
-}
+};
 
-/* 8. PROSES SIMPAN TRANSAKSI */
-function simpanTransaksi() {
+/* 7. PROSES SIMPAN TRANSAKSI TO FIRESTORE */
+window.simpanTransaksi = async function() {
+    if (!firebaseUser) return;
+
     const jenis = document.getElementById('jenis').value;
     const kode = normalizeKode(document.getElementById('kode').value);
     const nama = document.getElementById('nama').value.trim();
@@ -1870,7 +1914,7 @@ function simpanTransaksi() {
     }
 
     const time = getCurrentDateTime();
-    transaksi.unshift({
+    const newItem = {
         tanggal: time.tanggal,
         jam: time.jam,
         jenis: jenis,
@@ -1878,14 +1922,19 @@ function simpanTransaksi() {
         nama: nama,
         warna: warna,
         customer: jenis === 'keluar' ? customer : '-',
-        jumlah: jumlah
-    });
+        jumlah: jumlah,
+        createdAt: Date.now()
+    };
 
-    saveData();
-    resetFormInput();
-    updateApp();
-    alert("Transaksi berhasil disimpan!");
-}
+    try {
+        await addDoc(TRANSAKSI_COLL, newItem);
+        resetFormInput();
+        alert("Transaksi berhasil disimpan!");
+    } catch (e) {
+        console.error("Gagal simpan transaksi:", e);
+        alert("Gagal menyimpan transaksi ke Cloud Database!");
+    }
+};
 
 function resetFormInput() {
     if (document.getElementById('searchBarangKeluar')) document.getElementById('searchBarangKeluar').value = '';
@@ -1899,12 +1948,12 @@ function resetFormInput() {
     }
 }
 
-function resetForm() {
+window.resetForm = function() {
     resetFormInput();
-}
+};
 
-/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
-function renderPenjualan() {
+/* 8. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
+window.renderPenjualan = function() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
     const query = (document.getElementById('searchPenjualan').value || '').toLowerCase();
@@ -1937,9 +1986,9 @@ function renderPenjualan() {
         `;
         tbody.appendChild(tr);
     });
-}
+};
 
-function renderStok() {
+window.renderStok = function() {
     const tbody = document.getElementById('stokBody');
     if (!tbody) return;
     const query = (document.getElementById('searchStok').value || '').toLowerCase();
@@ -1947,7 +1996,6 @@ function renderStok() {
 
     tbody.innerHTML = '';
     
-    // Filter dan Pengurutan (Sort berdasarkan Kode Barang, lalu Warna A-Z)
     const listStok = Object.values(mapStok)
         .filter(item => {
             return item.kode.toLowerCase().includes(query) ||
@@ -1978,9 +2026,9 @@ function renderStok() {
         `;
         tbody.appendChild(tr);
     });
-}
+};
 
-function renderTransaksi() {
+window.renderTransaksi = function() {
     const tbody = document.getElementById('transaksiBody');
     if (!tbody) return;
     const query = (document.getElementById('searchTransaksi').value || '').toLowerCase();
@@ -2003,7 +2051,6 @@ function renderTransaksi() {
     }
 
     filtered.forEach((item, index) => {
-        const realIndex = transaksi.indexOf(item);
         const badgeClass = item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar';
         const jenisLabel = item.jenis === 'masuk' ? 'Masuk' : 'Keluar';
 
@@ -2019,19 +2066,20 @@ function renderTransaksi() {
             <td>${escapeHTML(item.customer || '-')}</td>
             <td class="text-center">${formatAngka(item.jumlah)}</td>
             <td class="text-center">
-                <button class="btn-edit" onclick="bukaEdit(${realIndex})">Edit</button>
-                <button class="btn-delete" onclick="hapusTransaksi(${realIndex})">Hapus</button>
+                <button class="btn-edit" onclick="bukaEdit('${item.docId}')">Edit</button>
+                <button class="btn-delete" onclick="hapusTransaksi('${item.docId}')">Hapus</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
-}
+};
 
-/* 10. MODAL EDIT & DELETE */
-function bukaEdit(index) {
-    editIndex = index;
-    const item = transaksi[index];
+/* 9. MODAL EDIT & DELETE CLOUD */
+window.bukaEdit = function(docId) {
+    const item = transaksi.find(t => t.docId === docId);
+    if (!item) return;
 
+    editDocId = docId;
     document.getElementById('editTanggal').value = item.tanggal;
     document.getElementById('editJam').value = item.jam;
     document.getElementById('editJenis').value = item.jenis;
@@ -2042,15 +2090,15 @@ function bukaEdit(index) {
     document.getElementById('editJumlah').value = item.jumlah;
 
     document.getElementById('editModal').classList.add('active');
-}
+};
 
-function tutupEdit() {
-    editIndex = null;
+window.tutupEdit = function() {
+    editDocId = null;
     document.getElementById('editModal').classList.remove('active');
-}
+};
 
-function simpanEdit() {
-    if (editIndex === null) return;
+window.simpanEdit = async function() {
+    if (!editDocId) return;
 
     const jenis = document.getElementById('editJenis').value;
     const customer = document.getElementById('editCustomer').value.trim();
@@ -2064,27 +2112,31 @@ function simpanEdit() {
         return;
     }
 
-    transaksi[editIndex] = {
-        ...transaksi[editIndex],
-        jenis, kode, nama, warna, customer: jenis === 'keluar' ? customer : '-', jumlah
-    };
+    try {
+        const itemDocRef = doc(TRANSAKSI_COLL, editDocId);
+        await updateDoc(itemDocRef, {
+            jenis, kode, nama, warna, customer: jenis === 'keluar' ? customer : '-', jumlah
+        });
 
-    saveData();
-    tutupEdit();
-    updateApp();
-    alert("Data transaksi berhasil diperbarui!");
-}
-
-function hapusTransaksi(index) {
-    if (confirm("Apakah Anda yakin ingin menghapus catatan transaksi ini?")) {
-        transaksi.splice(index, 1);
-        saveData();
-        updateApp();
+        tutupEdit();
+        alert("Data transaksi berhasil diperbarui!");
+    } catch (e) {
+        alert("Gagal memperbarui transaksi!");
     }
-}
+};
 
-/* 11. EXPORT & IMPORT EXCEL / BACKUP */
-function exportExcel() {
+window.hapusTransaksi = async function(docId) {
+    if (confirm("Apakah Anda yakin ingin menghapus catatan transaksi ini?")) {
+        try {
+            await deleteDoc(doc(TRANSAKSI_COLL, docId));
+        } catch (e) {
+            alert("Gagal menghapus transaksi!");
+        }
+    }
+};
+
+/* 10. EXPORT & IMPORT EXCEL / BACKUP */
+window.exportExcel = function() {
     if (transaksi.length === 0) {
         alert("Tidak ada data transaksi untuk di-export!");
         return;
@@ -2106,14 +2158,14 @@ function exportExcel() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Stok");
     XLSX.writeFile(workbook, `Report_Stok_${new Date().toISOString().slice(0, 10)}.xlsx`);
-}
+};
 
-function importExcel(event) {
+window.importExcel = function(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = async function (e) {
         try {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
@@ -2121,7 +2173,7 @@ function importExcel(event) {
             const json = XLSX.utils.sheet_to_json(sheet);
 
             let counter = 0;
-            json.forEach(row => {
+            for (const row of json) {
                 const kode = normalizeKode(row["Kode Barang"] || row["kode"] || "");
                 const nama = String(row["Nama Barang"] || row["nama"] || "").trim();
                 const warna = String(row["Warna"] || row["warna"] || "").trim();
@@ -2132,41 +2184,41 @@ function importExcel(event) {
 
                 if (kode && nama && jumlah > 0) {
                     const time = getCurrentDateTime();
-                    transaksi.unshift({
+                    await addDoc(TRANSAKSI_COLL, {
                         tanggal: row["Tanggal"] || time.tanggal,
                         jam: row["Jam"] || time.jam,
-                        jenis, kode, nama, warna, customer, jumlah
+                        jenis, kode, nama, warna, customer, jumlah,
+                        createdAt: Date.now() + counter
                     });
                     counter++;
                 }
-            });
+            }
 
-            saveData();
-            updateApp();
-            alert(`Berhasil mengimpor ${counter} data transaksi dari Excel!`);
+            alert(`Berhasil mengimpor ${counter} data transaksi dari Excel ke Database!`);
         } catch (err) {
             alert("Gagal membaca file Excel. Pastikan format kolom sesuai!");
         }
         event.target.value = '';
     };
     reader.readAsArrayBuffer(file);
-}
+};
 
-function backupJSON() {
+window.backupJSON = function() {
     if (transaksi.length === 0) {
         alert("Tidak ada data untuk di-backup!");
         return;
     }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transaksi, null, 2));
+    const cleanData = transaksi.map(({ docId, ...rest }) => rest);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanData, null, 2));
     const dl = document.createElement('a');
     dl.setAttribute("href", dataStr);
     dl.setAttribute("download", `backup_stok_${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(dl);
     dl.click();
     dl.remove();
-}
+};
 
-/* 12. SINKRONISASI APLIKASI */
+/* 11. SINKRONISASI APLIKASI */
 function updateApp() {
     updateDashboard();
    
@@ -2186,7 +2238,7 @@ function updateApp() {
 
 /* INITIALIZATION */
 window.addEventListener('DOMContentLoaded', () => {
-    checkSession();
+    initAuth();
     setInterval(updateClock, 1000);
 });
 </script>

@@ -479,51 +479,7 @@ body.theme-dark .tab-btn.active {
 }
 
 /* =========================================================
-   4. DASHBOARD CARDS (DIPERKECIL)
-========================================================= */
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.dashboard-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 4px; height: 100%;
-}
-
-.dashboard-card.masuk::before { background: var(--success); }
-.dashboard-card.keluar::before { background: var(--danger); }
-.dashboard-card.sisa::before { background: var(--primary); }
-
-.dashboard-card h3 {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-}
-
-.dashboard-card .value {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-dark);
-}
-
-/* =========================================================
-   5. CARDS & FORMS
+   4. CARDS & FORMS
 ========================================================= */
 .card {
     background: var(--card-bg);
@@ -631,8 +587,28 @@ body.theme-dark .tab-btn.active {
     box-shadow: none;
 }
 
+/* TOMBOL LIHAT TOTAL SELURUH STOK DI HEADER KARTU */
+.btn-toggle-total-stok {
+    background: var(--primary);
+    color: white;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-total-stok:hover {
+    background: var(--primary-dark);
+}
+
 /* =========================================================
-   6. BUTTONS & TOOLBAR
+   5. BUTTONS & TOOLBAR
 ========================================================= */
 .button-area {
     display: flex;
@@ -735,7 +711,7 @@ button:hover {
 }
 
 /* =========================================================
-   7. TABLES & BADGES
+   6. TABLES & BADGES
 ========================================================= */
 .table-wrapper {
     width: 100%;
@@ -803,13 +779,29 @@ tbody tr:hover { background: var(--table-hover); }
     text-align: center;
 }
 
+/* BADGE UNTUK KONDISI STOK HABIS (0) */
+.stok-habis-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 60px;
+    padding: 5px 12px;
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+}
+
 /* CSS AGAR ISI TABEL PENJUALAN BOLD SEMUA */
 #penjualanBody td {
     font-weight: 700;
 }
 
 /* =========================================================
-   8. MODAL & FOOTER
+   7. MODAL & FOOTER
 ========================================================= */
 .modal {
     display: none;
@@ -870,7 +862,6 @@ tbody tr:hover { background: var(--table-hover); }
    MEDIA QUERIES (OPTIMASI HANDPHONE / MOBILE)
 ========================================================= */
 @media(max-width: 1024px) {
-    .dashboard { grid-template-columns: repeat(3, 1fr); }
     .form-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -888,7 +879,6 @@ tbody tr:hover { background: var(--table-hover); }
 
     .container { padding: 14px 10px; }
     .card { padding: 16px; border-radius: 12px; margin-bottom: 16px; }
-    .dashboard { grid-template-columns: 1fr; gap: 10px; }
     .form-grid { grid-template-columns: 1fr; gap: 12px; }
     
     .search-area, .button-area { flex-direction: column; width: 100%; }
@@ -1196,30 +1186,18 @@ tbody tr:hover { background: var(--table-hover); }
     </div>
 
     <!-- =========================================================
-         HALAMAN 2: SISA STOK BARANG & DASHBOARD (DIPERKECIL + BOX STOK)
+         HALAMAN 2: SISA STOK BARANG (DENGAN TOMBOL LIHAT TOTAL SELURUH STOK DI KANAN NAMA TITLE)
     ========================================================= -->
     <div class="page" id="stokPage">
-       
-        <!-- DASHBOARD RINGKASAN STOK (COMPACT) -->
-        <div class="dashboard">
-            <div class="dashboard-card masuk">
-                <h3>Grand Total Masuk</h3>
-                <div class="value" id="totalMasuk">0</div>
-            </div>
-            <div class="dashboard-card keluar">
-                <h3>Grand Total Keluar</h3>
-                <div class="value" id="totalKeluar">0</div>
-            </div>
-            <div class="dashboard-card sisa">
-                <h3>Grand Total Sisa Stok</h3>
-                <div class="value" id="totalStok">0</div>
-            </div>
-        </div>
 
         <!-- TABEL RINCIAN SISA STOK -->
         <div class="card">
             <div class="card-title">
                 <span>Stok Barang</span>
+                <!-- TOMBOL LIHAT TOTAL STOK DI SAMPING TULISAN STOK BARANG PALING KANAN -->
+                <button class="btn-toggle-total-stok" id="btnToggleTotalStok" onclick="toggleTotalStok()">
+                    👁️ Lihat Total Seluruh Stok
+                </button>
             </div>
 
             <div class="toolbar">
@@ -1490,6 +1468,7 @@ let editIndex = null;
 let deleteTargetIndex = null;
 let isAuthorized = false;
 let forgotTargetUser = null;
+let showTotalStok = false;
 
 const namaBulan = [
     "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -1913,7 +1892,7 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-/* 6. LOGIKA HITUNG STOK & DASHBOARD */
+/* 6. LOGIKA HITUNG STOK & TOMBOL LIHAT TOTAL STOK */
 function hitungStokPerBarang() {
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
@@ -1948,6 +1927,11 @@ function hitungStokPerBarang() {
     return mapStok;
 }
 
+function toggleTotalStok() {
+    showTotalStok = !showTotalStok;
+    updateDashboard();
+}
+
 function updateDashboard() {
     let tMasuk = 0, tKeluar = 0;
     transaksi.forEach(item => {
@@ -1955,9 +1939,17 @@ function updateDashboard() {
         if (item.jenis === 'masuk') tMasuk += qty;
         else if (item.jenis === 'keluar') tKeluar += qty;
     });
-    if (document.getElementById('totalMasuk')) document.getElementById('totalMasuk').textContent = formatAngka(tMasuk);
-    if (document.getElementById('totalKeluar')) document.getElementById('totalKeluar').textContent = formatAngka(tKeluar);
-    if (document.getElementById('totalStok')) document.getElementById('totalStok').textContent = formatAngka(tMasuk - tKeluar);
+
+    const totalSisa = tMasuk - tKeluar;
+    const btn = document.getElementById('btnToggleTotalStok');
+
+    if (btn) {
+        if (showTotalStok) {
+            btn.innerHTML = `🙈 Total Stok: ${formatAngka(totalSisa)}`;
+        } else {
+            btn.innerHTML = `👁️ Lihat Total Seluruh Stok`;
+        }
+    }
 }
 
 /* 7. SEARCHABLE DATALIST BARANG KELUAR & VALIDASI STOK MAX */
@@ -2207,13 +2199,19 @@ function renderStok() {
 
     listStok.forEach(item => {
         const tr = document.createElement('tr');
+        
+        // TAMPILAN SISA STOK: JIKA 0 TAMPILKAN 'HABIS' DENGAN BADGE MERAH
+        const sisaStokHtml = item.sisa <= 0 
+            ? `<span class="stok-habis-box">Habis</span>` 
+            : `<span class="stok-box">${formatAngka(item.sisa)}</span>`;
+
         tr.innerHTML = `
             <td><strong>${escapeHTML(item.kode)}</strong></td>
             <td>${escapeHTML(item.nama)}</td>
             <td>${escapeHTML(item.warna)}</td>
             <td class="text-center">${formatAngka(item.masuk)}</td>
             <td class="text-center">${formatAngka(item.keluar)}</td>
-            <td class="text-center"><span class="stok-box">${formatAngka(item.sisa)}</span></td>
+            <td class="text-center">${sisaStokHtml}</td>
         `;
         tbody.appendChild(tr);
     });

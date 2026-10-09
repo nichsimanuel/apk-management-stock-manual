@@ -1047,10 +1047,10 @@ tbody tr:hover { background: var(--table-hover); }
                 Form Input
             </button>
             <button class="tab-btn" id="tabPenjualanBtn" onclick="switchPage('penjualanPage')">
-                Report Penjualan
+                Penjualan
             </button>
             <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
-                Report Stok Barang
+                Sisa Stok Barang
             </button>
             <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
                 🔒︎ Riwayat Transaksi
@@ -1492,8 +1492,8 @@ let isAuthorized = false;
 let forgotTargetUser = null;
 
 const namaBulan = [
-    "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
-    "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
 ];
 
 /* =========================================================
@@ -1845,12 +1845,41 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
-/* FORMAT TANGGAL DD-MM-YYYY KE OBJECT DATE (UNTUK KOMPARASI TANGGAL SISA & PENCARIAN) */
+/* CONVERT/FORMAT TANGGAL DENGAN FORMAT "9 OKTOBER 2026" */
+function formatTanggalIndonesia(strTanggal) {
+    if (!strTanggal) return '-';
+    // Jika tanggal sudah dalam format DD-MM-YYYY
+    const parts = strTanggal.split('-');
+    if (parts.length === 3) {
+        const tgl = parseInt(parts[0], 10);
+        const blnIndex = parseInt(parts[1], 10) - 1;
+        const thn = parts[2];
+        if (!isNaN(tgl) && blnIndex >= 0 && blnIndex < 12) {
+            return `${tgl} ${namaBulan[blnIndex]} ${thn}`;
+        }
+    }
+    return strTanggal;
+}
+
+/* PARSE FORMAT TANGGAL TEKS KEMBALI KE OBJECT DATE (UNTUK KOMPARASI TANGGAL FILTER) */
 function parseDateDDMMYYYY(str) {
     if (!str) return null;
     const parts = str.split('-');
-    if (parts.length !== 3) return null;
-    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    if (parts.length === 3) {
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    // Jika format tanggal disimpan sebagai "9 Oktober 2026"
+    const words = str.split(' ');
+    if (words.length === 3) {
+        const tgl = parseInt(words[0], 10);
+        const blnStr = words[1].toLowerCase();
+        const thn = parseInt(words[2], 10);
+        const blnIndex = namaBulan.findIndex(b => b.toLowerCase() === blnStr);
+        if (!isNaN(tgl) && blnIndex !== -1 && !isNaN(thn)) {
+            return new Date(thn, blnIndex, tgl);
+        }
+    }
+    return null;
 }
 
 /* RESET INPUT FILTER TANGGAL */
@@ -1861,16 +1890,16 @@ function resetFilterTanggal(tipe) {
     if (tipe === 'Transaksi') renderTransaksi();
 }
 
-/* FORMAT HEADER UTAMA (Contoh: 9 OKTOBER 2026) */
+/* FORMAT HEADER UTAMA (Contoh: 9 Oktober 2026) */
 function formatHeaderDate(date) {
     return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
 }
 
-/* FORMAT TANGGAL DD-MM-YYYY UTK FORM & TABEL */
+/* FORMAT TANGGAL DIUBAH KE TANGGAL BULAN TAHUN (Sesuai Permintaan) */
 function getCurrentDateTime() {
     const now = new Date();
     return {
-        tanggal: pad(now.getDate()) + "-" + pad(now.getMonth() + 1) + "-" + now.getFullYear(),
+        tanggal: now.getDate() + " " + namaBulan[now.getMonth()] + " " + now.getFullYear(),
         jam: pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds())
     };
 }
@@ -2089,7 +2118,7 @@ function resetForm() {
     resetFormInput();
 }
 
-/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI (PERBAIKAN LOGIKA PENCARIAN TANGGAL ACCURATE) */
+/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
 function renderPenjualan() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
@@ -2139,7 +2168,7 @@ function renderPenjualan() {
     filtered.forEach((item) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${escapeHTML(item.tanggal)}</td>
+            <td>${escapeHTML(formatTanggalIndonesia(item.tanggal))}</td>
             <td>${escapeHTML(item.customer || '-')}</td>
             <td>${escapeHTML(item.kode || '-')}</td>
             <td>${escapeHTML(item.nama || '-')}</td>
@@ -2243,7 +2272,7 @@ function renderTransaksi() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="text-center">${index + 1}</td>
-            <td>${escapeHTML(item.tanggal)}</td>
+            <td>${escapeHTML(formatTanggalIndonesia(item.tanggal))}</td>
             <td>${escapeHTML(item.jam)}</td>
             <td><span class="badge ${badgeClass}">${jenisLabel}</span></td>
             <td><strong>${escapeHTML(item.kode)}</strong></td>
@@ -2265,7 +2294,7 @@ function bukaEdit(index) {
     editIndex = index;
     const item = transaksi[index];
 
-    document.getElementById('editTanggal').value = item.tanggal;
+    document.getElementById('editTanggal').value = formatTanggalIndonesia(item.tanggal);
     document.getElementById('editJam').value = item.jam;
     document.getElementById('editJenis').value = item.jenis;
     document.getElementById('editCustomer').value = item.customer || '';
@@ -2387,7 +2416,7 @@ function exportExcel() {
 
     const dataExcel = dataFiltered.map((item, idx) => ({
         "No": idx + 1,
-        "Tanggal": item.tanggal,
+        "Tanggal": formatTanggalIndonesia(item.tanggal),
         "Jam": item.jam,
         "Jenis": item.jenis === 'masuk' ? 'Barang Masuk' : 'Barang Keluar',
         "Nama Customer": item.customer || '-',
@@ -2428,7 +2457,7 @@ function importExcel(event) {
                 if (kode && nama && jumlah > 0) {
                     const time = getCurrentDateTime();
                     transaksi.unshift({
-                        tanggal: row["Tanggal"] || time.tanggal,
+                        tanggal: row["Tanggal"] ? formatTanggalIndonesia(String(row["Tanggal"])) : time.tanggal,
                         jam: row["Jam"] || time.jam,
                         jenis, kode, nama, warna, customer, jumlah
                     });

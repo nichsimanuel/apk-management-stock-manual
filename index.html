@@ -1104,12 +1104,12 @@ tbody tr:hover { background: var(--table-hover); }
                     <input type="text" id="customer" placeholder="Masukkan Nama Customer" autocomplete="off">
                 </div>
 
-                <!-- SEARCHABLE DATALIST BARANG KELUAR -->
-                <div class="form-group pilih-stok-highlight" id="containerPilihStok" style="display:none;">
-                    <label>Cari Barang Stok (Tersedia)</label>
+                <!-- SEARCHABLE DATALIST BARANG KELUAR / BARANG MASUK Ulang -->
+                <div class="form-group pilih-stok-highlight" id="containerPilihStok">
+                    <label id="labelPilihStok">Sudah Pernah Terinput (Opsional)</label>
                     <input type="text" id="searchBarangKeluar" list="listBarangStok" placeholder="Ketik kode, nama, atau warna..." oninput="handleBarangKeluarSelect(this.value)">
                     <datalist id="listBarangStok"></datalist>
-                    <div class="form-help">Pilih barang untuk diisi otomatis</div>
+                    <div class="form-help" id="helpPilihStok">Pilih barang untuk diisi otomatis</div>
                 </div>
 
                 <div class="form-group">
@@ -1213,8 +1213,6 @@ tbody tr:hover { background: var(--table-hover); }
                             <th>Kode Barang</th>
                             <th>Nama Barang</th>
                             <th>Warna</th>
-                            <th class="text-center">Total Masuk</th>
-                            <th class="text-center">Total Keluar</th>
                             <th class="text-center">Sisa Stok</th>
                         </tr>
                     </thead>
@@ -1600,7 +1598,7 @@ function checkSession() {
         // Membaca status otorisasi PIN yang tersimpan
         if (sessionStorage.getItem(AUTH_STATUS_KEY) === 'true') {
             isAuthorized = true;
-            document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi (Terbuka)";
+            document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi";
         }
 
         // Buka halaman terakhir yang tersimpan saat di-refresh
@@ -1686,7 +1684,7 @@ function verifikasiPin() {
         sessionStorage.setItem(AUTH_STATUS_KEY, 'true');
         tutupModalPin();
         switchPage('transaksiPage');
-        document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi (Terbuka)";
+        document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi";
     } else {
         alert("Kode PIN salah! Akses ditolak.");
         document.getElementById('inputPinAkses').value = '';
@@ -1759,6 +1757,7 @@ function switchPage(pageId) {
 
     if (pageId === 'inputPage') {
         document.getElementById('tabInputBtn').classList.add('active');
+        handleJenisChange();
     } else if (pageId === 'penjualanPage') {
         document.getElementById('tabPenjualanBtn').classList.add('active');
         renderPenjualan();
@@ -1893,9 +1892,10 @@ function updateClock() {
 }
 
 /* 6. LOGIKA HITUNG STOK & TOMBOL LIHAT TOTAL STOK */
-function hitungStokPerBarang() {
+function hitungStokPerBarang(excludeIndex = null) {
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
+        if (excludeIndex !== null && i === excludeIndex) continue;
         const item = transaksi[i];
         const kodeKey = normalizeKode(item.kode);
         if (kodeKey && item.nama && item.nama.trim() !== '') {
@@ -1904,7 +1904,8 @@ function hitungStokPerBarang() {
     }
 
     const mapStok = {};
-    transaksi.forEach(item => {
+    transaksi.forEach((item, index) => {
+        if (excludeIndex !== null && index === excludeIndex) return;
         const kodeKey = normalizeKode(item.kode);
         const key = getStockKey(item.kode, item.warna);
         const namaBarangSeragam = mapNamaUtama[kodeKey] || item.nama;
@@ -1952,32 +1953,40 @@ function updateDashboard() {
     }
 }
 
-/* 7. SEARCHABLE DATALIST BARANG KELUAR & VALIDASI STOK MAX */
+/* 7. SEARCHABLE DATALIST BARANG KELUAR / BARANG MASUK & VALIDASI STOK MAX */
 function handleJenisChange() {
     const jenis = document.getElementById('jenis').value;
-    const containerPilih = document.getElementById('containerPilihStok');
     const containerCustomer = document.getElementById('containerCustomer');
+    const labelPilihStok = document.getElementById('labelPilihStok');
+    const helpPilihStok = document.getElementById('helpPilihStok');
+    const searchInput = document.getElementById('searchBarangKeluar');
     const inputKode = document.getElementById('kode');
     const inputNama = document.getElementById('nama');
     const inputWarna = document.getElementById('warna');
     const inputJumlah = document.getElementById('jumlah');
 
+    if (searchInput) searchInput.value = '';
+
     if (jenis === 'keluar') {
-        containerPilih.style.display = 'flex';
         containerCustomer.style.display = 'flex';
+        labelPilihStok.textContent = 'Cari Barang Stok (Tersedia)';
+        helpPilihStok.textContent = 'Pilih barang untuk diisi otomatis';
         inputKode.readOnly = true;
         inputNama.readOnly = true;
         inputWarna.readOnly = true;
         populateDatalistStok();
     } else {
-        containerPilih.style.display = 'none';
         containerCustomer.style.display = 'none';
+        labelPilihStok.textContent = 'Sudah Pernah Terinput (Opsional)';
+        helpPilihStok.textContent = 'Pilih barang yang pernah terinput untuk diisi otomatis';
         inputKode.readOnly = false;
         inputNama.readOnly = false;
         inputWarna.readOnly = false;
         if (inputJumlah) {
             inputJumlah.removeAttribute('max');
+            inputJumlah.placeholder = 'Masukkan Jumlah Barang';
         }
+        populateDatalistBarangMasuk();
         resetFormInput();
     }
 }
@@ -1997,14 +2006,38 @@ function populateDatalistStok() {
     });
 }
 
+function populateDatalistBarangMasuk() {
+    const list = document.getElementById('listBarangStok');
+    if (!list) return;
+    list.innerHTML = '';
+    const mapStok = hitungStokPerBarang();
+
+    Object.values(mapStok).forEach(item => {
+        const option = document.createElement('option');
+        option.value = `${item.kode} - ${item.nama} (${item.warna})`;
+        list.appendChild(option);
+    });
+}
+
 function handleBarangKeluarSelect(selectedVal) {
+    const jenis = document.getElementById('jenis').value;
     const inputJumlah = document.getElementById('jumlah');
+    const inputKode = document.getElementById('kode');
+    const inputNama = document.getElementById('nama');
+    const inputWarna = document.getElementById('warna');
 
     if (!selectedVal) {
-        document.getElementById('kode').value = '';
-        document.getElementById('nama').value = '';
-        document.getElementById('warna').value = '';
-        if (inputJumlah) {
+        inputKode.value = '';
+        inputNama.value = '';
+        inputWarna.value = '';
+
+        if (jenis === 'masuk') {
+            inputKode.readOnly = false;
+            inputNama.readOnly = false;
+            inputWarna.readOnly = false;
+        }
+
+        if (inputJumlah && jenis === 'keluar') {
             inputJumlah.placeholder = 'Masukkan Jumlah Barang';
             inputJumlah.removeAttribute('max');
         }
@@ -2012,21 +2045,42 @@ function handleBarangKeluarSelect(selectedVal) {
     }
 
     const mapStok = hitungStokPerBarang();
-    const barangFound = Object.values(mapStok).find(item => {
-        const fullString = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
-        return item.sisa > 0 && (fullString === selectedVal || item.kode === selectedVal);
-    });
 
-    if (barangFound) {
-        document.getElementById('kode').value = barangFound.kode;
-        document.getElementById('nama').value = barangFound.nama;
-        document.getElementById('warna').value = barangFound.warna;
-        if (inputJumlah) {
-            inputJumlah.placeholder = `Maksimal: ${barangFound.sisa}`;
-            inputJumlah.setAttribute('max', barangFound.sisa);
-            if (parseInt(inputJumlah.value) > barangFound.sisa) {
-                inputJumlah.value = barangFound.sisa;
+    if (jenis === 'keluar') {
+        const barangFound = Object.values(mapStok).find(item => {
+            const fullString = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+            return item.sisa > 0 && (fullString === selectedVal || item.kode === selectedVal);
+        });
+
+        if (barangFound) {
+            inputKode.value = barangFound.kode;
+            inputNama.value = barangFound.nama;
+            inputWarna.value = barangFound.warna;
+            inputKode.readOnly = true;
+            inputNama.readOnly = true;
+            inputWarna.readOnly = true;
+
+            if (inputJumlah) {
+                inputJumlah.placeholder = `Maksimal: ${barangFound.sisa}`;
+                inputJumlah.setAttribute('max', barangFound.sisa);
+                if (parseInt(inputJumlah.value) > barangFound.sisa) {
+                    inputJumlah.value = barangFound.sisa;
+                }
             }
+        }
+    } else {
+        const barangFound = Object.values(mapStok).find(item => {
+            const fullString = `${item.kode} - ${item.nama} (${item.warna})`;
+            return fullString === selectedVal || item.kode === selectedVal;
+        });
+
+        if (barangFound) {
+            inputKode.value = barangFound.kode;
+            inputNama.value = barangFound.nama;
+            inputWarna.value = barangFound.warna;
+            inputKode.readOnly = true;
+            inputNama.readOnly = true;
+            inputWarna.readOnly = true;
         }
     }
 }
@@ -2094,11 +2148,27 @@ function simpanTransaksi() {
 }
 
 function resetFormInput() {
+    const jenis = document.getElementById('jenis') ? document.getElementById('jenis').value : 'masuk';
     if (document.getElementById('searchBarangKeluar')) document.getElementById('searchBarangKeluar').value = '';
     if (document.getElementById('customer')) document.getElementById('customer').value = '';
-    if (document.getElementById('kode')) document.getElementById('kode').value = '';
-    if (document.getElementById('nama')) document.getElementById('nama').value = '';
-    if (document.getElementById('warna')) document.getElementById('warna').value = '';
+    
+    const inputKode = document.getElementById('kode');
+    const inputNama = document.getElementById('nama');
+    const inputWarna = document.getElementById('warna');
+
+    if (inputKode) {
+        inputKode.value = '';
+        if (jenis === 'masuk') inputKode.readOnly = false;
+    }
+    if (inputNama) {
+        inputNama.value = '';
+        if (jenis === 'masuk') inputNama.readOnly = false;
+    }
+    if (inputWarna) {
+        inputWarna.value = '';
+        if (jenis === 'masuk') inputWarna.readOnly = false;
+    }
+
     if (document.getElementById('jumlah')) {
         document.getElementById('jumlah').value = '';
         document.getElementById('jumlah').placeholder = 'Masukkan Jumlah Barang';
@@ -2193,7 +2263,7 @@ function renderStok() {
         });
 
     if (listStok.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty">Tidak ada data stok barang.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stok barang.</td></tr>`;
         return;
     }
 
@@ -2209,8 +2279,6 @@ function renderStok() {
             <td><strong>${escapeHTML(item.kode)}</strong></td>
             <td>${escapeHTML(item.nama)}</td>
             <td>${escapeHTML(item.warna)}</td>
-            <td class="text-center">${formatAngka(item.masuk)}</td>
-            <td class="text-center">${formatAngka(item.keluar)}</td>
             <td class="text-center">${sisaStokHtml}</td>
         `;
         tbody.appendChild(tr);
@@ -2324,6 +2392,33 @@ function simpanEdit() {
         return;
     }
 
+    if (jenis === 'keluar') {
+        if (!customer) {
+            alert("Mohon isi Nama Customer untuk Barang Keluar!");
+            return;
+        }
+        const mapStokLuar = hitungStokPerBarang(editIndex);
+        const key = getStockKey(kode, warna);
+        const stokTersedia = mapStokLuar[key] ? mapStokLuar[key].sisa : 0;
+
+        if (jumlah > stokTersedia) {
+            alert(`Jumlah melebihi stok yang ada!\nSisa stok [${kode} - ${warna}] saat ini hanya: ${stokTersedia}`);
+            document.getElementById('editJumlah').value = stokTersedia > 0 ? stokTersedia : 1;
+            return;
+        }
+    } else {
+        const mapStokLuar = hitungStokPerBarang(editIndex);
+        const key = getStockKey(kode, warna);
+        const totalMasukLain = mapStokLuar[key] ? mapStokLuar[key].masuk : 0;
+        const totalKeluar = mapStokLuar[key] ? mapStokLuar[key].keluar : 0;
+        
+        if ((totalMasukLain + jumlah) < totalKeluar) {
+            alert(`Jumlah barang masuk tidak boleh lebih kecil dari total barang yang sudah terjual (${totalKeluar})!\nUbah menjadi minimal: ${totalKeluar - totalMasukLain}`);
+            document.getElementById('editJumlah').value = totalKeluar - totalMasukLain;
+            return;
+        }
+    }
+
     transaksi[editIndex] = {
         ...transaksi[editIndex],
         jenis, kode, nama, warna, customer: jenis === 'keluar' ? customer : '-', jumlah
@@ -2364,6 +2459,20 @@ function eksekusiHapusDenganPin() {
     const storedPin = getStoredPin();
 
     if (inputPin === storedPin) {
+        const itemDihapus = transaksi[deleteTargetIndex];
+        if (itemDihapus.jenis === 'masuk') {
+            const mapStokLuar = hitungStokPerBarang(deleteTargetIndex);
+            const key = getStockKey(itemDihapus.kode, itemDihapus.warna);
+            const totalMasukLain = mapStokLuar[key] ? mapStokLuar[key].masuk : 0;
+            const totalKeluar = mapStokLuar[key] ? mapStokLuar[key].keluar : 0;
+
+            if (totalMasukLain < totalKeluar) {
+                alert(`Data barang masuk ini tidak dapat dihapus karena barang sudah terjual sebanyak ${totalKeluar} unit!\nHapus atau kurangi dulu transaksi penjualan terkait.`);
+                tutupModalDeletePin();
+                return;
+            }
+        }
+
         transaksi.splice(deleteTargetIndex, 1);
         saveData();
         updateApp();
@@ -2501,8 +2610,11 @@ function updateApp() {
     if (document.getElementById('transaksiPage').classList.contains('active')) {
         renderTransaksi();
     }
-    if (document.getElementById('jenis') && document.getElementById('jenis').value === 'keluar') {
+    const jenis = document.getElementById('jenis') ? document.getElementById('jenis').value : 'masuk';
+    if (jenis === 'keluar') {
         populateDatalistStok();
+    } else {
+        populateDatalistBarangMasuk();
     }
 }
 

@@ -300,12 +300,12 @@ body {
     text-decoration: underline;
 }
 
-/* USER BADGE DI PALING ATAS KANAN */
+/* USER BADGE DI PALING ATAS KANAN DENGAN GAMBAR PROFIL */
 .user-badge-top-right {
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.4);
     color: white;
-    padding: 6px 12px;
+    padding: 4px 10px 4px 6px;
     border-radius: var(--radius-md);
     font-size: 13px;
     font-weight: 600;
@@ -314,6 +314,17 @@ body {
     gap: 8px;
     backdrop-filter: blur(8px);
     white-space: nowrap;
+}
+
+/* STYLING FOTO PROFIL / AVATAR USER */
+.user-avatar-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
 }
 
 .btn-logout {
@@ -326,6 +337,7 @@ body {
     border: none;
     font-weight: 600;
     transition: background 0.2s;
+    margin-left: 2px;
 }
 
 .btn-logout:hover {
@@ -641,6 +653,8 @@ button:hover {
 .btn-backup { background: #8e44ad; color: white; }
 .btn-edit { background: var(--warning); color: white; padding: 6px 12px; font-size: 12px; }
 .btn-delete { background: var(--danger); color: white; padding: 6px 12px; font-size: 12px; }
+.btn-clear-all { background: #b71c1c; color: white; }
+.btn-clear-all:hover { background: #880e4f; }
 .btn-lock { background: #475569; color: white; }
 
 .toolbar {
@@ -981,6 +995,23 @@ tbody tr:hover { background: var(--table-hover); }
         text-align: right;
         font-size: 11px;
         color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+    }
+
+    .print-user-badge-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .print-user-avatar-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 1px solid #000;
     }
 
     .table-wrapper {
@@ -1150,9 +1181,10 @@ tbody tr:hover { background: var(--table-hover); }
             <p>Sistem Pencatatan & Operasional Stock Barang</p>
         </div>
         
-        <!-- NAMA USER BERADA DI PALING ATAS KANAN -->
+        <!-- NAMA USER & FOTO PROFIL DENGAN AVATAR LINGKARAN -->
         <div class="user-badge-top-right">
-            👤 <span id="displayLoggedInUser">-</span>
+            <img id="userAvatarImg" class="user-avatar-img" src="" alt="Avatar" onclick="gantiAvatarRandom()" title="Klik untuk acak foto profil">
+            <span id="displayLoggedInUser">-</span>
             <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
         </div>
     </div>
@@ -1201,11 +1233,13 @@ tbody tr:hover { background: var(--table-hover); }
         <div class="print-header-top">
             <div class="print-header-brand">
                 <h1>Manual Stock Management System</h1>
-                <p>Laporan Resmi Rekapitulasi Stok Barang</p>
+                <p>Laporan Resmi Rekapitulasi Stock Barang</p>
             </div>
             <div class="print-header-meta">
                 <div>Tanggal Cetak: <strong id="printHeaderDate">-</strong></div>
-                <div>Dicetak Oleh: <strong id="printHeaderUser">-</strong></div>
+                <div class="print-user-badge-meta">
+                    Dicetak Oleh: <img id="printUserAvatarImg" class="print-user-avatar-img" src="" alt="User Avatar"> <strong id="printHeaderUser">-</strong>
+                </div>
             </div>
         </div>
     </div>
@@ -1334,7 +1368,7 @@ tbody tr:hover { background: var(--table-hover); }
         <!-- TABEL RINCIAN SISA STOK -->
         <div class="card">
             <div class="card-title">
-                <span>Stok Barang</span>
+                <span>Stock Barang</span>
                 <!-- LANGSUNG TAMPILKAN HASIL TOTAL SELURUH STOK -->
                 <div class="badge-total-stok" id="displayTotalStok">
                     Grand Total Stock 0 
@@ -1405,8 +1439,9 @@ tbody tr:hover { background: var(--table-hover); }
                     <button class="btn-upload" onclick="document.getElementById('uploadExcelInput').click()">UPLOAD EXCEL</button>
                     <input type="file" id="uploadExcelInput" accept=".xlsx,.xls" onchange="importExcel(event)">
                     <button class="btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
-                    <!-- PRINT LAPORAN DI SINI SUDAH DIHILANGKAN DENGAN RAPI -->
                     <button class="btn-backup" onclick="backupJSON()">BACKUP DATA</button>
+                    <!-- BUTTON HAPUS SEMUA TRANSAKSI -->
+                    <button class="btn-clear-all" onclick="konfirmasiHapusSemuaTransaksi()">HAPUS TRANSAKSI</button>
                 </div>
             </div>
 
@@ -1463,7 +1498,7 @@ tbody tr:hover { background: var(--table-hover); }
     </div>
 </div>
 
-<!-- MODAL KONFIRMASI PIN SAAT HAPUS TRANSAKSI -->
+<!-- MODAL KONFIRMASI PIN SAAT HAPUS TRANSAKSI SATUAN -->
 <div class="modal" id="deletePinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header" style="background: var(--danger);">
@@ -1488,6 +1523,35 @@ tbody tr:hover { background: var(--table-hover); }
         <div class="modal-footer">
             <button class="btn-reset" onclick="tutupModalDeletePin()">BATAL</button>
             <button class="btn-delete" style="padding: 10px 18px; font-size: 13px;" onclick="eksekusiHapusDenganPin()">HAPUS TRANSAKSI</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI PIN SAAT HAPUS SEMUA TRANSAKSI -->
+<div class="modal" id="clearAllModal">
+    <div class="modal-box" style="max-width: 440px;">
+        <div class="modal-header" style="background: #b71c1c;">
+            <h2>⚠️ HAPUS SEMUA TRANSAKSI</h2>
+            <button class="close-modal" onclick="tutupModalClearAll()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:#b71c1c; margin-bottom:10px; font-weight: 700;">
+                PERINGATAN SANGAT PENTING!!!
+            </p>
+            <p style="font-size:12px; color:var(--text-dark); margin-bottom:15px;">
+                Tindakan ini akan menghapus <strong>SELURUH RIWAYAT TRANSAKSI</strong> dan mengosongkan stok secara permanen - Data yang telah dihapus tidak bisa dikembalikan.
+            </p>
+            <div class="form-group">
+                <label>PIN Akses</label>
+                <div class="password-wrapper">
+                    <input type="password" id="inputPinClearAll" placeholder="Masukkan PIN Akses Anda" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusSemuaDenganPin()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinClearAll', this)">👀</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalClearAll()">BATALKAN</button>
+            <button class="btn-clear-all" style="padding: 10px 18px; font-size: 13px; font-weight:700;" onclick="eksekusiHapusSemuaDenganPin()">KOSONGKAN SEMUA DATA</button>
         </div>
     </div>
 </div>
@@ -1618,6 +1682,72 @@ const namaBulan = [
 ];
 
 /* =========================================================
+   GENERATE FOTO PROFIL PEMANDANGAN ALAM (RANDOM & ESTETIK)
+========================================================= */
+const avatarList = [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=150&q=80", // Gunung & Danau
+    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=150&q=80", // Hutan Pinus
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=150&q=80", // Kabut Kabut Lembah
+    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=150&q=80", // Lembah & Sungai
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=150&q=80", // Padang Rumput Hijau
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80", // Pantai Sunset
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=150&q=80", // Puncak Gunung Salju
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=150&q=80", // Danau Biru
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=150&q=80", // Hutan Pepohonan Rindang
+    "https://images.unsplash.com/photo-1439853949127-fa647821eba0?auto=format&fit=crop&w=150&q=80"  // Air Terjun Sejuk
+];
+
+function getUserAvatarUrl(username, offset = 0) {
+    if (!username) username = "User";
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash + offset) % avatarList.length;
+    return avatarList[index];
+}
+
+function getFallbackAvatarUrl(username) {
+    const cleanName = encodeURIComponent(username || 'User');
+    return `https://ui-avatars.com/api/?name=${cleanName}&background=1565c0&color=ffffff&bold=true&rounded=true`;
+}
+
+function setupAvatarImages(username) {
+    const avatarUrl = getUserAvatarUrl(username);
+    const fallbackUrl = getFallbackAvatarUrl(username);
+    
+    const userAvatarImg = document.getElementById('userAvatarImg');
+    const printUserAvatarImg = document.getElementById('printUserAvatarImg');
+    
+    if (userAvatarImg) {
+        userAvatarImg.src = avatarUrl;
+        userAvatarImg.onerror = function() { this.src = fallbackUrl; };
+    }
+    if (printUserAvatarImg) {
+        printUserAvatarImg.src = avatarUrl;
+        printUserAvatarImg.onerror = function() { this.src = fallbackUrl; };
+    }
+}
+
+let avatarOffset = 0;
+function gantiAvatarRandom() {
+    const loggedUser = localStorage.getItem(CURRENT_USER_KEY) || 'User';
+    avatarOffset += Math.floor(Math.random() * 5) + 1;
+    setupAvatarImages(loggedUser + avatarOffset);
+}
+
+/* =========================================================
+   BLOKIR SHORTCUT MENCETAK (CTRL+P / CMD+P)
+========================================================= */
+window.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        alert("Fungsi PRINT langsung tidak bisa.\nGunakan tombol PRINT STOK resmi di menu Report Stock Barang.");
+        return false;
+    }
+});
+
+/* =========================================================
    LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD)
 ========================================================= */
 function getUsers() {
@@ -1735,6 +1865,10 @@ function checkSession() {
         authContainer.style.display = 'none';
         mainApp.style.display = 'block';
         document.getElementById('displayLoggedInUser').textContent = loggedUser;
+        
+        // Pasang foto profil acak manusia yang keren & estetik
+        setupAvatarImages(loggedUser);
+
         initTheme();
         loadData();
         updateClock();
@@ -2035,8 +2169,16 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-/* FUNKSI CETAK RAPI UNTUK STOK BARANG */
+/* FUNKSI CETAK RAPI UNTUK STOK BARANG DENGAN VALIDASI CEK DATA KOSONG */
 function cetakLaporanStok() {
+    const mapStok = hitungStokPerBarang();
+    const totalItem = Object.keys(mapStok).length;
+
+    if (totalItem === 0) {
+        alert("Tidak ada data stock barang untuk dicetak!");
+        return;
+    }
+
     const now = new Date();
     const userLog = localStorage.getItem(CURRENT_USER_KEY) || '-';
     
@@ -2409,7 +2551,7 @@ function renderStok() {
         });
 
     if (listStok.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stok barang.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stock barang.</td></tr>`;
         return;
     }
 
@@ -2576,7 +2718,7 @@ function simpanEdit() {
     alert("Data transaksi berhasil diperbarui!");
 }
 
-/* LOGIKA HAPUS DENGAN VERIFIKASI PIN */
+/* LOGIKA HAPUS SATUAN DENGAN VERIFIKASI PIN */
 function konfirmasiHapusPin(index) {
     deleteTargetIndex = index;
     const inputPin = document.getElementById('inputPinDelete');
@@ -2627,6 +2769,51 @@ function eksekusiHapusDenganPin() {
     } else {
         alert("Kode PIN salah! Penghapusan dibatalkan.");
         document.getElementById('inputPinDelete').value = '';
+    }
+}
+
+/* LOGIKA HAPUS SEMUA TRANSAKSI DENGAN PROTEKSI PIN */
+function konfirmasiHapusSemuaTransaksi() {
+    if (transaksi.length === 0) {
+        alert("Riwayat transaksi sudah kosong!");
+        return;
+    }
+
+    if (!confirm("⚠️ APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH TRANSAKSI?\n\nSemua riwayat barang masuk, penjualan, dan sisa stok akan dikosongkan secara permanen!")) {
+        return;
+    }
+
+    const inputPin = document.getElementById('inputPinClearAll');
+    if (inputPin) {
+        inputPin.value = '';
+        inputPin.type = 'password';
+    }
+    const eyeBtn = document.querySelector('#clearAllModal .toggle-password');
+    if (eyeBtn) eyeBtn.textContent = '👀';
+
+    document.getElementById('clearAllModal').classList.add('active');
+    setTimeout(() => {
+        if (inputPin) inputPin.focus();
+    }, 100);
+}
+
+function tutupModalClearAll() {
+    document.getElementById('clearAllModal').classList.remove('active');
+}
+
+function eksekusiHapusSemuaDenganPin() {
+    const inputPin = document.getElementById('inputPinClearAll').value;
+    const storedPin = getStoredPin();
+
+    if (inputPin === storedPin) {
+        transaksi = [];
+        saveData();
+        updateApp();
+        tutupModalClearAll();
+        alert("Seluruh riwayat transaksi berhasil dikosongkan!");
+    } else {
+        alert("Kode PIN salah! Penghapusan seluruh transaksi dibatalkan.");
+        document.getElementById('inputPinClearAll').value = '';
     }
 }
 

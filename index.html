@@ -926,7 +926,7 @@ tbody tr:hover { background: var(--table-hover); }
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="loginPassword" placeholder="Masukkan Password Anda" required autocomplete="off">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👀</button>
                 </div>
             </div>
             <button type="submit" class="btn-primary">MASUK SISTEM</button>
@@ -955,7 +955,7 @@ tbody tr:hover { background: var(--table-hover); }
                 <label>Password Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="regPassword" placeholder="Minimal 4 karakter" required autocomplete="off">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👀</button>
                 </div>
             </div>
             <button type="submit" class="btn-primary">DAFTAR SEKARANG</button>
@@ -998,7 +998,7 @@ tbody tr:hover { background: var(--table-hover); }
                 <label>Password Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="forgotNewPassword" placeholder="Masukkan Password Baru" required autocomplete="off">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👀</button>
                 </div>
             </div>
             <button type="submit" class="btn-primary">SIMPAN PASSWORD BARU</button>
@@ -1309,7 +1309,7 @@ tbody tr:hover { background: var(--table-hover); }
                 <label>PIN Akses</label>
                 <div class="password-wrapper">
                     <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👀</button>
                 </div>
             </div>
         </div>
@@ -1338,7 +1338,7 @@ tbody tr:hover { background: var(--table-hover); }
                 <label>PIN Akses</label>
                 <div class="password-wrapper">
                     <input type="password" id="inputPinDelete" placeholder="Masukkan PIN Akses" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusDenganPin()">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinDelete', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinDelete', this)">👀</button>
                 </div>
             </div>
         </div>
@@ -1361,21 +1361,21 @@ tbody tr:hover { background: var(--table-hover); }
                 <label>PIN Lama</label>
                 <div class="password-wrapper">
                     <input type="password" id="pinLama" placeholder="Masukkan PIN Lama">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinLama', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinLama', this)">👀</button>
                 </div>
             </div>
             <div class="form-group" style="margin-bottom:12px;">
                 <label>PIN Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="pinBaru" placeholder="Masukkan PIN Baru">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinBaru', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinBaru', this)">👀</button>
                 </div>
             </div>
             <div class="form-group">
                 <label>Konfirmasi PIN Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="pinKonfirmasi" placeholder="Ulangi PIN Baru">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinKonfirmasi', this)">👁️</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinKonfirmasi', this)">👀</button>
                 </div>
             </div>
         </div>
@@ -1635,10 +1635,10 @@ function togglePasswordVisibility(inputId, btn) {
     if (!input) return;
     if (input.type === "password") {
         input.type = "text";
-        btn.textContent = "🙈";
+        btn.textContent = "🗙";
     } else {
         input.type = "password";
-        btn.textContent = "👁️";
+        btn.textContent = "👀";
     }
 }
 
@@ -1670,7 +1670,7 @@ function tryAccessTransaksi() {
         document.getElementById('inputPinAkses').value = '';
         document.getElementById('inputPinAkses').type = 'password';
         const eyeBtn = document.querySelector('#pinModal .toggle-password');
-        if (eyeBtn) eyeBtn.textContent = '👁️';
+        if (eyeBtn) eyeBtn.textContent = '👀';
 
         document.getElementById('pinModal').classList.add('active');
         setTimeout(() => document.getElementById('inputPinAkses').focus(), 100);
@@ -1713,7 +1713,7 @@ function bukaModalUbahPin() {
             inp.type = 'password';
         }
     });
-    document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👁️');
+    document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👀');
     document.getElementById('ubahPinModal').classList.add('active');
 }
 
@@ -2344,7 +2344,7 @@ function konfirmasiHapusPin(index) {
         inputPin.type = 'password';
     }
     const eyeBtn = document.querySelector('#deletePinModal .toggle-password');
-    if (eyeBtn) eyeBtn.textContent = '👁️';
+    if (eyeBtn) eyeBtn.textContent = '👀';
 
     document.getElementById('deletePinModal').classList.add('active');
     setTimeout(() => {

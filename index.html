@@ -1474,6 +1474,7 @@ const CURRENT_USER_KEY = "SISTEM_STOK_LOGGED_USER";
 const STORAGE_KEY = "SISTEM_POTONG_STOK_DATA_PERMANEN";
 const PIN_KEY = "SISTEM_STOK_PIN_AKSES";
 const THEME_KEY = "SISTEM_STOK_THEME_MODE";
+const PAGE_KEY = "SISTEM_STOK_LAST_ACTIVE_PAGE";
 const DEFAULT_PIN = "1234";
 
 const OLD_STORAGE_KEYS = [
@@ -1615,6 +1616,19 @@ function checkSession() {
         initTheme();
         loadData();
         updateClock();
+        
+        // Cek halaman terakhir sebelum direfresh
+        const savedPage = localStorage.getItem(PAGE_KEY);
+        if (savedPage && savedPage !== 'inputPage') {
+            if (savedPage === 'transaksiPage' && !isAuthorized) {
+                switchPage('inputPage');
+            } else {
+                switchPage(savedPage);
+            }
+        } else {
+            switchPage('inputPage');
+        }
+        
         updateApp();
     } else {
         authContainer.style.display = 'flex';
@@ -1626,6 +1640,7 @@ function checkSession() {
 function prosesLogout() {
     if (confirm("Apakah Anda yakin ingin keluar dari sistem?")) {
         localStorage.removeItem(CURRENT_USER_KEY);
+        localStorage.removeItem(PAGE_KEY);
         isAuthorized = false;
         checkSession();
     }
@@ -1746,12 +1761,16 @@ function simpanPinBaru() {
     tutupModalUbahPin();
 }
 
-/* 3. MANAGEMENT NAVIGASI TABS */
+/* 3. MANAGEMENT NAVIGASI TABS & MENYIMPAN HALAMAN TERAKHIR */
 function switchPage(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
-    document.getElementById(pageId).classList.add('active');
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        localStorage.setItem(PAGE_KEY, pageId);
+    }
 
     if (pageId === 'inputPage') {
         document.getElementById('tabInputBtn').classList.add('active');
@@ -1820,12 +1839,12 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
-/* FORMAT TANGGAL DD-MM-YYYY KE YYYY-MM-DD (UNTUK KOMPARASI TANGGAL) */
+/* FORMAT TANGGAL DD-MM-YYYY KE OBJECT DATE (UNTUK KOMPARASI TANGGAL SISA & PENCARIAN) */
 function parseDateDDMMYYYY(str) {
     if (!str) return null;
     const parts = str.split('-');
     if (parts.length !== 3) return null;
-    return new Date(parts[2], parts[1] - 1, parts[0]);
+    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
 }
 
 /* RESET INPUT FILTER TANGGAL */
@@ -2032,7 +2051,7 @@ function resetForm() {
     resetFormInput();
 }
 
-/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI (DENGAN FILTER TANGGAL) */
+/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI (PERBAIKAN LOGIKA PENCARIAN TANGGAL ACCURATE) */
 function renderPenjualan() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
@@ -2040,9 +2059,18 @@ function renderPenjualan() {
     
     const tglAwalVal = document.getElementById('tglAwalPenjualan').value;
     const tglAkhirVal = document.getElementById('tglAkhirPenjualan').value;
-    const tglAwal = tglAwalVal ? new Date(tglAwalVal) : null;
-    const tglAkhir = tglAkhirVal ? new Date(tglAkhirVal) : null;
-    if (tglAkhir) tglAkhir.setHours(23, 59, 59, 999);
+    
+    let tglAwal = null;
+    let tglAkhir = null;
+
+    if (tglAwalVal) {
+        const p = tglAwalVal.split('-');
+        tglAwal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0);
+    }
+    if (tglAkhirVal) {
+        const p = tglAkhirVal.split('-');
+        tglAkhir = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999);
+    }
 
     tbody.innerHTML = '';
     const filtered = transaksi.filter(item => {
@@ -2132,9 +2160,18 @@ function renderTransaksi() {
 
     const tglAwalVal = document.getElementById('tglAwalTransaksi').value;
     const tglAkhirVal = document.getElementById('tglAkhirTransaksi').value;
-    const tglAwal = tglAwalVal ? new Date(tglAwalVal) : null;
-    const tglAkhir = tglAkhirVal ? new Date(tglAkhirVal) : null;
-    if (tglAkhir) tglAkhir.setHours(23, 59, 59, 999);
+    
+    let tglAwal = null;
+    let tglAkhir = null;
+
+    if (tglAwalVal) {
+        const p = tglAwalVal.split('-');
+        tglAwal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0);
+    }
+    if (tglAkhirVal) {
+        const p = tglAkhirVal.split('-');
+        tglAkhir = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999);
+    }
 
     tbody.innerHTML = '';
     const filtered = transaksi.filter(item => {
@@ -2282,9 +2319,18 @@ function exportExcel() {
 
     const tglAwalVal = document.getElementById('tglAwalTransaksi').value;
     const tglAkhirVal = document.getElementById('tglAkhirTransaksi').value;
-    const tglAwal = tglAwalVal ? new Date(tglAwalVal) : null;
-    const tglAkhir = tglAkhirVal ? new Date(tglAkhirVal) : null;
-    if (tglAkhir) tglAkhir.setHours(23, 59, 59, 999);
+    
+    let tglAwal = null;
+    let tglAkhir = null;
+
+    if (tglAwalVal) {
+        const p = tglAwalVal.split('-');
+        tglAwal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0);
+    }
+    if (tglAkhirVal) {
+        const p = tglAkhirVal.split('-');
+        tglAkhir = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999);
+    }
 
     const dataFiltered = transaksi.filter(item => {
         let matchDate = true;

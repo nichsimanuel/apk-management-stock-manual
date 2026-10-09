@@ -299,8 +299,8 @@ body {
     text-decoration: underline;
 }
 
-/* USER BADGE SEDERET DENGAN NAVIGASI HEADER (KANAN ATAS) */
-.user-badge-header {
+/* USER BADGE DI PALING ATAS KANAN */
+.user-badge-top-right {
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.4);
     color: white;
@@ -312,6 +312,7 @@ body {
     align-items: center;
     gap: 8px;
     backdrop-filter: blur(8px);
+    white-space: nowrap;
 }
 
 .btn-logout {
@@ -346,7 +347,7 @@ body {
     margin: auto;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: flex-start;
     flex-wrap: wrap;
     gap: 15px;
 }
@@ -363,11 +364,22 @@ body {
     margin-top: 4px;
 }
 
-.header-right {
+/* KONTROL BARIS BAWAH HEADER (SEDERET DENGAN TABS) */
+.header-bottom-row {
+    max-width: 1400px;
+    margin: 20px auto 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.header-controls-bottom {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 2px;
 }
 
 .header-time {
@@ -402,8 +414,6 @@ body {
 
 /* Navigasi Tab */
 .nav-tabs {
-    max-width: 1400px;
-    margin: 20px auto 0 auto;
     display: flex;
     gap: 8px;
     overflow-x: auto;
@@ -823,7 +833,8 @@ tbody tr:hover { background: var(--table-hover); }
     .form-grid { grid-template-columns: 1fr; }
     .search-area, .button-area { flex-direction: column; width: 100%; }
     .search-area input, .search-area select, .button-area button { width: 100%; }
-    .header-right { flex-wrap: wrap; }
+    .header-bottom-row { flex-direction: column; align-items: stretch; }
+    .header-controls-bottom { justify-content: space-between; margin-bottom: 10px; }
 }
 
 @media print {
@@ -869,7 +880,7 @@ tbody tr:hover { background: var(--table-hover); }
         </div>
     </div>
 
-    <!-- 2. FORM BUAT AKUN (REGISTRASI) -->
+    <!-- 2. FORM BUAT AKUN (REGISTRASI TANPA PERTANYAAN KEAMANAN) -->
     <div class="auth-card" id="registerCard" style="display: none;">
         <div class="auth-brand">
             <div class="brand-icon">📝</div>
@@ -882,14 +893,6 @@ tbody tr:hover { background: var(--table-hover); }
             <div class="form-group">
                 <label>Username Baru</label>
                 <input type="text" id="regUsername" placeholder="Contoh: admin_stok" required autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>Pertanyaan Keamanan</label>
-                <input type="text" id="regSecurityQuestion" placeholder="Contoh: Nama hewan peliharaan Anda?" required autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>Jawaban Keamanan</label>
-                <input type="text" id="regSecurityAnswer" placeholder="Masukkan Jawaban Keamanan" required autocomplete="off">
             </div>
             <div class="form-group">
                 <label>Password Baru</label>
@@ -905,14 +908,14 @@ tbody tr:hover { background: var(--table-hover); }
         </div>
     </div>
 
-    <!-- 3. FORM LUPA PASSWORD -->
+    <!-- 3. FORM LUPA PASSWORD (BERBERAPAKAN TAHAP VERIFIKASI) -->
     <div class="auth-card" id="forgotCard" style="display: none;">
         <div class="auth-brand">
             <div class="brand-icon">🔑</div>
         </div>
         <div class="auth-header">
             <h2>Lupa Password</h2>
-            <p>Reset password akun Anda dengan pertanyaan keamanan</p>
+            <p>Reset password akun Anda melalui verifikasi username</p>
         </div>
         
         <!-- STEP 1: CARI USERNAME -->
@@ -924,16 +927,16 @@ tbody tr:hover { background: var(--table-hover); }
             <button type="submit" class="btn-primary">VERIFIKASI AKUN</button>
         </form>
 
-        <!-- STEP 2: JAWAB PERTANYAAN KEAMANAN & UBAH PASSWORD -->
-        <form class="auth-form" id="forgotStep2" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
-            <div class="form-group">
-                <label>Pertanyaan Keamanan:</label>
-                <p id="displaySecurityQuestion" style="font-size:12px; font-weight:700; color:#1e88e5; margin-bottom:8px; background:#e3f2fd; padding:8px; border-radius:8px;"></p>
-            </div>
-            <div class="form-group">
-                <label>Jawaban Keamanan</label>
-                <input type="text" id="forgotAnswer" placeholder="Masukkan Jawaban Keamanan" required autocomplete="off">
-            </div>
+        <!-- STEP 2: KONFIRMASI VERIFIKASI SEBELUM UBAH PASSWORD -->
+        <div id="forgotStep2Confirm" style="display: none; text-align: center; margin-bottom: 12px;">
+            <p style="font-size:12px; font-weight:600; color:#1e88e5; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:12px;">
+                Akun ditemukan! Klik tombol di bawah untuk melanjutkan pembaruan password.
+            </p>
+            <button type="button" class="btn-primary" onclick="lanjutkanKeFormReset()">LANJUTKAN RESET PASSWORD</button>
+        </div>
+
+        <!-- STEP 3: UBAH PASSWORD BARU -->
+        <form class="auth-form" id="forgotStep3" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
             <div class="form-group">
                 <label>Password Baru</label>
                 <div class="password-wrapper">
@@ -941,7 +944,7 @@ tbody tr:hover { background: var(--table-hover); }
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👁️</button>
                 </div>
             </div>
-            <button type="submit" class="btn-primary">RESET PASSWORD</button>
+            <button type="submit" class="btn-primary">SIMPAN PASSWORD BARU</button>
         </form>
 
         <div class="auth-links">
@@ -962,12 +965,33 @@ tbody tr:hover { background: var(--table-hover); }
             <h1>Manual Stock Management System</h1>
             <p>Sistem Pencatatan Transaksi & Operasional Stok Barang</p>
         </div>
-        <div class="header-right">
-            <!-- BADGE USER LOGIN TERLETAK PALING ATAS KANAN SEDERET DENGAN TANGGAL & TEMA -->
-            <div class="user-badge-header">
-                👤 <span id="displayLoggedInUser">-</span>
-                <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
-            </div>
+        
+        <!-- NAMA USER BERADA DI PALING ATAS KANAN -->
+        <div class="user-badge-top-right">
+            👤 <span id="displayLoggedInUser">-</span>
+            <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
+        </div>
+    </div>
+
+    <!-- TANGGAL, TEMA, DAN TABS NAVIGASI BERADA DI BARIS BAWAH -->
+    <div class="header-bottom-row">
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabInputBtn" onclick="switchPage('inputPage')">
+                Form Input
+            </button>
+            <button class="tab-btn" id="tabPenjualanBtn" onclick="switchPage('penjualanPage')">
+                Penjualan
+            </button>
+            <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
+                Sisa Stok Barang
+            </button>
+            <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
+                🔒︎ Riwayat Transaksi
+            </button>
+        </div>
+
+        <!-- TANGGAL DAN TEMA SEDERET DENGAN NAVIGASI / DI BAWAH USER -->
+        <div class="header-controls-bottom">
             <div class="header-time">
                 Tanggal: <strong id="headerDate">-</strong>
             </div>
@@ -983,22 +1007,6 @@ tbody tr:hover { background: var(--table-hover); }
                 <option value="slate">Slate Gray</option>
             </select>
         </div>
-    </div>
-
-    <!-- TABS NAVIGASI UTAMA -->
-    <div class="nav-tabs">
-        <button class="tab-btn active" id="tabInputBtn" onclick="switchPage('inputPage')">
-            Form Input
-        </button>
-        <button class="tab-btn" id="tabPenjualanBtn" onclick="switchPage('penjualanPage')">
-            Penjualan
-        </button>
-        <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
-            Sisa Stok Barang
-        </button>
-        <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
-            🔒︎ Riwayat Transaksi
-        </button>
     </div>
 </header>
 
@@ -1395,7 +1403,8 @@ function showAuthCard(cardId) {
 
     if (cardId === 'forgotCard') {
         document.getElementById('forgotStep1').style.display = 'block';
-        document.getElementById('forgotStep2').style.display = 'none';
+        document.getElementById('forgotStep2Confirm').style.display = 'none';
+        document.getElementById('forgotStep3').style.display = 'none';
         document.getElementById('forgotUsername').value = '';
         forgotTargetUser = null;
     }
@@ -1403,12 +1412,10 @@ function showAuthCard(cardId) {
 
 function prosesRegister() {
     const username = document.getElementById('regUsername').value.trim();
-    const question = document.getElementById('regSecurityQuestion').value.trim();
-    const answer = document.getElementById('regSecurityAnswer').value.trim().toLowerCase();
     const password = document.getElementById('regPassword').value;
 
-    if (!username || !question || !answer || !password) {
-        alert("Mohon lengkapi semua bidang pendaftaran!");
+    if (!username || !password) {
+        alert("Mohon lengkapi username dan password!");
         return;
     }
 
@@ -1418,7 +1425,7 @@ function prosesRegister() {
         return;
     }
 
-    users.push({ username, question, answer, password });
+    users.push({ username, password });
     saveUsers(users);
     alert("Akun berhasil dibuat! Silakan login.");
     showAuthCard('loginCard');
@@ -1451,21 +1458,19 @@ function verifikasiUsernameLupa() {
     }
 
     forgotTargetUser = userFound;
-    document.getElementById('displaySecurityQuestion').textContent = userFound.question;
     document.getElementById('forgotStep1').style.display = 'none';
-    document.getElementById('forgotStep2').style.display = 'block';
+    document.getElementById('forgotStep2Confirm').style.display = 'block';
+}
+
+function lanjutkanKeFormReset() {
+    document.getElementById('forgotStep2Confirm').style.display = 'none';
+    document.getElementById('forgotStep3').style.display = 'block';
 }
 
 function prosesResetPassword() {
-    const answer = document.getElementById('forgotAnswer').value.trim().toLowerCase();
     const newPassword = document.getElementById('forgotNewPassword').value;
 
     if (!forgotTargetUser) return;
-
-    if (answer !== forgotTargetUser.answer) {
-        alert("Jawaban keamanan salah!");
-        return;
-    }
 
     if (!newPassword || newPassword.length < 3) {
         alert("Password baru terlalu pendek!");

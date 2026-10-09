@@ -123,17 +123,21 @@ body {
 }
 
 /* =========================================================
-   AUTHENTICATION PAGES (MODERN & ELEGANT DESIGN)
+   AUTHENTICATION PAGES (PAS DILAYAR, TANPA SCROLL)
 ========================================================= */
 .auth-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
-    position: relative;
+    height: 100vh;
+    width: 100vw;
+    padding: 15px;
+    background: radial-gradient(circle at top left, #1e3a8a, #0f172a 60%, #0284c7);
+    position: fixed;
+    top: 0;
+    left: 0;
     overflow: hidden;
+    z-index: 10000;
 }
 
 /* Dekorasi Bola Cahaya Latar Belakang */
@@ -142,105 +146,104 @@ body {
     content: '';
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
+    filter: blur(90px);
+    opacity: 0.45;
     z-index: 0;
 }
 
 .auth-wrapper::before {
-    width: 320px;
-    height: 320px;
+    width: 300px;
+    height: 300px;
     background: #3b82f6;
-    top: -50px;
-    left: -50px;
+    top: -40px;
+    left: -40px;
 }
 
 .auth-wrapper::after {
-    width: 380px;
-    height: 380px;
+    width: 340px;
+    height: 340px;
     background: #8b5cf6;
-    bottom: -60px;
-    right: -60px;
+    bottom: -50px;
+    right: -50px;
 }
 
 .auth-card {
     position: relative;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 20px;
-    padding: 40px 32px;
+    padding: 24px 28px;
     width: 100%;
-    max-width: 440px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    animation: authFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    animation: authFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes authFadeUp {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    from { opacity: 0; transform: translateY(15px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .auth-brand {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .auth-brand .brand-icon {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     background: linear-gradient(135deg, #1e88e5, #0d47a1);
     color: white;
-    border-radius: 16px;
+    border-radius: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
-    box-shadow: 0 8px 20px rgba(30, 136, 229, 0.35);
-    margin-bottom: 12px;
+    font-size: 22px;
+    box-shadow: 0 6px 16px rgba(30, 136, 229, 0.35);
 }
 
 .auth-header {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 18px;
 }
 
 .auth-header h2 {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
     color: #0f172a;
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+    margin-bottom: 2px;
 }
 
 .auth-header p {
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
 }
 
 .auth-form .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 12px;
 }
 
 .auth-form label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: #334155;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     display: block;
 }
 
 .auth-form input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1.5px solid #cbd5e1;
-    border-radius: 12px;
+    border-radius: 10px;
     outline: none;
-    font-size: 14px;
+    font-size: 13px;
     background: #f8fafc;
     color: #0f172a;
     transition: all 0.25s ease;
@@ -249,39 +252,39 @@ body {
 .auth-form input:focus {
     border-color: #1e88e5;
     background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
 }
 
 .auth-form .btn-primary {
     width: 100%;
-    padding: 14px;
+    padding: 11px;
     background: linear-gradient(135deg, #1e88e5, #1565c0);
     color: white;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    border-radius: 12px;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 6px;
     justify-content: center;
-    box-shadow: 0 8px 18px rgba(30, 136, 229, 0.3);
+    box-shadow: 0 6px 16px rgba(30, 136, 229, 0.3);
     transition: all 0.25s ease;
 }
 
 .auth-form .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 22px rgba(30, 136, 229, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(30, 136, 229, 0.4);
     background: linear-gradient(135deg, #1565c0, #0d47a1);
 }
 
 .auth-links {
-    margin-top: 24px;
+    margin-top: 14px;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
     border-top: 1px solid #e2e8f0;
-    padding-top: 18px;
+    padding-top: 12px;
 }
 
 .auth-links a {
@@ -296,32 +299,31 @@ body {
     text-decoration: underline;
 }
 
-/* USER BADGE DIPINDAHKAN KE PALING BAWAH KIRI (FIXED) */
-.user-badge-fixed {
-    position: fixed;
-    bottom: 15px;
-    left: 15px;
-    z-index: 999;
-    background: var(--card-bg);
-    color: var(--text-dark);
-    padding: 8px 14px;
+/* USER BADGE SEDERET DENGAN NAVIGASI HEADER (KANAN ATAS) */
+.user-badge-header {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 6px 12px;
     border-radius: var(--radius-md);
     font-size: 13px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-color);
+    gap: 8px;
+    backdrop-filter: blur(8px);
 }
 
 .btn-logout {
     background: var(--danger);
     color: white;
-    padding: 4px 10px;
+    padding: 4px 8px;
     font-size: 11px;
     border-radius: 4px;
     cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: background 0.2s;
 }
 
 .btn-logout:hover {
@@ -821,11 +823,11 @@ tbody tr:hover { background: var(--table-hover); }
     .form-grid { grid-template-columns: 1fr; }
     .search-area, .button-area { flex-direction: column; width: 100%; }
     .search-area input, .search-area select, .button-area button { width: 100%; }
-    .user-badge-fixed { bottom: 10px; left: 10px; font-size: 12px; padding: 6px 10px; }
+    .header-right { flex-wrap: wrap; }
 }
 
 @media print {
-    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer, .user-badge-fixed { display: none !important; }
+    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer { display: none !important; }
     .card { box-shadow: none; border: 1px solid #ccc; }
     body { background: white; color: black; }
 }
@@ -863,7 +865,7 @@ tbody tr:hover { background: var(--table-hover); }
         </form>
         <div class="auth-links">
             <p>Belum punya akun? <a href="javascript:void(0)" onclick="showAuthCard('registerCard')">Buat Akun Baru</a></p>
-            <p style="margin-top: 8px;"><a href="javascript:void(0)" onclick="showAuthCard('forgotCard')">Lupa Password Anda?</a></p>
+            <p style="margin-top: 6px;"><a href="javascript:void(0)" onclick="showAuthCard('forgotCard')">Lupa Password Anda?</a></p>
         </div>
     </div>
 
@@ -926,7 +928,7 @@ tbody tr:hover { background: var(--table-hover); }
         <form class="auth-form" id="forgotStep2" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
             <div class="form-group">
                 <label>Pertanyaan Keamanan:</label>
-                <p id="displaySecurityQuestion" style="font-size:13px; font-weight:700; color:#1e88e5; margin-bottom:10px; background:#e3f2fd; padding:10px; border-radius:8px;"></p>
+                <p id="displaySecurityQuestion" style="font-size:12px; font-weight:700; color:#1e88e5; margin-bottom:8px; background:#e3f2fd; padding:8px; border-radius:8px;"></p>
             </div>
             <div class="form-group">
                 <label>Jawaban Keamanan</label>
@@ -953,12 +955,6 @@ tbody tr:hover { background: var(--table-hover); }
 ========================================================= -->
 <div id="mainApp" style="display: none;">
 
-<!-- USER BADGE DI PALING BAWAH KIRI (FIXED) -->
-<div class="user-badge-fixed">
-    👤 User: <span id="displayLoggedInUser" style="color:var(--primary);">-</span>
-    <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
-</div>
-
 <!-- HEADER UTAMA -->
 <header class="header">
     <div class="header-content">
@@ -967,6 +963,11 @@ tbody tr:hover { background: var(--table-hover); }
             <p>Sistem Pencatatan Transaksi & Operasional Stok Barang</p>
         </div>
         <div class="header-right">
+            <!-- BADGE USER LOGIN TERLETAK PALING ATAS KANAN SEDERET DENGAN TANGGAL & TEMA -->
+            <div class="user-badge-header">
+                👤 <span id="displayLoggedInUser">-</span>
+                <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
+            </div>
             <div class="header-time">
                 Tanggal: <strong id="headerDate">-</strong>
             </div>

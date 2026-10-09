@@ -1196,7 +1196,7 @@ tbody tr:hover { background: var(--table-hover); }
                 <span>Stok Barang</span>
                 <!-- TOMBOL LIHAT TOTAL STOK DI SAMPING TULISAN STOK BARANG PALING KANAN -->
                 <button class="btn-toggle-total-stok" id="btnToggleTotalStok" onclick="toggleTotalStok()">
-                    👁️ Lihat Total Seluruh Stok
+                    Lihat Total Seluruh Stok
                 </button>
             </div>
 
@@ -1945,9 +1945,9 @@ function updateDashboard() {
 
     if (btn) {
         if (showTotalStok) {
-            btn.innerHTML = `🙈 Total Stok: ${formatAngka(totalSisa)}`;
+            btn.innerHTML = `Total Stok: ${formatAngka(totalSisa)}`;
         } else {
-            btn.innerHTML = `👁️ Lihat Total Seluruh Stok`;
+            btn.innerHTML = `Lihat Total Seluruh Stok`;
         }
     }
 }

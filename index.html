@@ -677,7 +677,7 @@ button:hover {
 .toolbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 15px;
     margin-bottom: 18px;
     flex-wrap: wrap;
@@ -688,6 +688,7 @@ button:hover {
     gap: 10px;
     flex: 1;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .search-area input,
@@ -701,9 +702,36 @@ button:hover {
     color: var(--text-dark);
 }
 
-.search-area input {
+.search-area input[type="text"] {
     flex: 1;
-    min-width: 240px;
+    min-width: 200px;
+}
+
+/* STYLING DEDIKASI KONTROL TANGGAL */
+.date-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--thead-bg);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.date-filter-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.date-filter-group input[type="date"] {
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text-dark);
 }
 
 /* =========================================================
@@ -865,6 +893,8 @@ tbody tr:hover { background: var(--table-hover); }
     
     .search-area, .button-area { flex-direction: column; width: 100%; }
     .search-area input, .search-area select, .button-area button { width: 100%; }
+    .date-filter-group { width: 100%; justify-content: space-between; }
+    .date-filter-group input[type="date"] { flex: 1; }
     
     .modal { padding: 10px; }
     .modal-box { max-height: 95vh; }
@@ -1133,7 +1163,16 @@ tbody tr:hover { background: var(--table-hover); }
 
             <div class="toolbar">
                 <div class="search-area">
-                    <input type="text" id="searchPenjualan" placeholder="Cari tanggal, nama customer, atau barang..." oninput="renderPenjualan()">
+                    <input type="text" id="searchPenjualan" placeholder="Cari nama customer, barang, atau warna..." oninput="renderPenjualan()">
+                    
+                    <!-- FILTER RENTANG TANGGAL PENJUALAN -->
+                    <div class="date-filter-group">
+                        <label>Dari:</label>
+                        <input type="date" id="tglAwalPenjualan" onchange="renderPenjualan()">
+                        <label>S/D:</label>
+                        <input type="date" id="tglAkhirPenjualan" onchange="renderPenjualan()">
+                        <button class="btn-reset" style="padding: 5px 10px; font-size: 11px;" onclick="resetFilterTanggal('Penjualan')">Reset Tgl</button>
+                    </div>
                 </div>
             </div>
 
@@ -1224,12 +1263,21 @@ tbody tr:hover { background: var(--table-hover); }
 
             <div class="toolbar">
                 <div class="search-area">
-                    <input type="text" id="searchTransaksi" placeholder="Cari kode, nama, warna, customer, atau tanggal..." oninput="renderTransaksi()">
+                    <input type="text" id="searchTransaksi" placeholder="Cari kode, nama, warna, atau customer..." oninput="renderTransaksi()">
                     <select id="filterJenis" onchange="renderTransaksi()">
                         <option value="semua">Semua Transaksi</option>
                         <option value="masuk">Barang Masuk</option>
                         <option value="keluar">Barang Keluar</option>
                     </select>
+
+                    <!-- FILTER RENTANG TANGGAL TRANSAKSI -->
+                    <div class="date-filter-group">
+                        <label>Dari:</label>
+                        <input type="date" id="tglAwalTransaksi" onchange="renderTransaksi()">
+                        <label>S/D:</label>
+                        <input type="date" id="tglAkhirTransaksi" onchange="renderTransaksi()">
+                        <button class="btn-reset" style="padding: 5px 10px; font-size: 11px;" onclick="resetFilterTanggal('Transaksi')">Reset Tgl</button>
+                    </div>
                 </div>
 
                 <div class="button-area" style="margin-top:0;">
@@ -1772,6 +1820,22 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
+/* FORMAT TANGGAL DD-MM-YYYY KE YYYY-MM-DD (UNTUK KOMPARASI TANGGAL) */
+function parseDateDDMMYYYY(str) {
+    if (!str) return null;
+    const parts = str.split('-');
+    if (parts.length !== 3) return null;
+    return new Date(parts[2], parts[1] - 1, parts[0]);
+}
+
+/* RESET INPUT FILTER TANGGAL */
+function resetFilterTanggal(tipe) {
+    document.getElementById('tglAwal' + tipe).value = '';
+    document.getElementById('tglAkhir' + tipe).value = '';
+    if (tipe === 'Penjualan') renderPenjualan();
+    if (tipe === 'Transaksi') renderTransaksi();
+}
+
 /* FORMAT HEADER UTAMA (Contoh: 9 OKTOBER 2026) */
 function formatHeaderDate(date) {
     return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
@@ -1797,7 +1861,6 @@ function updateClock() {
 
 /* 6. LOGIKA HITUNG STOK & DASHBOARD */
 function hitungStokPerBarang() {
-    // 1. Pemetaan Nama Barang Utama berdasarkan Kode Barang (secara otomatis)
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
         const item = transaksi[i];
@@ -1807,7 +1870,6 @@ function hitungStokPerBarang() {
         }
     }
 
-    // 2. Akumulasi Stok Per Barang (Kode + Warna)
     const mapStok = {};
     transaksi.forEach(item => {
         const kodeKey = normalizeKode(item.kode);
@@ -1970,21 +2032,37 @@ function resetForm() {
     resetFormInput();
 }
 
-/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
+/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI (DENGAN FILTER TANGGAL) */
 function renderPenjualan() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
     const query = (document.getElementById('searchPenjualan').value || '').toLowerCase();
+    
+    const tglAwalVal = document.getElementById('tglAwalPenjualan').value;
+    const tglAkhirVal = document.getElementById('tglAkhirPenjualan').value;
+    const tglAwal = tglAwalVal ? new Date(tglAwalVal) : null;
+    const tglAkhir = tglAkhirVal ? new Date(tglAkhirVal) : null;
+    if (tglAkhir) tglAkhir.setHours(23, 59, 59, 999);
 
     tbody.innerHTML = '';
     const filtered = transaksi.filter(item => {
         if (item.jenis !== 'keluar') return false;
+
+        // Filter Teks
         const matchQuery = (item.customer || '').toLowerCase().includes(query) ||
-                           item.tanggal.includes(query) ||
                            item.nama.toLowerCase().includes(query) ||
                            item.kode.toLowerCase().includes(query) ||
                            item.warna.toLowerCase().includes(query);
-        return matchQuery;
+
+        // Filter Rentang Tanggal
+        let matchDate = true;
+        const itemDate = parseDateDDMMYYYY(item.tanggal);
+        if (itemDate) {
+            if (tglAwal && itemDate < tglAwal) matchDate = false;
+            if (tglAkhir && itemDate > tglAkhir) matchDate = false;
+        }
+
+        return matchQuery && matchDate;
     });
 
     if (filtered.length === 0) {
@@ -2014,7 +2092,6 @@ function renderStok() {
 
     tbody.innerHTML = '';
     
-    // Filter dan Pengurutan (Sort berdasarkan Kode Barang, lalu Warna A-Z)
     const listStok = Object.values(mapStok)
         .filter(item => {
             return item.kode.toLowerCase().includes(query) ||
@@ -2053,15 +2130,29 @@ function renderTransaksi() {
     const query = (document.getElementById('searchTransaksi').value || '').toLowerCase();
     const filterJenis = document.getElementById('filterJenis').value;
 
+    const tglAwalVal = document.getElementById('tglAwalTransaksi').value;
+    const tglAkhirVal = document.getElementById('tglAkhirTransaksi').value;
+    const tglAwal = tglAwalVal ? new Date(tglAwalVal) : null;
+    const tglAkhir = tglAkhirVal ? new Date(tglAkhirVal) : null;
+    if (tglAkhir) tglAkhir.setHours(23, 59, 59, 999);
+
     tbody.innerHTML = '';
     const filtered = transaksi.filter(item => {
         const matchQuery = item.kode.toLowerCase().includes(query) ||
                            item.nama.toLowerCase().includes(query) ||
                            item.warna.toLowerCase().includes(query) ||
-                           (item.customer || '').toLowerCase().includes(query) ||
-                           item.tanggal.includes(query);
+                           (item.customer || '').toLowerCase().includes(query);
         const matchJenis = (filterJenis === 'semua') || (item.jenis === filterJenis);
-        return matchQuery && matchJenis;
+
+        // Filter Rentang Tanggal
+        let matchDate = true;
+        const itemDate = parseDateDDMMYYYY(item.tanggal);
+        if (itemDate) {
+            if (tglAwal && itemDate < tglAwal) matchDate = false;
+            if (tglAkhir && itemDate > tglAkhir) matchDate = false;
+        }
+
+        return matchQuery && matchJenis && matchDate;
     });
 
     if (filtered.length === 0) {
@@ -2189,7 +2280,28 @@ function exportExcel() {
         return;
     }
 
-    const dataExcel = transaksi.map((item, idx) => ({
+    const tglAwalVal = document.getElementById('tglAwalTransaksi').value;
+    const tglAkhirVal = document.getElementById('tglAkhirTransaksi').value;
+    const tglAwal = tglAwalVal ? new Date(tglAwalVal) : null;
+    const tglAkhir = tglAkhirVal ? new Date(tglAkhirVal) : null;
+    if (tglAkhir) tglAkhir.setHours(23, 59, 59, 999);
+
+    const dataFiltered = transaksi.filter(item => {
+        let matchDate = true;
+        const itemDate = parseDateDDMMYYYY(item.tanggal);
+        if (itemDate) {
+            if (tglAwal && itemDate < tglAwal) matchDate = false;
+            if (tglAkhir && itemDate > tglAkhir) matchDate = false;
+        }
+        return matchDate;
+    });
+
+    if (dataFiltered.length === 0) {
+        alert("Tidak ada data transaksi pada rentang tanggal yang dipilih!");
+        return;
+    }
+
+    const dataExcel = dataFiltered.map((item, idx) => ({
         "No": idx + 1,
         "Tanggal": item.tanggal,
         "Jam": item.jam,
@@ -2288,6 +2400,7 @@ window.addEventListener('DOMContentLoaded', () => {
     checkSession();
     setInterval(updateClock, 1000);
 });
+
 </script>
 </body>
 </html>

@@ -123,6 +123,74 @@ body {
 }
 
 /* =========================================================
+   ANIMASI BURUNG TERBANG (UI/UX DI PALING ATAS HEADER)
+========================================================= */
+.birds-header-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.bird {
+    position: absolute;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cpath d='M50,30 Q30,5 10,20 Q30,25 50,45 Q70,25 90,20 Q70,5 50,30 Z' fill='rgba(255,255,255,0.7)'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.65;
+}
+
+.bird-1 {
+    width: 18px;
+    height: 12px;
+    top: 12px;
+    left: -30px;
+    animation: flyAcross 18s linear infinite;
+}
+
+.bird-2 {
+    width: 14px;
+    height: 10px;
+    top: 24px;
+    left: -50px;
+    animation: flyAcross 18s linear infinite;
+    animation-delay: 1.8s;
+    opacity: 0.45;
+}
+
+.bird-3 {
+    width: 12px;
+    height: 8px;
+    top: 8px;
+    left: -70px;
+    animation: flyAcross 18s linear infinite;
+    animation-delay: 3.5s;
+    opacity: 0.35;
+}
+
+@keyframes flyAcross {
+    0% {
+        transform: translateX(-50px) translateY(0) scale(0.8);
+    }
+    25% {
+        transform: translateX(calc(25vw)) translateY(-6px) scale(0.9);
+    }
+    50% {
+        transform: translateX(calc(50vw)) translateY(4px) scale(1);
+    }
+    75% {
+        transform: translateX(calc(75vw)) translateY(-4px) scale(0.95);
+    }
+    100% {
+        transform: translateX(calc(105vw + 50px)) translateY(0) scale(0.8);
+    }
+}
+
+/* =========================================================
    AUTHENTICATION PAGES (OPTIMIZED COMPACT VIEW)
 ========================================================= */
 .auth-wrapper {
@@ -331,6 +399,7 @@ body {
     gap: 8px;
     backdrop-filter: blur(8px);
     white-space: nowrap;
+    z-index: 15;
 }
 
 .user-avatar-img {
@@ -380,6 +449,8 @@ body {
     padding: 24px 20px 0 20px;
     box-shadow: var(--shadow-md);
     transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
 .header-content {
@@ -390,6 +461,8 @@ body {
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 15px;
+    position: relative;
+    z-index: 12;
 }
 
 .header-title h1 {
@@ -412,6 +485,8 @@ body {
     align-items: center;
     gap: 15px;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 12;
 }
 
 .header-controls-bottom {
@@ -788,6 +863,15 @@ tbody tr {
 }
 
 tbody tr:hover { background: var(--table-hover); }
+
+/* GARIS PEMISAH HORIZONTAL (TIDURAN) TIPIS ANTAR BARIS PADA REPORT PENJUALAN */
+#penjualanBody tr {
+    border-bottom: 1px solid #cbd5e1;
+}
+body.theme-dark #penjualanBody tr {
+    border-bottom: 1px solid #334155;
+}
+
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 
@@ -1407,7 +1491,7 @@ input[type="reset"]:disabled,
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="loginPassword" placeholder="Masukkan Password Anda" required autocomplete="off">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👁</button>
                 </div>
             </div>
             <button type="submit" class="btn-primary">LOGIN</button>
@@ -1436,7 +1520,7 @@ input[type="reset"]:disabled,
                 <label>Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="regPassword" placeholder="Minimal 8 karakter" required autocomplete="off" oninput="validasiPasswordRealtime(this.value)">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👁</button>
                 </div>
                 <div class="password-requirements" id="regPasswordReqs">
                     <div id="reqLength" class="req-invalid">❌ Minimal 8 Karakter</div>
@@ -1499,7 +1583,7 @@ input[type="reset"]:disabled,
                 <label>Password Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="forgotNewPassword" placeholder="Minimal 8 karakter" required autocomplete="off" oninput="validasiPasswordResetRealtime(this.value)">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👁</button>
                 </div>
                 <div class="password-requirements" id="resetPasswordReqs">
                     <div id="resetReqLength" class="req-invalid">❌ Minimal 8 Karakter</div>
@@ -1523,6 +1607,13 @@ input[type="reset"]:disabled,
 <div id="mainApp" style="display: none;">
 
 <header class="header">
+    <!-- BURUNG TERBANG DI PALING ATAS HEADER -->
+    <div class="birds-header-container">
+        <div class="bird bird-1"></div>
+        <div class="bird bird-2"></div>
+        <div class="bird bird-3"></div>
+    </div>
+
     <div class="header-content">
         <div class="header-title">
             <h1>Manual Stock Management System</h1>
@@ -1625,27 +1716,23 @@ input[type="reset"]:disabled,
                 </tbody>
             </table>
 
-            <!-- URUTAN TANDA TANGAN: PENERIMA, ADMIN, MANDOR, SUPIR -->
+            <!-- URUTAN TANDA TANGAN: HANYA PENERIMA, ADMIN, MANDOR, SUPIR DAN GARIS DI BAWAHNYA -->
             <div class="sj-signatures">
                 <div class="sj-sig-box">
-                    <span>Penerima,</span>
+                    <strong>Penerima</strong>
                     <div class="line"></div>
-                    <strong id="sjPrintCustomerSign">-</strong>
                 </div>
                 <div class="sj-sig-box">
-                    <span>Admin,</span>
+                    <strong>Admin</strong>
                     <div class="line"></div>
-                    <strong>Admin / Kasir</strong>
                 </div>
                 <div class="sj-sig-box">
-                    <span>Mandor,</span>
+                    <strong>Mandor</strong>
                     <div class="line"></div>
-                    <strong>Mandor Gudang</strong>
                 </div>
                 <div class="sj-sig-box">
-                    <span>Supir,</span>
+                    <strong>Supir</strong>
                     <div class="line"></div>
-                    <strong>Supir Pengiriman</strong>
                 </div>
             </div>
         </div>
@@ -1717,7 +1804,7 @@ input[type="reset"]:disabled,
             </div>
 
             <div id="containerKeranjang" style="display:none; margin-top: 24px;">
-                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">Daftar Barang Belanjaan Customer Ini:</h3>
+                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">Daftar Barang Pembelian Customer</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
@@ -1726,11 +1813,11 @@ input[type="reset"]:disabled,
                                 <th>Nama Barang</th>
                                 <th>Warna</th>
                                 <th class="text-center">Jumlah</th>
-                                <th class="text-center">Aksi</th>
+                                <th class="text-center">Hapus dari Keranjang</th>
                             </tr>
                         </thead>
                         <tbody id="keranjangBody">
-                            <tr><td colspan="5" class="empty">Belum ada barang ditambahkan ke keranjang.</td></tr>
+                            <tr><td colspan="5" class="empty">Belum ada barang ditambahkan ke keranjang pembelian</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1890,7 +1977,7 @@ input[type="reset"]:disabled,
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
             <h2>🔒︎ Verifikasi Akses Masuk</h2>
-            <button class="close-modal" onclick="tutupModalPin()">×</button>
+            <button class="close-modal" onclick="tutupModalPin()">⛌</button>
         </div>
         <div class="modal-body">
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
@@ -1900,7 +1987,7 @@ input[type="reset"]:disabled,
                 <label>PIN Akses</label>
                 <div class="password-wrapper">
                     <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👁</button>
                 </div>
             </div>
         </div>
@@ -1915,7 +2002,7 @@ input[type="reset"]:disabled,
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header" style="background: var(--danger);">
             <h2>Konfirmasi Hapus Data</h2>
-            <button class="close-modal" onclick="tutupModalDeletePin()">×</button>
+            <button class="close-modal" onclick="tutupModalDeletePin()">⛌</button>
         </div>
         <div class="modal-body">
             <p style="font-size:13px; color:var(--text-dark); margin-bottom:12px; font-weight: 600;">
@@ -1925,7 +2012,7 @@ input[type="reset"]:disabled,
                 <label>PIN Akses</label>
                 <div class="password-wrapper">
                     <input type="password" id="inputPinDelete" placeholder="Masukkan PIN Akses" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusDenganPin()">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinDelete', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinDelete', this)">👁</button>
                 </div>
             </div>
         </div>
@@ -1940,7 +2027,7 @@ input[type="reset"]:disabled,
     <div class="modal-box" style="max-width: 440px;">
         <div class="modal-header" style="background: #b71c1c;">
             <h2>⚠️ HAPUS SEMUA TRANSAKSI</h2>
-            <button class="close-modal" onclick="tutupModalClearAll()">×</button>
+            <button class="close-modal" onclick="tutupModalClearAll()">⛌</button>
         </div>
         <div class="modal-body">
             <p style="font-size:13px; color:#b71c1c; margin-bottom:10px; font-weight: 700;">PERINGATAN SANGAT PENTING!!!</p>
@@ -1949,7 +2036,7 @@ input[type="reset"]:disabled,
                 <label>PIN Akses</label>
                 <div class="password-wrapper">
                     <input type="password" id="inputPinClearAll" placeholder="Masukkan PIN Akses" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusSemuaDenganPin()">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinClearAll', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinClearAll', this)">👁</button>
                 </div>
             </div>
         </div>
@@ -1964,28 +2051,28 @@ input[type="reset"]:disabled,
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
             <h2>Ubah PIN Akses</h2>
-            <button class="close-modal" onclick="tutupModalUbahPin()">×</button>
+            <button class="close-modal" onclick="tutupModalUbahPin()">⛌</button>
         </div>
         <div class="modal-body">
             <div class="form-group" style="margin-bottom:12px;">
                 <label>PIN Lama</label>
                 <div class="password-wrapper">
                     <input type="password" id="pinLama" placeholder="Masukkan PIN Lama">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinLama', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinLama', this)">👁</button>
                 </div>
             </div>
             <div class="form-group" style="margin-bottom:12px;">
                 <label>PIN Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="pinBaru" placeholder="Masukkan PIN Baru">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinBaru', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinBaru', this)">👁</button>
                 </div>
             </div>
             <div class="form-group">
                 <label>Konfirmasi PIN Baru</label>
                 <div class="password-wrapper">
                     <input type="password" id="pinKonfirmasi" placeholder="Ulangi PIN Baru">
-                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinKonfirmasi', this)">👀</button>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinKonfirmasi', this)">👁</button>
                 </div>
             </div>
         </div>
@@ -2000,7 +2087,7 @@ input[type="reset"]:disabled,
     <div class="modal-box">
         <div class="modal-header">
             <h2>Edit Data Transaksi</h2>
-            <button class="close-modal" onclick="tutupEdit()">×</button>
+            <button class="close-modal" onclick="tutupEdit()">⛌</button>
         </div>
         <div class="modal-body">
             <div class="form-grid">
@@ -2390,7 +2477,7 @@ function togglePasswordVisibility(inputId, btn) {
         btn.textContent = "🗙";
     } else {
         input.type = "password";
-        btn.textContent = "👀";
+        btn.textContent = "👁";
     }
 }
 
@@ -2420,7 +2507,7 @@ function tryAccessTransaksi() {
         document.getElementById('inputPinAkses').value = '';
         document.getElementById('inputPinAkses').type = 'password';
         const eyeBtn = document.querySelector('#pinModal .toggle-password');
-        if (eyeBtn) eyeBtn.textContent = '👀';
+        if (eyeBtn) eyeBtn.textContent = '👁';
 
         document.getElementById('pinModal').classList.add('active');
         setTimeout(() => document.getElementById('inputPinAkses').focus(), 100);
@@ -2463,7 +2550,7 @@ function bukaModalUbahPin() {
             inp.type = 'password';
         }
     });
-    document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👀');
+    document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👁');
     document.getElementById('ubahPinModal').classList.add('active');
 }
 
@@ -2649,7 +2736,7 @@ function cetakLaporanStok() {
     window.print();
 }
 
-/* FUNGSI CETAK SURAT JALAN */
+/* FUNGSI CETAK SURAT JALAN DENGAN VALIDASI NOMOR SURAT JALAN */
 function printSuratJalan(tanggal, customer) {
     const groupItems = transaksi.filter(item => item.jenis === 'keluar' && item.tanggal === tanggal && (item.customer || '-').trim() === customer);
     
@@ -2658,14 +2745,14 @@ function printSuratJalan(tanggal, customer) {
         return;
     }
 
-    let sjNo = groupItems[0].noSuratJalan;
-    if (!sjNo || sjNo.trim() === '') {
-        sjNo = "SJ/" + tanggal.replace(/\s+/g, '') + "/" + Math.floor(1000 + Math.random() * 9000);
+    const sjNo = (groupItems[0].noSuratJalan || "").trim();
+    if (!sjNo) {
+        alert("Gagal Print! Kolom No Surat Jalan harus diisi terlebih dahulu sebelum mencetak.");
+        return;
     }
     
     document.getElementById('sjPrintNo').textContent = "No Surat Jalan : " + sjNo;
     document.getElementById('sjPrintCustomer').textContent = customer;
-    document.getElementById('sjPrintCustomerSign').textContent = customer;
     document.getElementById('sjPrintTanggal').textContent = formatTanggalIndonesia(tanggal);
 
     const tbody = document.getElementById('sjPrintTableBody');
@@ -2826,7 +2913,8 @@ function populateDatalistStok() {
     const mapStok = hitungStokPerBarang();
 
     Object.values(mapStok).forEach(item => {
-        if (item.sisa > 0) {
+        const isAlreadyInCart = keranjangBelanja.some(k => getStockKey(k.kode, k.warna) === getStockKey(item.kode, item.warna));
+        if (item.sisa > 0 && !isAlreadyInCart) {
             const option = document.createElement('option');
             option.value = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
             list.appendChild(option);
@@ -2877,7 +2965,8 @@ function handleBarangKeluarSelect(selectedVal) {
     if (jenis === 'keluar') {
         const barangFound = Object.values(mapStok).find(item => {
             const fullString = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
-            return item.sisa > 0 && (fullString === selectedVal || item.kode === selectedVal);
+            const isAlreadyInCart = keranjangBelanja.some(k => getStockKey(k.kode, k.warna) === getStockKey(item.kode, item.warna));
+            return item.sisa > 0 && !isAlreadyInCart && (fullString === selectedVal || item.kode === selectedVal);
         });
 
         if (barangFound) {
@@ -2975,7 +3064,7 @@ function renderKeranjang() {
     if (!tbody) return;
 
     if (keranjangBelanja.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty">Belum ada barang ditambahkan ke keranjang.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">Belum ada barang ditambahkan ke keranjang pembelian</td></tr>`;
         return;
     }
 
@@ -3095,6 +3184,7 @@ function resetFormInput() {
     if (jenis === 'keluar') {
         keranjangBelanja = [];
         renderKeranjang();
+        populateDatalistStok();
     }
 }
 
@@ -3172,7 +3262,7 @@ function renderPenjualan() {
         return;
     }
 
-    groupList.forEach((group) => {
+    groupList.forEach((group, index) => {
         const tr = document.createElement('tr');
         
         let subTableHtml = `
@@ -3183,7 +3273,7 @@ function renderPenjualan() {
         group.items.forEach(it => {
             subTableHtml += `
                 <tr>
-                    <td><strong>${escapeHTML(it.kode)}</strong> - ${escapeHTML(it.nama)} (${escapeHTML(it.warna)})</td>
+                    <td><strong>${escapeHTML(it.kode)}</strong> → ${escapeHTML(it.nama)} (${escapeHTML(it.warna)})</td>
                     <td style="text-align: right; font-weight: 700; width: 90px;">${formatAngka(it.jumlah)} Roll</td>
                 </tr>
             `;
@@ -3202,7 +3292,7 @@ function renderPenjualan() {
             <td>${escapeHTML(formatTanggalIndonesia(group.tanggal))}</td>
             <td><strong>${escapeHTML(group.customer)}</strong></td>
             <td>
-                <input type="text" class="input-nosj" value="${currentNoSJ}" placeholder="Auto SJ..." style="padding: 6px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-dark);" onchange="updateNoSuratJalanBaris('${safeTanggal}', '${safeCustomer}', this.value)">
+                <input type="text" class="input-nosj" value="${currentNoSJ}" placeholder="Masukkan No SJ..." style="padding: 6px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-dark);" onchange="updateNoSuratJalanBaris('${safeTanggal}', '${safeCustomer}', this.value)">
             </td>
             <td style="padding: 4px 8px;">${subTableHtml}</td>
             <td class="text-center">
@@ -3398,7 +3488,7 @@ function konfirmasiHapusPin(index) {
         inputPin.type = 'password';
     }
     const eyeBtn = document.querySelector('#deletePinModal .toggle-password');
-    if (eyeBtn) eyeBtn.textContent = '👀';
+    if (eyeBtn) eyeBtn.textContent = '👁';
 
     document.getElementById('deletePinModal').classList.add('active');
     setTimeout(() => { if (inputPin) inputPin.focus(); }, 100);
@@ -3438,7 +3528,7 @@ function konfirmasiHapusSemuaTransaksi() {
         inputPin.type = 'password';
     }
     const eyeBtn = document.querySelector('#clearAllModal .toggle-password');
-    if (eyeBtn) eyeBtn.textContent = '👀';
+    if (eyeBtn) eyeBtn.textContent = '👁';
 
     document.getElementById('clearAllModal').classList.add('active');
     setTimeout(() => { if (inputPin) inputPin.focus(); }, 100);

@@ -117,13 +117,13 @@ body.theme-slate {
 body {
     background-color: var(--bg-main);
     color: var(--text-dark);
-    line-height: 1.5;
+    line-height: 1.4;
     padding-bottom: 40px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 /* =========================================================
-   AUTHENTICATION PAGES
+   AUTHENTICATION PAGES (OPTIMIZED COMPACT VIEW)
 ========================================================= */
 .auth-wrapper {
     display: flex;
@@ -132,7 +132,7 @@ body {
     height: 100vh;
     height: 100dvh;
     width: 100vw;
-    padding: 15px;
+    padding: 10px;
     background: radial-gradient(circle at top left, #1e3a8a, #0f172a 60%, #0284c7);
     position: fixed;
     top: 0;
@@ -173,10 +173,10 @@ body {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 24px 28px;
+    border-radius: 16px;
+    padding: 16px 20px;
     width: 100%;
-    max-width: 400px;
+    max-width: 380px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.6);
     animation: authFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -189,62 +189,62 @@ body {
 
 .auth-brand {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .auth-brand .brand-icon {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     background: linear-gradient(135deg, #1e88e5, #0d47a1);
     color: white;
-    border-radius: 14px;
+    border-radius: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 6px 16px rgba(30, 136, 229, 0.35);
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.35);
 }
 
 .auth-header {
     text-align: center;
-    margin-bottom: 18px;
+    margin-bottom: 10px;
 }
 
 .auth-header h2 {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.3px;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
 }
 
 .auth-header p {
-    font-size: 12px;
+    font-size: 11px;
     color: #64748b;
 }
 
 .auth-form .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .auth-form label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: #334155;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     display: block;
 }
 
 .auth-form input,
 .auth-form select {
     width: 100%;
-    padding: 10px 14px;
+    padding: 7px 11px;
     border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
+    border-radius: 8px;
     outline: none;
-    font-size: 13px;
+    font-size: 12px;
     background: #f8fafc;
     color: #0f172a;
     transition: all 0.25s ease;
@@ -259,34 +259,34 @@ body {
 
 .auth-form .btn-primary {
     width: 100%;
-    padding: 11px;
+    padding: 9px;
     background: linear-gradient(135deg, #1e88e5, #1565c0);
     color: white;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    border-radius: 10px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
-    margin-top: 6px;
+    margin-top: 4px;
     justify-content: center;
-    box-shadow: 0 6px 16px rgba(30, 136, 229, 0.3);
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
     transition: all 0.25s ease;
 }
 
 .auth-form .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(30, 136, 229, 0.4);
+    box-shadow: 0 6px 14px rgba(30, 136, 229, 0.4);
     background: linear-gradient(135deg, #1565c0, #0d47a1);
 }
 
 .auth-links {
-    margin-top: 14px;
+    margin-top: 8px;
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     color: #64748b;
     border-top: 1px solid #e2e8f0;
-    padding-top: 12px;
+    padding-top: 8px;
 }
 
 .auth-links a {
@@ -302,18 +302,18 @@ body {
 }
 
 .password-requirements {
-    font-size: 11px;
-    margin-top: 6px;
+    font-size: 10px;
+    margin-top: 4px;
     background: #f1f5f9;
-    padding: 8px 10px;
-    border-radius: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
     border: 1px solid #e2e8f0;
 }
 .password-requirements div {
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 .req-invalid { color: #d32f2f; }
 .req-valid { color: #2e7d32; font-weight: 600; }
@@ -1415,7 +1415,7 @@ input[type="reset"]:disabled,
         <div class="auth-links">
             <p>Belum Punya Akun?</p>
             <p style="margin-top: 4px;"><a href="javascript:void(0)" onclick="showAuthCard('registerCard')">Buat Akun Baru</a></p>
-            <p style="margin-top: 10px;"><a href="javascript:void(0)" onclick="showAuthCard('forgotCard')">Lupa Passwaord</a></p>
+            <p style="margin-top: 10px;"><a href="javascript:void(0)" onclick="showAuthCard('forgotCard')">Lupa Password</a></p>
         </div>
     </div>
 
@@ -1440,13 +1440,13 @@ input[type="reset"]:disabled,
                 </div>
                 <div class="password-requirements" id="regPasswordReqs">
                     <div id="reqLength" class="req-invalid">❌ Minimal 8 Karakter</div>
-                    <div id="reqUpper" class="req-invalid">❌ Mengandung Huruf Besar (A-Z)</div>
-                    <div id="reqNumber" class="req-invalid">❌ Mengandung Angka (0-9)</div>
-                    <div id="reqSpecial" class="req-invalid">❌ Mengandung Karakter Khusus (!@#$%^&*)</div>
+                    <div id="reqUpper" class="req-invalid">❌ Huruf Besar (A-Z)</div>
+                    <div id="reqNumber" class="req-invalid">❌ Angka (0-9)</div>
+                    <div id="reqSpecial" class="req-invalid">❌ Karakter Khusus (!@#$%^&*)</div>
                 </div>
             </div>
             <div class="form-group">
-                <label>Pertanyaan Keamanan "Keperluan Reset Password"</label>
+                <label>Pertanyaan Keamanan</label>
                 <select id="regSecurityQuestion">
                     <option value="Apa kota kelahiran ibu kandung Anda?">Apa kota kelahiran ibu kandung Anda?</option>
                     <option value="Apa makanan favorit Anda?">Apa makanan favorit Anda?</option>
@@ -1502,9 +1502,9 @@ input[type="reset"]:disabled,
                 </div>
                 <div class="password-requirements" id="resetPasswordReqs">
                     <div id="resetReqLength" class="req-invalid">❌ Minimal 8 Karakter</div>
-                    <div id="resetReqUpper" class="req-invalid">❌ Mengandung Huruf Besar (A-Z)</div>
-                    <div id="resetReqNumber" class="req-invalid">❌ Mengandung Angka (0-9)</div>
-                    <div id="resetReqSpecial" class="req-invalid">❌ Mengandung Karakter Khusus (!@#$%^&*)</div>
+                    <div id="resetReqUpper" class="req-invalid">❌ Huruf Besar (A-Z)</div>
+                    <div id="resetReqNumber" class="req-invalid">❌ Angka (0-9)</div>
+                    <div id="resetReqSpecial" class="req-invalid">❌ Karakter Khusus (!@#$%^&*)</div>
                 </div>
             </div>
             <button type="submit" class="btn-primary">SIMPAN PASSWORD BARU</button>
@@ -2202,9 +2202,9 @@ function validasiPasswordRealtime(password) {
     };
 
     updateReq('reqLength', minLength, 'Minimal 8 Karakter');
-    updateReq('reqUpper', hasUpper, 'Mengandung Huruf Besar (A-Z)');
-    updateReq('reqNumber', hasNumber, 'Mengandung Angka (0-9)');
-    updateReq('reqSpecial', hasSpecial, 'Mengandung Karakter Khusus (!@#$%^&*)');
+    updateReq('reqUpper', hasUpper, 'Huruf Besar (A-Z)');
+    updateReq('reqNumber', hasNumber, 'Angka (0-9)');
+    updateReq('reqSpecial', hasSpecial, 'Karakter Khusus (!@#$%^&*)');
 }
 
 function validasiPasswordResetRealtime(password) {
@@ -2226,9 +2226,9 @@ function validasiPasswordResetRealtime(password) {
     };
 
     updateReq('resetReqLength', minLength, 'Minimal 8 Karakter');
-    updateReq('resetReqUpper', hasUpper, 'Mengandung Huruf Besar (A-Z)');
-    updateReq('resetReqNumber', hasNumber, 'Mengandung Angka (0-9)');
-    updateReq('resetReqSpecial', hasSpecial, 'Mengandung Karakter Khusus (!@#$%^&*)');
+    updateReq('resetReqUpper', hasUpper, 'Huruf Besar (A-Z)');
+    updateReq('resetReqNumber', hasNumber, 'Angka (0-9)');
+    updateReq('resetReqSpecial', hasSpecial, 'Karakter Khusus (!@#$%^&*)');
 }
 
 function prosesRegister() {
@@ -3565,6 +3565,7 @@ window.addEventListener('DOMContentLoaded', () => {
     checkSession();
     setInterval(updateClock, 1000);
 });
+
 </script>
 </body>
 </html>

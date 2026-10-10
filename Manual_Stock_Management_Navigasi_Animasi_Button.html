@@ -1,0 +1,3184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Manual Stock Management System</title>
+
+<!-- LIBRARY EXPORT & IMPORT EXCEL (XLSX) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+/* =========================================================
+   1. RESET & VARIABLE CSS (SISTEM MULTI TEMA)
+========================================================= */
+:root {
+    --primary: #1e88e5;
+    --primary-dark: #1565c0;
+    --primary-light: #e3f2fd;
+    --success: #2e7d32;
+    --success-light: #e8f5e9;
+    --danger: #d32f2f;
+    --danger-light: #ffebee;
+    --warning: #f57c00;
+    --text-dark: #2c3e50;
+    --text-muted: #7f8c8d;
+    --bg-main: #f4f7f9;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --input-bg: #ffffff;
+    --readonly-bg: #edf2f7;
+    --table-hover: #f1f5f9;
+    --thead-bg: #f8fafc;
+    --header-grad: linear-gradient(135deg, #0d47a1, #1e88e5);
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* 1. TEMA MALAM (DARK) */
+body.theme-dark {
+    --primary: #42a5f5;
+    --primary-dark: #1e88e5;
+    --primary-light: #1e3a5f;
+    --success: #4caf50;
+    --success-light: #1b3e20;
+    --danger: #ef5350;
+    --danger-light: #4c1d1d;
+    --warning: #ffb74d;
+    --text-dark: #e2e8f0;
+    --text-muted: #94a3b8;
+    --bg-main: #0f172a;
+    --card-bg: #1e293b;
+    --border-color: #334155;
+    --input-bg: #0f172a;
+    --readonly-bg: #334155;
+    --table-hover: #334155;
+    --thead-bg: #0f172a;
+    --header-grad: linear-gradient(135deg, #020617, #0f172a);
+}
+
+/* 2. TEMA OCEAN BLUE */
+body.theme-ocean {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --primary-light: #e0f2fe;
+    --header-grad: linear-gradient(135deg, #0f172a, #0284c7);
+}
+
+/* 3. TEMA FOREST GREEN */
+body.theme-forest {
+    --primary: #059669;
+    --primary-dark: #047857;
+    --primary-light: #d1fae5;
+    --header-grad: linear-gradient(135deg, #064e3b, #059669);
+}
+
+/* 4. TEMA ROYAL PURPLE */
+body.theme-purple {
+    --primary: #7c3aed;
+    --primary-dark: #6d28d9;
+    --primary-light: #ede9fe;
+    --header-grad: linear-gradient(135deg, #4c1d95, #7c3aed);
+}
+
+/* 5. TEMA SUNSET AMBER */
+body.theme-sunset {
+    --primary: #d97706;
+    --primary-dark: #b45309;
+    --primary-light: #fef3c7;
+    --header-grad: linear-gradient(135deg, #78350f, #d97706);
+}
+
+/* 6. TEMA ROSE PINK */
+body.theme-rose {
+    --primary: #e11d48;
+    --primary-dark: #be123c;
+    --primary-light: #ffe4e6;
+    --header-grad: linear-gradient(135deg, #881337, #e11d48);
+}
+
+/* 7. TEMA SLATE GRAY */
+body.theme-slate {
+    --primary: #475569;
+    --primary-dark: #334155;
+    --primary-light: #f1f5f9;
+    --header-grad: linear-gradient(135deg, #0f172a, #475569);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    line-height: 1.5;
+    padding-bottom: 40px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* =========================================================
+   AUTHENTICATION PAGES (PAS DILAYAR, TANPA SCROLL)
+========================================================= */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
+    padding: 15px;
+    background: radial-gradient(circle at top left, #1e3a8a, #0f172a 60%, #0284c7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    z-index: 10000;
+}
+
+/* Dekorasi Bola Cahaya Latar Belakang */
+.auth-wrapper::before,
+.auth-wrapper::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.45;
+    z-index: 0;
+}
+
+.auth-wrapper::before {
+    width: 300px;
+    height: 300px;
+    background: #3b82f6;
+    top: -40px;
+    left: -40px;
+}
+
+.auth-wrapper::after {
+    width: 340px;
+    height: 340px;
+    background: #8b5cf6;
+    bottom: -50px;
+    right: -50px;
+}
+
+.auth-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 24px 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    animation: authFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes authFadeUp {
+    from { opacity: 0; transform: translateY(15px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.auth-brand .brand-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #1e88e5, #0d47a1);
+    color: white;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 16px rgba(30, 136, 229, 0.35);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.auth-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+    margin-bottom: 2px;
+}
+
+.auth-header p {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.auth-form .form-group {
+    margin-bottom: 12px;
+}
+
+.auth-form label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #334155;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-size: 13px;
+    background: #f8fafc;
+    color: #0f172a;
+    transition: all 0.25s ease;
+}
+
+.auth-form input:focus {
+    border-color: #1e88e5;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+}
+
+.auth-form .btn-primary {
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 6px;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(30, 136, 229, 0.3);
+    transition: all 0.25s ease;
+}
+
+.auth-form .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(30, 136, 229, 0.4);
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+}
+
+.auth-links {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+}
+
+.auth-links a {
+    color: #1e88e5;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.auth-links a:hover {
+    color: #0d47a1;
+    text-decoration: underline;
+}
+
+/* USER BADGE DI PALING ATAS KANAN DENGAN GAMBAR PROFIL */
+.user-badge-top-right {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 4px 10px 4px 6px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+}
+
+/* STYLING FOTO PROFIL / AVATAR USER */
+.user-avatar-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+}
+
+.btn-logout {
+    background: var(--danger);
+    color: white;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: background 0.2s;
+    margin-left: 2px;
+}
+
+.btn-logout:hover {
+    background: #b71c1c;
+}
+
+/* =========================================================
+   2. HEADER & NAVIGATION
+========================================================= */
+.header {
+    background: var(--header-grad);
+    color: white;
+    padding: 24px 20px 0 20px;
+    box-shadow: var(--shadow-md);
+    transition: background 0.3s;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-title h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.header-title p {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+/* KONTROL BARIS BAWAH HEADER (SEDERET DENGAN TABS) */
+.header-bottom-row {
+    max-width: 1400px;
+    margin: 20px auto 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.header-controls-bottom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2px;
+}
+
+.header-time {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+
+.header-time strong {
+    font-size: 15px;
+    margin-left: 5px;
+}
+
+.theme-select {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.theme-select option {
+    background: #1e293b;
+    color: white;
+}
+
+/* Navigasi Tab */
+.nav-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-btn {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px 12px 0 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.tab-btn.active {
+    background: var(--bg-main);
+    color: var(--primary-dark);
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+}
+
+body.theme-dark .tab-btn.active {
+    color: var(--primary);
+}
+
+/* =========================================================
+   3. CONTAINER & PAGES
+========================================================= */
+.container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 24px 20px;
+}
+
+.page {
+    display: none;
+    animation: fadeIn 0.25s ease-in-out;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   4. CARDS & FORMS
+========================================================= */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-dark);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    font-size: 14px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.12);
+}
+
+.form-group input[readonly] {
+    background: var(--readonly-bg);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.form-help {
+    font-size: 11px;
+    margin-top: 4px;
+    color: var(--text-muted);
+}
+
+.pilih-stok-highlight input {
+    border: 2px solid var(--primary);
+    background-color: var(--primary-light);
+}
+
+/* INPUT WITH EYE ICON CSS */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-right: 42px !important;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 6px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    color: var(--primary);
+    transform: none;
+    box-shadow: none;
+}
+
+/* TAMPILAN TOTAL SELURUH STOK DI HEADER KARTU */
+.badge-total-stok {
+    background: var(--primary);
+    color: white;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* =========================================================
+   5. BUTTONS & TOOLBAR
+========================================================= */
+.button-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-save { background: var(--primary); color: white; }
+.btn-save:hover { background: var(--primary-dark); }
+
+.btn-reset { background: var(--readonly-bg); color: var(--text-dark); }
+.btn-reset:hover { filter: brightness(0.9); }
+
+.btn-excel { background: var(--success); color: white; }
+.btn-upload { background: #00897b; color: white; }
+.btn-print { background: #34495e; color: white; }
+.btn-backup { background: #8e44ad; color: white; }
+.btn-edit { background: var(--warning); color: white; padding: 6px 12px; font-size: 12px; }
+.btn-delete { background: var(--danger); color: white; padding: 6px 12px; font-size: 12px; }
+.btn-clear-all { background: #b71c1c; color: white; }
+.btn-clear-all:hover { background: #880e4f; }
+.btn-lock { background: #475569; color: white; }
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.search-area {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-area input,
+.search-area select {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    font-size: 13px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+}
+
+.search-area input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* STYLING DEDIKASI KONTROL TANGGAL */
+.date-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--thead-bg);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.date-filter-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.date-filter-group input[type="date"] {
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text-dark);
+}
+
+/* =========================================================
+   6. TABLES & BADGES
+========================================================= */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+    background: var(--card-bg);
+}
+
+thead {
+    background: var(--thead-bg);
+    border-bottom: 2px solid var(--border-color);
+}
+
+th, td {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+    white-space: nowrap;
+    color: var(--text-dark);
+}
+
+th { font-weight: 600; }
+
+tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.15s;
+}
+
+tbody tr:hover { background: var(--table-hover); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-masuk { background: var(--success-light); color: var(--success); }
+.badge-keluar { background: var(--danger-light); color: var(--danger); }
+
+/* BADGE KOTAK SIMETRIS UNTUK SISA STOK & JUMLAH BARANG PENJUALAN */
+.stok-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 60px;
+    padding: 5px 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* BADGE UNTUK KONDISI STOK HABIS (0) */
+.stok-habis-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 60px;
+    padding: 5px 12px;
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* CSS AGAR ISI TABEL PENJUALAN BOLD SEMUA */
+#penjualanBody td {
+    font-weight: 700;
+}
+
+/* =========================================================
+   7. MODAL & FOOTER
+========================================================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 750px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    background: var(--primary);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 { font-size: 18px; font-weight: 600; }
+.close-modal { background: transparent; color: white; font-size: 24px; cursor: pointer; padding: 0; border: none; }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer {
+    padding: 16px 24px;
+    background: var(--thead-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.empty { padding: 40px; text-align: center; color: var(--text-muted); }
+.footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; }
+#uploadExcelInput { display: none; }
+
+/* DOKUMEN CETAK ELEGAN (HANYA TAMPIL SAAT CETAK) */
+.print-only-header {
+    display: none;
+}
+
+/* =========================================================
+   MEDIA QUERIES (OPTIMASI HANDPHONE / MOBILE)
+========================================================= */
+@media(max-width: 1024px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 768px) {
+    .header { padding: 16px 12px 0 12px; }
+    .header-content { flex-direction: column; align-items: stretch; gap: 10px; }
+    .user-badge-top-right { align-self: flex-start; }
+    .header-title h1 { font-size: 20px; }
+    .header-title p { font-size: 12px; }
+    
+    .header-bottom-row { flex-direction: column; align-items: stretch; gap: 12px; margin-top: 15px; }
+    .header-controls-bottom { justify-content: space-between; margin-bottom: 0; flex-wrap: wrap; }
+    .nav-tabs { width: 100%; padding-bottom: 4px; }
+    .tab-btn { padding: 10px 16px; font-size: 13px; }
+
+    .container { padding: 14px 10px; }
+    .card { padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+    .form-grid { grid-template-columns: 1fr; gap: 12px; }
+    
+    .search-area, .button-area { flex-direction: column; width: 100%; }
+    .search-area input, .search-area select, .button-area button { width: 100%; }
+    .date-filter-group { width: 100%; justify-content: space-between; }
+    .date-filter-group input[type="date"] { flex: 1; }
+    
+    .modal { padding: 10px; }
+    .modal-box { max-height: 95vh; }
+    .modal-header { padding: 14px 16px; }
+    .modal-body { padding: 16px; }
+    .modal-footer { padding: 12px 16px; }
+    .modal-footer button { width: 100%; }
+}
+
+/* =========================================================
+   DESAIN LAYOUT PRINT SANGAT RAPI DAN FORMAL
+========================================================= */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: 'Segoe UI', Arial, sans-serif !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header, .nav-tabs, .button-area, .toolbar, .modal, .footer, .auth-wrapper {
+        display: none !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+    }
+
+    .card-title {
+        border-bottom: 2px solid #000000;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .card-title span {
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-total-stok {
+        background: transparent !important;
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+        padding: 4px 10px !important;
+        font-size: 13px !important;
+        border-radius: 4px !important;
+    }
+
+    /* HEADER KHUSUS CETAK DOKUMEN LAPORAN */
+    .print-only-header {
+        display: block !important;
+        margin-bottom: 20px;
+        border-bottom: 3px double #000000;
+        padding-bottom: 12px;
+    }
+
+    .print-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .print-header-brand h1 {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+        color: #000;
+        text-transform: uppercase;
+    }
+
+    .print-header-brand p {
+        font-size: 11px;
+        color: #444;
+        margin-top: 2px;
+    }
+
+    .print-header-meta {
+        text-align: right;
+        font-size: 11px;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+    }
+
+    .print-user-badge-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .print-user-avatar-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 1px solid #000;
+    }
+
+    .table-wrapper {
+        border: 1px solid #000000 !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+    }
+
+    table {
+        width: 100% !important;
+        min-width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th {
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+        font-weight: 700 !important;
+        border: 1px solid #000000 !important;
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        text-transform: uppercase;
+    }
+
+    td {
+        border: 1px solid #000000 !important;
+        padding: 7px 10px !important;
+        font-size: 12px !important;
+        color: #000000 !important;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    .stok-box, .stok-habis-box {
+        border: none !important;
+        background: transparent !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        min-width: auto !important;
+    }
+}
+
+/* =========================================================
+   NAVIGASI PREMIUM — PERUBAHAN VISUAL SAJA
+   Alur halaman, ID tombol, onclick, dan susunan tombol tetap.
+========================================================= */
+.nav-tabs {
+    gap: 9px;
+    padding: 7px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 18px 18px 0 0;
+    background: rgba(8, 25, 55, .18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    align-items: stretch;
+    scroll-behavior: smooth;
+}
+.tab-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 11px 19px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: rgba(255,255,255,.105);
+    color: rgba(255,255,255,.94);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .15px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    transition: background .22s ease, color .22s ease, transform .22s ease,
+                box-shadow .22s ease, border-color .22s ease;
+}
+.tab-btn::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.02));
+    opacity: 0;
+    transition: opacity .22s ease;
+}
+.tab-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,.22);
+    border-color: rgba(255,255,255,.2);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(2, 12, 35, .16);
+}
+.tab-btn:hover::before { opacity: 1; }
+.tab-btn.active {
+    color: var(--primary-dark);
+    background: var(--bg-main);
+    border-color: rgba(255,255,255,.7);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -3px 14px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.8);
+    transform: translateY(0);
+}
+.tab-btn.active::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 0;
+    height: 3px;
+    border-radius: 4px 4px 0 0;
+    background: var(--primary);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+body.theme-dark .tab-btn.active {
+    color: var(--primary);
+    border-color: rgba(148,163,184,.18);
+    box-shadow: 0 -3px 14px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.tab-btn:focus-visible {
+    outline: 3px solid rgba(255,255,255,.85);
+    outline-offset: 2px;
+}
+.header-bottom-row {
+    align-items: flex-end;
+}
+.header-controls-bottom {
+    padding-bottom: 7px;
+}
+.header-time,
+.theme-select {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.24);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    transition: background .2s ease, border-color .2s ease;
+}
+.theme-select:hover { background: rgba(255,255,255,.28); }
+@media (max-width: 768px) {
+    .nav-tabs {
+        gap: 7px;
+        padding: 6px;
+        border-radius: 15px 15px 0 0;
+    }
+    .tab-btn {
+        min-height: 42px;
+        padding: 10px 14px;
+        font-size: 12px;
+        border-radius: 10px;
+    }
+    .tab-btn.active { border-radius: 10px 10px 0 0; }
+    .header-controls-bottom { padding-bottom: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .nav-tabs, .tab-btn, .tab-btn::before, .header-time, .theme-select {
+        scroll-behavior: auto;
+        transition: none;
+    }
+}
+
+
+
+/* =========================================================
+   ANIMASI BUTTON — VISUAL SAJA, TANPA MENGUBAH FUNGSI/LAYOUT
+   ========================================================= */
+@keyframes buttonAppearSmooth {
+  0%   { opacity: 0; transform: translateY(9px) scale(.975); }
+  70%  { opacity: 1; transform: translateY(-1px) scale(1.005); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes buttonAttention {
+  0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+  50%  { box-shadow: 0 0 0 4px rgba(59,130,246,.12); }
+  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+}
+
+button,
+.btn,
+.tab-btn,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"] {
+  transition:
+    transform .2s cubic-bezier(.2,.8,.2,1),
+    box-shadow .22s ease,
+    filter .22s ease,
+    background-color .22s ease,
+    border-color .22s ease,
+    color .22s ease;
+  transform-origin: center;
+  -webkit-tap-highlight-color: transparent;
+  animation: buttonAppearSmooth .48s cubic-bezier(.2,.8,.2,1) both;
+  will-change: transform;
+}
+
+button:hover:not(:disabled),
+.btn:hover:not(:disabled),
+.tab-btn:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+input[type="reset"]:hover:not(:disabled),
+[role="button"]:hover:not([aria-disabled="true"]) {
+  transform: translateY(-3px) scale(1.015);
+  filter: brightness(1.045) saturate(1.04);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, .15);
+}
+
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.tab-btn:active:not(:disabled),
+input[type="button"]:active:not(:disabled),
+input[type="submit"]:active:not(:disabled),
+input[type="reset"]:active:not(:disabled),
+[role="button"]:active:not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(.965);
+  filter: brightness(.98);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, .12);
+  transition-duration: .08s;
+}
+
+button:focus-visible,
+.btn:focus-visible,
+.tab-btn:focus-visible,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus-visible,
+input[type="reset"]:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid rgba(59,130,246,.5);
+  outline-offset: 3px;
+  animation: buttonAttention .7s ease-out;
+}
+
+button:disabled,
+.btn:disabled,
+.tab-btn:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+  transform: none;
+  filter: saturate(.72);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button, .btn, .tab-btn,
+  input[type="button"], input[type="submit"], input[type="reset"],
+  [role="button"] {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+  button:hover:not(:disabled), .btn:hover:not(:disabled),
+  .tab-btn:hover:not(:disabled), input[type="button"]:hover:not(:disabled),
+  input[type="submit"]:hover:not(:disabled), input[type="reset"]:hover:not(:disabled),
+  [role="button"]:hover:not([aria-disabled="true"]),
+  button:active:not(:disabled), .btn:active:not(:disabled),
+  .tab-btn:active:not(:disabled), input[type="button"]:active:not(:disabled),
+  input[type="submit"]:active:not(:disabled), input[type="reset"]:active:not(:disabled),
+  [role="button"]:active:not([aria-disabled="true"]) {
+    transform: none;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     SISTEM AUTENTIKASI: LOGIN, BUAT AKUN, LUPA PASSWORD
+========================================================= -->
+<div id="authContainer" class="auth-wrapper">
+    <!-- 1. FORM LOGIN -->
+    <div class="auth-card" id="loginCard">
+        <div class="auth-brand">
+            <div class="brand-icon">KYN</div>
+        </div>
+        <div class="auth-header">
+            <h2>Selamat Datang</h2>
+            <p>Manual Stock System</p>
+        </div>
+        <form class="auth-form" onsubmit="event.preventDefault(); prosesLogin();">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUsername" placeholder="Masukkan Username Anda" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="Masukkan Password Anda" required autocomplete="off">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👀</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">LOGIN</button>
+        </form>
+        <div class="auth-links">
+            <p>Belum punya akun? <a href="javascript:void(0)" onclick="showAuthCard('registerCard')">Buat Akun Baru</a></p>
+            <p style="margin-top: 6px;"><a href="javascript:void(0)" onclick="showAuthCard('forgotCard')">Lupa Password Anda?</a></p>
+        </div>
+    </div>
+
+    <!-- 2. FORM BUAT AKUN (REGISTRASI TANPA PERTANYAAN KEAMANAN) -->
+    <div class="auth-card" id="registerCard" style="display: none;">
+        <div class="auth-brand">
+            <div class="brand-icon">📝</div>
+        </div>
+        <div class="auth-header">
+            <h2>Buat Akun Baru</h2>
+            <p>Lengkapi formulir di bawah untuk pendaftaran akun</p>
+        </div>
+        <form class="auth-form" onsubmit="event.preventDefault(); prosesRegister();">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="regUsername" placeholder="Nama Anda" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="regPassword" placeholder="Minimal 4 karakter" required autocomplete="off">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👀</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">DAFTAR SEKARANG</button>
+        </form>
+        <div class="auth-links">
+            <p>Sudah memiliki akun? <a href="javascript:void(0)" onclick="showAuthCard('loginCard')">Masuk Kembali</a></p>
+        </div>
+    </div>
+
+    <!-- 3. FORM LUPA PASSWORD (BERBERAPAKAN TAHAP VERIFIKASI) -->
+    <div class="auth-card" id="forgotCard" style="display: none;">
+        <div class="auth-brand">
+            <div class="brand-icon">🔑</div>
+        </div>
+        <div class="auth-header">
+            <h2>Lupa Password</h2>
+            <p>Reset password akun Anda melalui verifikasi username</p>
+        </div>
+        
+        <!-- STEP 1: CARI USERNAME -->
+        <form class="auth-form" id="forgotStep1" onsubmit="event.preventDefault(); verifikasiUsernameLupa();">
+            <div class="form-group">
+                <label>Username Anda</label>
+                <input type="text" id="forgotUsername" placeholder="Masukkan Username terdaftar" required autocomplete="off">
+            </div>
+            <button type="submit" class="btn-primary">VERIFIKASI AKUN</button>
+        </form>
+
+        <!-- STEP 2: KONFIRMASI VERIFIKASI SEBELUM UBAH PASSWORD -->
+        <div id="forgotStep2Confirm" style="display: none; text-align: center; margin-bottom: 12px;">
+            <p style="font-size:12px; font-weight:600; color:#1e88e5; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:12px;">
+                Akun ditemukan! Klik tombol di bawah untuk melanjutkan pembaruan password.
+            </p>
+            <button type="button" class="btn-primary" onclick="lanjutkanKeFormReset()">LANJUTKAN RESET PASSWORD</button>
+        </div>
+
+        <!-- STEP 3: UBAH PASSWORD BARU -->
+        <form class="auth-form" id="forgotStep3" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
+            <div class="form-group">
+                <label>Password Baru</label>
+                <div class="password-wrapper">
+                    <input type="password" id="forgotNewPassword" placeholder="Masukkan Password Baru" required autocomplete="off">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👀</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">SIMPAN PASSWORD BARU</button>
+        </form>
+
+        <div class="auth-links">
+            <p><a href="javascript:void(0)" onclick="showAuthCard('loginCard')">← Kembali ke Halaman Masuk</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     SISTEM UTAMA APLIKASI (DITAMPILKAN SETELAH LOGIN)
+========================================================= -->
+<div id="mainApp" style="display: none;">
+
+<!-- HEADER UTAMA -->
+<header class="header">
+    <div class="header-content">
+        <div class="header-title">
+            <h1>Manual Stock Management System</h1>
+            <p>Sistem Pencatatan & Operasional Stock Barang</p>
+        </div>
+        
+        <!-- NAMA USER & FOTO PROFIL DENGAN AVATAR LINGKARAN -->
+        <div class="user-badge-top-right">
+            <img id="userAvatarImg" class="user-avatar-img" src="" alt="Avatar" onclick="gantiAvatarRandom()" title="Klik untuk acak foto profil">
+            <span id="displayLoggedInUser">-</span>
+            <button class="btn-logout" onclick="prosesLogout()">LOGOUT</button>
+        </div>
+    </div>
+
+    <!-- TANGGAL, TEMA, DAN TABS NAVIGASI BERADA DI BARIS BAWAH -->
+    <div class="header-bottom-row">
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabInputBtn" onclick="switchPage('inputPage')">
+                Form Input
+            </button>
+            <button class="tab-btn" id="tabPenjualanBtn" onclick="switchPage('penjualanPage')">
+                Report Penjualan
+            </button>
+            <button class="tab-btn" id="tabStokBtn" onclick="switchPage('stokPage')">
+                Report Stock Barang
+            </button>
+            <button class="tab-btn" id="tabTransaksiBtn" onclick="tryAccessTransaksi()">
+                🔒︎ Riwayat Transaksi
+            </button>
+        </div>
+
+        <!-- TANGGAL DAN TEMA SEDERET DENGAN NAVIGASI / DI BAWAH USER -->
+        <div class="header-controls-bottom">
+            <div class="header-time">
+                Tanggal: <strong id="headerDate">-</strong>
+            </div>
+            <!-- PILIHAN TEMA LENGKAP -->
+            <select class="theme-select" id="themeSelect" onchange="changeTheme(this.value)">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="ocean">Ocean Blue</option>
+                <option value="forest">Forest Green</option>
+                <option value="purple">Royal Purple</option>
+                <option value="sunset">Sunset Amber</option>
+                <option value="rose">Rose Pink</option>
+                <option value="slate">Slate Gray</option>
+            </select>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- HEADER INFORMASI SAAT MENCETAK (PRINT ONLY) -->
+    <div class="print-only-header">
+        <div class="print-header-top">
+            <div class="print-header-brand">
+                <h1>Manual Stock Management System</h1>
+                <p>Laporan Resmi Rekapitulasi Stock Barang</p>
+            </div>
+            <div class="print-header-meta">
+                <div>Tanggal Cetak: <strong id="printHeaderDate">-</strong></div>
+                <div class="print-user-badge-meta">
+                    Dicetak Oleh: <img id="printUserAvatarImg" class="print-user-avatar-img" src="" alt="User Avatar"> <strong id="printHeaderUser">-</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         HALAMAN 1: INPUT TRANSAKSI
+    ========================================================= -->
+    <div class="page active" id="inputPage">
+       
+        <div class="card">
+            <div class="card-title">
+                <span>Form Input Barang</span>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="text" id="tanggal" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Jam</label>
+                    <input type="text" id="jam" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Barang</label>
+                    <select id="jenis" onchange="handleJenisChange()">
+                        <option value="masuk">Barang Masuk</option>
+                        <option value="keluar">Barang Keluar</option>
+                    </select>
+                </div>
+
+                <!-- INPUT NAMA CUSTOMER (TAMPIL HANYA PADA BARANG KELUAR) -->
+                <div class="form-group" id="containerCustomer" style="display:none;">
+                    <label>Nama Customer</label>
+                    <input type="text" id="customer" placeholder="Masukkan Nama Customer" autocomplete="off">
+                </div>
+
+                <!-- SEARCHABLE DATALIST BARANG KELUAR / BARANG MASUK Ulang -->
+                <div class="form-group pilih-stok-highlight" id="containerPilihStok">
+                    <label id="labelPilihStok">Sudah Pernah Terinput (Opsional)</label>
+                    <input type="text" id="searchBarangKeluar" list="listBarangStok" placeholder="Ketik kode, nama, atau warna..." oninput="handleBarangKeluarSelect(this.value)">
+                    <datalist id="listBarangStok"></datalist>
+                    <div class="form-help" id="helpPilihStok">Pilih barang untuk diisi otomatis</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Kode Barang</label>
+                    <input type="text" id="kode" placeholder="Masukkan Kode Barang" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Barang</label>
+                    <input type="text" id="nama" placeholder="Masukkan Nama Barang" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="text" id="warna" placeholder="Masukkan Warna" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label>Jumlah Barang</label>
+                    <input type="number" id="jumlah" min="1" step="1" placeholder="Masukkan Jumlah Barang" oninput="validateJumlahStok(this)">
+                </div>
+            </div>
+
+            <div class="button-area">
+                <button class="btn-save" onclick="simpanTransaksi()">SAVE FORM</button>
+                <button class="btn-reset" onclick="resetForm()">RESET FORM</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         HALAMAN PENJUALAN (BARANG KELUAR / PENJUALAN)
+    ========================================================= -->
+    <div class="page" id="penjualanPage">
+       
+        <div class="card">
+            <div class="card-title">
+                <span>Data Penjualan</span>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-area">
+                    <input type="text" id="searchPenjualan" placeholder="Cari nama customer, barang, atau warna..." oninput="renderPenjualan()">
+                    
+                    <!-- FILTER RENTANG TANGGAL PENJUALAN -->
+                    <div class="date-filter-group">
+                        <label>Dari:</label>
+                        <input type="date" id="tglAwalPenjualan" onchange="renderPenjualan()">
+                        <label>S/D:</label>
+                        <input type="date" id="tglAkhirPenjualan" onchange="renderPenjualan()">
+                        <button class="btn-reset" style="padding: 5px 10px; font-size: 11px;" onclick="resetFilterTanggal('Penjualan')">Reset Tanggal</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Nama Customer</th>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Warna</th>
+                            <th class="text-center">Jumlah Barang</th>
+                        </tr>
+                    </thead>
+                    <tbody id="penjualanBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         HALAMAN 2: SISA STOK BARANG (LANGSUNG TAMPIL TOTAL SELURUH STOK)
+    ========================================================= -->
+    <div class="page" id="stokPage">
+
+        <!-- TABEL RINCIAN SISA STOK -->
+        <div class="card">
+            <div class="card-title">
+                <span>Stock Barang</span>
+                <!-- LANGSUNG TAMPILKAN HASIL TOTAL SELURUH STOK -->
+                <div class="badge-total-stok" id="displayTotalStok">
+                    Grand Total Stock 0 
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-area">
+                    <input type="text" id="searchStok" placeholder="Cari berdasarkan kode, nama barang, atau warna..." oninput="renderStok()">
+                </div>
+                <!-- BUTTON PRINT SEKARANG TERSEDIA DI REPORT STOK BARANG -->
+                <div class="button-area" style="margin-top:0;">
+                    <button class="btn-print" onclick="cetakLaporanStok()">PRINT STOK</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Warna</th>
+                            <th class="text-center">Sisa Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stokBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         HALAMAN 3: RIWAYAT TRANSAKSI (PROTEKSI PIN)
+    ========================================================= -->
+    <div class="page" id="transaksiPage">
+       
+        <div class="card">
+            <div class="card-title">
+                <span>Riwayat Transaksi Barang</span>
+                <div>
+                    <button class="btn-reset" onclick="bukaModalUbahPin()" style="font-size:12px;">Change PIN</button>
+                    <button class="btn-lock" onclick="kunciAkses()" style="font-size:12px;">Lock</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-area">
+                    <input type="text" id="searchTransaksi" placeholder="Cari kode, nama, warna, atau customer..." oninput="renderTransaksi()">
+                    <select id="filterJenis" onchange="renderTransaksi()">
+                        <option value="semua">Semua Transaksi</option>
+                        <option value="masuk">Barang Masuk</option>
+                        <option value="keluar">Barang Keluar</option>
+                    </select>
+
+                    <!-- FILTER RENTANG TANGGAL TRANSAKSI -->
+                    <div class="date-filter-group">
+                        <label>Dari:</label>
+                        <input type="date" id="tglAwalTransaksi" onchange="renderTransaksi()">
+                        <label>S/D:</label>
+                        <input type="date" id="tglAkhirTransaksi" onchange="renderTransaksi()">
+                        <button class="btn-reset" style="padding: 5px 10px; font-size: 11px;" onclick="resetFilterTanggal('Transaksi')">Reset Tanggal</button>
+                    </div>
+                </div>
+
+                <div class="button-area" style="margin-top:0;">
+                    <button class="btn-upload" onclick="document.getElementById('uploadExcelInput').click()">UPLOAD EXCEL</button>
+                    <input type="file" id="uploadExcelInput" accept=".xlsx,.xls" onchange="importExcel(event)">
+                    <button class="btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
+                    <button class="btn-backup" onclick="backupJSON()">BACKUP DATA</button>
+                    <!-- BUTTON HAPUS SEMUA TRANSAKSI -->
+                    <button class="btn-clear-all" onclick="konfirmasiHapusSemuaTransaksi()">HAPUS TRANSAKSI</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Tanggal</th>
+                            <th>Jam</th>
+                            <th>Jenis</th>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Warna</th>
+                            <th>Customer</th>
+                            <th class="text-center">Jumlah Barang</th>
+                            <th class="text-center">Edit / Hapus</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaksiBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     MODAL PIN AKSES RIWAYAT TRANSAKSI (LENGKAP IKON MATA)
+========================================================= -->
+<div class="modal" id="pinModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header">
+            <h2>🔒︎ Verifikasi Akses Masuk</h2>
+            <button class="close-modal" onclick="tutupModalPin()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
+                Masukkan Kode PIN khusus untuk melihat atau mengedit riwayat transaksi.
+            </p>
+            <div class="form-group">
+                <label>PIN Akses</label>
+                <div class="password-wrapper">
+                    <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👀</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalPin()">BATAL</button>
+            <button class="btn-save" onclick="verifikasiPin()">MASUK</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI PIN SAAT HAPUS TRANSAKSI SATUAN -->
+<div class="modal" id="deletePinModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header" style="background: var(--danger);">
+            <h2>Konfirmasi Hapus Data</h2>
+            <button class="close-modal" onclick="tutupModalDeletePin()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-dark); margin-bottom:12px; font-weight: 600;">
+                Apakah Anda yakin ingin menghapus data ini?
+            </p>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">
+                Masukkan PIN Akses Anda untuk mengonfirmasi penghapusan permanen.
+            </p>
+            <div class="form-group">
+                <label>PIN Akses</label>
+                <div class="password-wrapper">
+                    <input type="password" id="inputPinDelete" placeholder="Masukkan PIN Akses" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusDenganPin()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinDelete', this)">👀</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalDeletePin()">BATAL</button>
+            <button class="btn-delete" style="padding: 10px 18px; font-size: 13px;" onclick="eksekusiHapusDenganPin()">HAPUS TRANSAKSI</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI PIN SAAT HAPUS SEMUA TRANSAKSI -->
+<div class="modal" id="clearAllModal">
+    <div class="modal-box" style="max-width: 440px;">
+        <div class="modal-header" style="background: #b71c1c;">
+            <h2>⚠️ HAPUS SEMUA TRANSAKSI</h2>
+            <button class="close-modal" onclick="tutupModalClearAll()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:#b71c1c; margin-bottom:10px; font-weight: 700;">
+                PERINGATAN SANGAT PENTING!!!
+            </p>
+            <p style="font-size:12px; color:var(--text-dark); margin-bottom:15px;">
+                Tindakan ini akan menghapus <strong>SELURUH RIWAYAT TRANSAKSI</strong> dan mengosongkan stok secara permanen - Data yang telah dihapus tidak bisa dikembalikan.
+            </p>
+            <div class="form-group">
+                <label>PIN Akses</label>
+                <div class="password-wrapper">
+                    <input type="password" id="inputPinClearAll" placeholder="Masukkan PIN Akses Anda" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') eksekusiHapusSemuaDenganPin()">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinClearAll', this)">👀</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalClearAll()">BATALKAN</button>
+            <button class="btn-clear-all" style="padding: 10px 18px; font-size: 13px; font-weight:700;" onclick="eksekusiHapusSemuaDenganPin()">KOSONGKAN SEMUA DATA</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UBAH PIN (LENGKAP IKON MATA PADA 3 INPUT) -->
+<div class="modal" id="ubahPinModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header">
+            <h2>Ubah PIN Akses</h2>
+            <button class="close-modal" onclick="tutupModalUbahPin()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>PIN Lama</label>
+                <div class="password-wrapper">
+                    <input type="password" id="pinLama" placeholder="Masukkan PIN Lama">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinLama', this)">👀</button>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>PIN Baru</label>
+                <div class="password-wrapper">
+                    <input type="password" id="pinBaru" placeholder="Masukkan PIN Baru">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinBaru', this)">👀</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Konfirmasi PIN Baru</label>
+                <div class="password-wrapper">
+                    <input type="password" id="pinKonfirmasi" placeholder="Ulangi PIN Baru">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility('pinKonfirmasi', this)">👀</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalUbahPin()">BATAL</button>
+            <button class="btn-save" onclick="simpanPinBaru()">SIMPAN PIN BARU</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT TRANSAKSI -->
+<div class="modal" id="editModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Edit Data Transaksi</h2>
+            <button class="close-modal" onclick="tutupEdit()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal</label>
+                    <input type="text" id="editTanggal" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Jam</label>
+                    <input type="text" id="editJam" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Barang</label>
+                    <select id="editJenis">
+                        <option value="masuk">Barang Masuk</option>
+                        <option value="keluar">Barang Keluar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nama Customer</label>
+                    <input type="text" id="editCustomer" placeholder="-">
+                </div>
+                <div class="form-group">
+                    <label>Kode Barang</label>
+                    <input type="text" id="editKode">
+                </div>
+                <div class="form-group">
+                    <label>Nama Barang</label>
+                    <input type="text" id="editNama">
+                </div>
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="text" id="editWarna">
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Barang</label>
+                    <input type="number" id="editJumlah" min="1" step="1">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupEdit()">BATAL</button>
+            <button class="btn-save" onclick="simpanEdit()">SIMPAN PERUBAHAN</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    Manual Stock Management System &bull; by Nicholas Sulistio
+</div>
+
+</div> <!-- END MAIN APP -->
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+const USERS_KEY = "SISTEM_STOK_USERS_LIST";
+const CURRENT_USER_KEY = "SISTEM_STOK_LOGGED_USER";
+const STORAGE_KEY = "SISTEM_POTONG_STOK_DATA_PERMANEN";
+const PIN_KEY = "SISTEM_STOK_PIN_AKSES";
+const THEME_KEY = "SISTEM_STOK_THEME_MODE";
+const PAGE_KEY = "SISTEM_STOK_LAST_ACTIVE_PAGE";
+const AUTH_STATUS_KEY = "SISTEM_STOK_IS_AUTHORIZED";
+const DEFAULT_PIN = "1234";
+
+const OLD_STORAGE_KEYS = [
+    "stok_barang_local_storage_v4",
+    "stok_barang_local_storage_v3",
+    "stok_barang_local_storage_v2",
+    "sistem_potong_stok_v1"
+];
+
+let transaksi = [];
+let editIndex = null;
+let deleteTargetIndex = null;
+let isAuthorized = false;
+let forgotTargetUser = null;
+
+const namaBulan = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
+/* =========================================================
+   GENERATE FOTO PROFIL PEMANDANGAN ALAM (RANDOM & ESTETIK)
+========================================================= */
+const avatarList = [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=150&q=80", // Gunung & Danau
+    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=150&q=80", // Hutan Pinus
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=150&q=80", // Kabut Kabut Lembah
+    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=150&q=80", // Lembah & Sungai
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=150&q=80", // Padang Rumput Hijau
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80", // Pantai Sunset
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=150&q=80", // Puncak Gunung Salju
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=150&q=80", // Danau Biru
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=150&q=80", // Hutan Pepohonan Rindang
+    "https://images.unsplash.com/photo-1439853949127-fa647821eba0?auto=format&fit=crop&w=150&q=80"  // Air Terjun Sejuk
+];
+
+function getUserAvatarUrl(username, offset = 0) {
+    if (!username) username = "User";
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash + offset) % avatarList.length;
+    return avatarList[index];
+}
+
+function getFallbackAvatarUrl(username) {
+    const cleanName = encodeURIComponent(username || 'User');
+    return `https://ui-avatars.com/api/?name=${cleanName}&background=1565c0&color=ffffff&bold=true&rounded=true`;
+}
+
+function setupAvatarImages(username) {
+    const avatarUrl = getUserAvatarUrl(username);
+    const fallbackUrl = getFallbackAvatarUrl(username);
+    
+    const userAvatarImg = document.getElementById('userAvatarImg');
+    const printUserAvatarImg = document.getElementById('printUserAvatarImg');
+    
+    if (userAvatarImg) {
+        userAvatarImg.src = avatarUrl;
+        userAvatarImg.onerror = function() { this.src = fallbackUrl; };
+    }
+    if (printUserAvatarImg) {
+        printUserAvatarImg.src = avatarUrl;
+        printUserAvatarImg.onerror = function() { this.src = fallbackUrl; };
+    }
+}
+
+let avatarOffset = 0;
+function gantiAvatarRandom() {
+    const loggedUser = localStorage.getItem(CURRENT_USER_KEY) || 'User';
+    avatarOffset += Math.floor(Math.random() * 5) + 1;
+    setupAvatarImages(loggedUser + avatarOffset);
+}
+
+/* =========================================================
+   BLOKIR SHORTCUT MENCETAK (CTRL+P / CMD+P)
+========================================================= */
+window.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        alert("Fungsi PRINT langsung tidak bisa.\nGunakan tombol PRINT STOK resmi di menu Report Stock Barang.");
+        return false;
+    }
+});
+
+/* =========================================================
+   LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD)
+========================================================= */
+function getUsers() {
+    try {
+        const users = localStorage.getItem(USERS_KEY);
+        return users ? JSON.parse(users) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function showAuthCard(cardId) {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('registerCard').style.display = 'none';
+    document.getElementById('forgotCard').style.display = 'none';
+    document.getElementById(cardId).style.display = 'block';
+
+    if (cardId === 'forgotCard') {
+        document.getElementById('forgotStep1').style.display = 'block';
+        document.getElementById('forgotStep2Confirm').style.display = 'none';
+        document.getElementById('forgotStep3').style.display = 'none';
+        document.getElementById('forgotUsername').value = '';
+        forgotTargetUser = null;
+    }
+}
+
+function prosesRegister() {
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    if (!username || !password) {
+        alert("Mohon lengkapi username dan password!");
+        return;
+    }
+
+    const users = getUsers();
+    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+        alert("Username tersebut sudah terdaftar! Gunakan username lain.");
+        return;
+    }
+
+    users.push({ username, password });
+    saveUsers(users);
+    alert("Akun berhasil dibuat! Silakan login.");
+    showAuthCard('loginCard');
+    document.getElementById('loginUsername').value = username;
+}
+
+function prosesLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    const users = getUsers();
+    const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+
+    if (userFound) {
+        localStorage.setItem(CURRENT_USER_KEY, userFound.username);
+        checkSession();
+    } else {
+        alert("Username atau Password salah!");
+    }
+}
+
+function verifikasiUsernameLupa() {
+    const username = document.getElementById('forgotUsername').value.trim();
+    const users = getUsers();
+    const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (!userFound) {
+        alert("Username tidak ditemukan!");
+        return;
+    }
+
+    forgotTargetUser = userFound;
+    document.getElementById('forgotStep1').style.display = 'none';
+    document.getElementById('forgotStep2Confirm').style.display = 'block';
+}
+
+function lanjutkanKeFormReset() {
+    document.getElementById('forgotStep2Confirm').style.display = 'none';
+    document.getElementById('forgotStep3').style.display = 'block';
+}
+
+function prosesResetPassword() {
+    const newPassword = document.getElementById('forgotNewPassword').value;
+
+    if (!forgotTargetUser) return;
+
+    if (!newPassword || newPassword.length < 3) {
+        alert("Password baru terlalu pendek!");
+        return;
+    }
+
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.username.toLowerCase() === forgotTargetUser.username.toLowerCase());
+
+    if (userIndex !== -1) {
+        users[userIndex].password = newPassword;
+        saveUsers(users);
+        alert("Password berhasil diubah! Silakan login dengan password baru.");
+        showAuthCard('loginCard');
+    }
+}
+
+function checkSession() {
+    const loggedUser = localStorage.getItem(CURRENT_USER_KEY);
+    const authContainer = document.getElementById('authContainer');
+    const mainApp = document.getElementById('mainApp');
+
+    if (loggedUser) {
+        authContainer.style.display = 'none';
+        mainApp.style.display = 'block';
+        document.getElementById('displayLoggedInUser').textContent = loggedUser;
+        
+        // Pasang foto profil acak manusia yang keren & estetik
+        setupAvatarImages(loggedUser);
+
+        initTheme();
+        loadData();
+        updateClock();
+        
+        // Membaca status otorisasi PIN yang tersimpan
+        if (sessionStorage.getItem(AUTH_STATUS_KEY) === 'true') {
+            isAuthorized = true;
+            document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi";
+        }
+
+        // Buka halaman terakhir yang tersimpan saat di-refresh
+        const savedPage = localStorage.getItem(PAGE_KEY) || 'inputPage';
+        if (savedPage === 'transaksiPage' && !isAuthorized) {
+            switchPage('inputPage');
+        } else {
+            switchPage(savedPage);
+        }
+
+        updateApp();
+    } else {
+        authContainer.style.display = 'flex';
+        mainApp.style.display = 'none';
+        showAuthCard('loginCard');
+    }
+}
+
+function prosesLogout() {
+    if (confirm("Apakah Anda yakin ingin keluar dari sistem?")) {
+        localStorage.removeItem(CURRENT_USER_KEY);
+        localStorage.removeItem(PAGE_KEY);
+        sessionStorage.removeItem(AUTH_STATUS_KEY);
+        isAuthorized = false;
+        checkSession();
+    }
+}
+
+/* FUNKSI TOGGLE SHOW/HIDE PASSWORD PIN */
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🗙";
+    } else {
+        input.type = "password";
+        btn.textContent = "👀";
+    }
+}
+
+/* 1. SISTEM GANTI TEMA WARNA */
+function initTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+    changeTheme(savedTheme);
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect) themeSelect.value = savedTheme;
+}
+
+function changeTheme(themeName) {
+    document.body.className = '';
+    if (themeName !== 'light') {
+        document.body.classList.add('theme-' + themeName);
+    }
+    localStorage.setItem(THEME_KEY, themeName);
+}
+
+/* 2. KEAMANAN & VERIFIKASI PIN */
+function getStoredPin() {
+    return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
+}
+
+function tryAccessTransaksi() {
+    if (isAuthorized) {
+        switchPage('transaksiPage');
+    } else {
+        document.getElementById('inputPinAkses').value = '';
+        document.getElementById('inputPinAkses').type = 'password';
+        const eyeBtn = document.querySelector('#pinModal .toggle-password');
+        if (eyeBtn) eyeBtn.textContent = '👀';
+
+        document.getElementById('pinModal').classList.add('active');
+        setTimeout(() => document.getElementById('inputPinAkses').focus(), 100);
+    }
+}
+
+function verifikasiPin() {
+    const inputPin = document.getElementById('inputPinAkses').value;
+    const storedPin = getStoredPin();
+
+    if (inputPin === storedPin) {
+        isAuthorized = true;
+        sessionStorage.setItem(AUTH_STATUS_KEY, 'true');
+        tutupModalPin();
+        switchPage('transaksiPage');
+        document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi";
+    } else {
+        alert("Kode PIN salah! Akses ditolak.");
+        document.getElementById('inputPinAkses').value = '';
+    }
+}
+
+function tutupModalPin() {
+    document.getElementById('pinModal').classList.remove('active');
+}
+
+function kunciAkses() {
+    isAuthorized = false;
+    sessionStorage.removeItem(AUTH_STATUS_KEY);
+    document.getElementById('tabTransaksiBtn').innerHTML = "🔒︎ Riwayat Transaksi";
+    switchPage('inputPage');
+    alert("Akses ke halaman Riwayat Transaksi berhasil dikunci kembali.");
+}
+
+function bukaModalUbahPin() {
+    ['pinLama', 'pinBaru', 'pinKonfirmasi'].forEach(id => {
+        const inp = document.getElementById(id);
+        if (inp) {
+            inp.value = '';
+            inp.type = 'password';
+        }
+    });
+    document.querySelectorAll('#ubahPinModal .toggle-password').forEach(btn => btn.textContent = '👀');
+    document.getElementById('ubahPinModal').classList.add('active');
+}
+
+function tutupModalUbahPin() {
+    document.getElementById('ubahPinModal').classList.remove('active');
+}
+
+function simpanPinBaru() {
+    const pinLama = document.getElementById('pinLama').value;
+    const pinBaru = document.getElementById('pinBaru').value;
+    const pinKonfirmasi = document.getElementById('pinKonfirmasi').value;
+
+    if (pinLama !== getStoredPin()) {
+        alert("PIN lama yang Anda masukkan salah!");
+        return;
+    }
+
+    if (!pinBaru || pinBaru.length < 4) {
+        alert("PIN baru minimal harus 4 karakter/digit!");
+        return;
+    }
+
+    if (pinBaru !== pinKonfirmasi) {
+        alert("Konfirmasi PIN baru tidak cocok!");
+        return;
+    }
+
+    localStorage.setItem(PIN_KEY, pinBaru);
+    alert("PIN Akses berhasil diperbarui!");
+    tutupModalUbahPin();
+}
+
+/* 3. MANAGEMENT NAVIGASI TABS & MENYIMPAN HALAMAN TERAKHIR */
+function switchPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        localStorage.setItem(PAGE_KEY, pageId);
+    }
+
+    if (pageId === 'inputPage') {
+        document.getElementById('tabInputBtn').classList.add('active');
+        handleJenisChange();
+    } else if (pageId === 'penjualanPage') {
+        document.getElementById('tabPenjualanBtn').classList.add('active');
+        renderPenjualan();
+    } else if (pageId === 'stokPage') {
+        document.getElementById('tabStokBtn').classList.add('active');
+        updateDashboard();
+        renderStok();
+    } else if (pageId === 'transaksiPage') {
+        document.getElementById('tabTransaksiBtn').classList.add('active');
+        renderTransaksi();
+    }
+}
+
+/* 4. LOCAL STORAGE MANAGEMENT */
+function loadData() {
+    try {
+        const dataUtama = localStorage.getItem(STORAGE_KEY);
+        if (dataUtama) {
+            const parsed = JSON.parse(dataUtama);
+            if (Array.isArray(parsed)) {
+                transaksi = parsed;
+                return;
+            }
+        }
+
+        for (const oldKey of OLD_STORAGE_KEYS) {
+            const oldData = localStorage.getItem(oldKey);
+            if (oldData) {
+                const parsed = JSON.parse(oldData);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    transaksi = parsed;
+                    saveData();
+                    return;
+                }
+            }
+        }
+        transaksi = [];
+    } catch (e) {
+        console.error("Gagal membaca storage:", e);
+        transaksi = [];
+    }
+}
+
+function saveData() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(transaksi));
+    } catch (e) {
+        alert("Gagal menyimpan data ke Local Storage browser!");
+    }
+}
+
+/* 5. FORMATTER & HELPERS */
+function formatAngka(num) {
+    return Number(num || 0).toLocaleString("id-ID");
+}
+
+function escapeHTML(str) {
+    return String(str ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function normalizeKode(val) { return String(val || "").trim().toUpperCase(); }
+function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
+function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
+function pad(num) { return String(num).padStart(2, "0"); }
+
+/* CONVERT/FORMAT TANGGAL DENGAN FORMAT "9 OKTOBER 2026" */
+function formatTanggalIndonesia(strTanggal) {
+    if (!strTanggal) return '-';
+    // Jika tanggal sudah dalam format DD-MM-YYYY
+    const parts = strTanggal.split('-');
+    if (parts.length === 3) {
+        const tgl = parseInt(parts[0], 10);
+        const blnIndex = parseInt(parts[1], 10) - 1;
+        const thn = parts[2];
+        if (!isNaN(tgl) && blnIndex >= 0 && blnIndex < 12) {
+            return `${tgl} ${namaBulan[blnIndex]} ${thn}`;
+        }
+    }
+    return strTanggal;
+}
+
+/* PARSE FORMAT TANGGAL TEKS KEMBALI KE OBJECT DATE (UNTUK KOMPARASI TANGGAL FILTER) */
+function parseDateDDMMYYYY(str) {
+    if (!str) return null;
+    const parts = str.split('-');
+    if (parts.length === 3) {
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    // Jika format tanggal disimpan sebagai "9 Oktober 2026"
+    const words = str.split(' ');
+    if (words.length === 3) {
+        const tgl = parseInt(words[0], 10);
+        const blnStr = words[1].toLowerCase();
+        const thn = parseInt(words[2], 10);
+        const blnIndex = namaBulan.findIndex(b => b.toLowerCase() === blnStr);
+        if (!isNaN(tgl) && blnIndex !== -1 && !isNaN(thn)) {
+            return new Date(thn, blnIndex, tgl);
+        }
+    }
+    return null;
+}
+
+/* RESET INPUT FILTER TANGGAL */
+function resetFilterTanggal(tipe) {
+    document.getElementById('tglAwal' + tipe).value = '';
+    document.getElementById('tglAkhir' + tipe).value = '';
+    if (tipe === 'Penjualan') renderPenjualan();
+    if (tipe === 'Transaksi') renderTransaksi();
+}
+
+/* FORMAT HEADER UTAMA (Contoh: 9 Oktober 2026) */
+function formatHeaderDate(date) {
+    return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
+}
+
+/* FORMAT TANGGAL DIUBAH KE TANGGAL BULAN TAHUN (Sesuai Permintaan) */
+function getCurrentDateTime() {
+    const now = new Date();
+    return {
+        tanggal: now.getDate() + " " + namaBulan[now.getMonth()] + " " + now.getFullYear(),
+        jam: pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds())
+    };
+}
+
+function updateClock() {
+    const now = new Date();
+    if (document.getElementById("headerDate")) document.getElementById("headerDate").textContent = formatHeaderDate(now);
+   
+    const dt = getCurrentDateTime();
+    if (document.getElementById("tanggal")) document.getElementById("tanggal").value = dt.tanggal;
+    if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
+}
+
+/* FUNKSI CETAK RAPI UNTUK STOK BARANG DENGAN VALIDASI CEK DATA KOSONG */
+function cetakLaporanStok() {
+    const mapStok = hitungStokPerBarang();
+    const totalItem = Object.keys(mapStok).length;
+
+    if (totalItem === 0) {
+        alert("Tidak ada data stock barang untuk dicetak!");
+        return;
+    }
+
+    const now = new Date();
+    const userLog = localStorage.getItem(CURRENT_USER_KEY) || '-';
+    
+    document.getElementById('printHeaderDate').textContent = formatHeaderDate(now) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+    document.getElementById('printHeaderUser').textContent = userLog;
+
+    window.print();
+}
+
+/* 6. LOGIKA HITUNG STOK & TAMPILAN TOTAL STOK HASIL LANGSUNG */
+function hitungStokPerBarang(excludeIndex = null) {
+    const mapNamaUtama = {};
+    for (let i = transaksi.length - 1; i >= 0; i--) {
+        if (excludeIndex !== null && i === excludeIndex) continue;
+        const item = transaksi[i];
+        const kodeKey = normalizeKode(item.kode);
+        if (kodeKey && item.nama && item.nama.trim() !== '') {
+            mapNamaUtama[kodeKey] = item.nama.trim();
+        }
+    }
+
+    const mapStok = {};
+    transaksi.forEach((item, index) => {
+        if (excludeIndex !== null && index === excludeIndex) return;
+        const kodeKey = normalizeKode(item.kode);
+        const key = getStockKey(item.kode, item.warna);
+        const namaBarangSeragam = mapNamaUtama[kodeKey] || item.nama;
+
+        if (!mapStok[key]) {
+            mapStok[key] = {
+                kode: item.kode,
+                nama: namaBarangSeragam,
+                warna: item.warna,
+                masuk: 0,
+                keluar: 0,
+                sisa: 0
+            };
+        }
+        const qty = parseInt(item.jumlah) || 0;
+        if (item.jenis === 'masuk') mapStok[key].masuk += qty;
+        else if (item.jenis === 'keluar') mapStok[key].keluar += qty;
+        mapStok[key].sisa = mapStok[key].masuk - mapStok[key].keluar;
+    });
+    return mapStok;
+}
+
+function updateDashboard() {
+    let tMasuk = 0, tKeluar = 0;
+    transaksi.forEach(item => {
+        const qty = parseInt(item.jumlah) || 0;
+        if (item.jenis === 'masuk') tMasuk += qty;
+        else if (item.jenis === 'keluar') tKeluar += qty;
+    });
+
+    const totalSisa = tMasuk - tKeluar;
+    const displayElement = document.getElementById('displayTotalStok');
+
+    if (displayElement) {
+        displayElement.innerHTML = `${formatAngka(totalSisa)} Roll`;
+    }
+}
+
+/* 7. SEARCHABLE DATALIST BARANG KELUAR / BARANG MASUK & VALIDASI STOK MAX */
+function handleJenisChange() {
+    const jenis = document.getElementById('jenis').value;
+    const containerCustomer = document.getElementById('containerCustomer');
+    const labelPilihStok = document.getElementById('labelPilihStok');
+    const helpPilihStok = document.getElementById('helpPilihStok');
+    const searchInput = document.getElementById('searchBarangKeluar');
+    const inputKode = document.getElementById('kode');
+    const inputNama = document.getElementById('nama');
+    const inputWarna = document.getElementById('warna');
+    const inputJumlah = document.getElementById('jumlah');
+
+    if (searchInput) searchInput.value = '';
+
+    if (jenis === 'keluar') {
+        containerCustomer.style.display = 'flex';
+        labelPilihStok.textContent = 'Cari Barang Stok (Tersedia)';
+        helpPilihStok.textContent = 'Pilih barang untuk diisi otomatis';
+        inputKode.readOnly = true;
+        inputNama.readOnly = true;
+        inputWarna.readOnly = true;
+        populateDatalistStok();
+    } else {
+        containerCustomer.style.display = 'none';
+        labelPilihStok.textContent = 'Sudah Pernah Terinput (Opsional)';
+        helpPilihStok.textContent = 'Pilih barang yang pernah terinput untuk diisi otomatis';
+        inputKode.readOnly = false;
+        inputNama.readOnly = false;
+        inputWarna.readOnly = false;
+        if (inputJumlah) {
+            inputJumlah.removeAttribute('max');
+            inputJumlah.placeholder = 'Masukkan Jumlah Barang';
+        }
+        populateDatalistBarangMasuk();
+        resetFormInput();
+    }
+}
+
+function populateDatalistStok() {
+    const list = document.getElementById('listBarangStok');
+    if (!list) return;
+    list.innerHTML = '';
+    const mapStok = hitungStokPerBarang();
+
+    Object.values(mapStok).forEach(item => {
+        if (item.sisa > 0) {
+            const option = document.createElement('option');
+            option.value = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+            list.appendChild(option);
+        }
+    });
+}
+
+function populateDatalistBarangMasuk() {
+    const list = document.getElementById('listBarangStok');
+    if (!list) return;
+    list.innerHTML = '';
+    const mapStok = hitungStokPerBarang();
+
+    Object.values(mapStok).forEach(item => {
+        const option = document.createElement('option');
+        option.value = `${item.kode} - ${item.nama} (${item.warna})`;
+        list.appendChild(option);
+    });
+}
+
+function handleBarangKeluarSelect(selectedVal) {
+    const jenis = document.getElementById('jenis').value;
+    const inputJumlah = document.getElementById('jumlah');
+    const inputKode = document.getElementById('kode');
+    const inputNama = document.getElementById('nama');
+    const inputWarna = document.getElementById('warna');
+
+    if (!selectedVal) {
+        inputKode.value = '';
+        inputNama.value = '';
+        inputWarna.value = '';
+
+        if (jenis === 'masuk') {
+            inputKode.readOnly = false;
+            inputNama.readOnly = false;
+            inputWarna.readOnly = false;
+        }
+
+        if (inputJumlah && jenis === 'keluar') {
+            inputJumlah.placeholder = 'Masukkan Jumlah Barang';
+            inputJumlah.removeAttribute('max');
+        }
+        return;
+    }
+
+    const mapStok = hitungStokPerBarang();
+
+    if (jenis === 'keluar') {
+        const barangFound = Object.values(mapStok).find(item => {
+            const fullString = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+            return item.sisa > 0 && (fullString === selectedVal || item.kode === selectedVal);
+        });
+
+        if (barangFound) {
+            inputKode.value = barangFound.kode;
+            inputNama.value = barangFound.nama;
+            inputWarna.value = barangFound.warna;
+            inputKode.readOnly = true;
+            inputNama.readOnly = true;
+            inputWarna.readOnly = true;
+
+            if (inputJumlah) {
+                inputJumlah.placeholder = `Maksimal: ${barangFound.sisa}`;
+                inputJumlah.setAttribute('max', barangFound.sisa);
+                if (parseInt(inputJumlah.value) > barangFound.sisa) {
+                    inputJumlah.value = barangFound.sisa;
+                }
+            }
+        }
+    } else {
+        const barangFound = Object.values(mapStok).find(item => {
+            const fullString = `${item.kode} - ${item.nama} (${item.warna})`;
+            return fullString === selectedVal || item.kode === selectedVal;
+        });
+
+        if (barangFound) {
+            inputKode.value = barangFound.kode;
+            inputNama.value = barangFound.nama;
+            inputWarna.value = barangFound.warna;
+            inputKode.readOnly = true;
+            inputNama.readOnly = true;
+            inputWarna.readOnly = true;
+        }
+    }
+}
+
+/* VALIDASI REALTIME JUMLAH BARANG KELUAR TIDAK BISA MELEBIHI SISA STOK */
+function validateJumlahStok(inputElem) {
+    const jenis = document.getElementById('jenis').value;
+    if (jenis !== 'keluar') return;
+
+    const maxVal = parseInt(inputElem.getAttribute('max'));
+    const val = parseInt(inputElem.value);
+
+    if (maxVal && val > maxVal) {
+        alert(`Jumlah barang tidak bisa melebihi sisa stok yang tersedia!\nSisa stok maksimum: ${maxVal}`);
+        inputElem.value = maxVal;
+    }
+}
+
+/* 8. PROSES SIMPAN TRANSAKSI */
+function simpanTransaksi() {
+    const jenis = document.getElementById('jenis').value;
+    const kode = normalizeKode(document.getElementById('kode').value);
+    const nama = document.getElementById('nama').value.trim();
+    const warna = document.getElementById('warna').value.trim();
+    const customer = document.getElementById('customer') ? document.getElementById('customer').value.trim() : '';
+    const jumlah = parseInt(document.getElementById('jumlah').value) || 0;
+
+    if (!kode || !nama || !warna || jumlah <= 0) {
+        alert("Mohon isi form transaksi dengan lengkap dan benar!");
+        return;
+    }
+
+    if (jenis === 'keluar') {
+        if (!customer) {
+            alert("Mohon isi Nama Customer untuk Barang Keluar!");
+            return;
+        }
+        const mapStok = hitungStokPerBarang();
+        const key = getStockKey(kode, warna);
+        const stokSaatIni = mapStok[key] ? mapStok[key].sisa : 0;
+
+        if (jumlah > stokSaatIni) {
+            alert(`Jumlah melebihi stok yang ada!\nSisa stok [${kode} - ${warna}] saat ini hanya: ${stokSaatIni}`);
+            document.getElementById('jumlah').value = stokSaatIni;
+            return;
+        }
+    }
+
+    const time = getCurrentDateTime();
+    transaksi.unshift({
+        tanggal: time.tanggal,
+        jam: time.jam,
+        jenis: jenis,
+        kode: kode,
+        nama: nama,
+        warna: warna,
+        customer: jenis === 'keluar' ? customer : '-',
+        jumlah: jumlah
+    });
+
+    saveData();
+    resetFormInput();
+    updateApp();
+    alert("Transaksi berhasil disimpan!");
+}
+
+function resetFormInput() {
+    const jenis = document.getElementById('jenis') ? document.getElementById('jenis').value : 'masuk';
+    if (document.getElementById('searchBarangKeluar')) document.getElementById('searchBarangKeluar').value = '';
+    if (document.getElementById('customer')) document.getElementById('customer').value = '';
+    
+    const inputKode = document.getElementById('kode');
+    const inputNama = document.getElementById('nama');
+    const inputWarna = document.getElementById('warna');
+
+    if (inputKode) {
+        inputKode.value = '';
+        if (jenis === 'masuk') inputKode.readOnly = false;
+    }
+    if (inputNama) {
+        inputNama.value = '';
+        if (jenis === 'masuk') inputNama.readOnly = false;
+    }
+    if (inputWarna) {
+        inputWarna.value = '';
+        if (jenis === 'masuk') inputWarna.readOnly = false;
+    }
+
+    if (document.getElementById('jumlah')) {
+        document.getElementById('jumlah').value = '';
+        document.getElementById('jumlah').placeholder = 'Masukkan Jumlah Barang';
+        document.getElementById('jumlah').removeAttribute('max');
+    }
+}
+
+function resetForm() {
+    resetFormInput();
+}
+
+/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
+function renderPenjualan() {
+    const tbody = document.getElementById('penjualanBody');
+    if (!tbody) return;
+    const query = (document.getElementById('searchPenjualan').value || '').toLowerCase();
+    
+    const tglAwalVal = document.getElementById('tglAwalPenjualan').value;
+    const tglAkhirVal = document.getElementById('tglAkhirPenjualan').value;
+    
+    let tglAwal = null;
+    let tglAkhir = null;
+
+    if (tglAwalVal) {
+        const p = tglAwalVal.split('-');
+        tglAwal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0);
+    }
+    if (tglAkhirVal) {
+        const p = tglAkhirVal.split('-');
+        tglAkhir = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999);
+    }
+
+    tbody.innerHTML = '';
+    const filtered = transaksi.filter(item => {
+        if (item.jenis !== 'keluar') return false;
+
+        // Filter Teks
+        const matchQuery = (item.customer || '').toLowerCase().includes(query) ||
+                           item.nama.toLowerCase().includes(query) ||
+                           item.kode.toLowerCase().includes(query) ||
+                           item.warna.toLowerCase().includes(query);
+
+        // Filter Rentang Tanggal
+        let matchDate = true;
+        const itemDate = parseDateDDMMYYYY(item.tanggal);
+        if (itemDate) {
+            if (tglAwal && itemDate < tglAwal) matchDate = false;
+            if (tglAkhir && itemDate > tglAkhir) matchDate = false;
+        }
+
+        return matchQuery && matchDate;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty">Belum ada data penjualan Recorded.</td></tr>`;
+        return;
+    }
+
+    filtered.forEach((item) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${escapeHTML(formatTanggalIndonesia(item.tanggal))}</td>
+            <td>${escapeHTML(item.customer || '-')}</td>
+            <td>${escapeHTML(item.kode || '-')}</td>
+            <td>${escapeHTML(item.nama || '-')}</td>
+            <td>${escapeHTML(item.warna || '-')}</td>
+            <td class="text-center"><span class="stok-box">${formatAngka(item.jumlah)}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderStok() {
+    const tbody = document.getElementById('stokBody');
+    if (!tbody) return;
+    const query = (document.getElementById('searchStok').value || '').toLowerCase();
+    const mapStok = hitungStokPerBarang();
+
+    tbody.innerHTML = '';
+    
+    const listStok = Object.values(mapStok)
+        .filter(item => {
+            return item.kode.toLowerCase().includes(query) ||
+                   item.nama.toLowerCase().includes(query) ||
+                   item.warna.toLowerCase().includes(query);
+        })
+        .sort((a, b) => {
+            if (a.kode === b.kode) {
+                return a.warna.localeCompare(b.warna, 'id', { sensitivity: 'base' });
+            }
+            return a.kode.localeCompare(b.kode, 'id', { sensitivity: 'base' });
+        });
+
+    if (listStok.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stock barang.</td></tr>`;
+        return;
+    }
+
+    listStok.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        // TAMPILAN SISA STOK: JIKA 0 TAMPILKAN 'HABIS' DENGAN BADGE MERAH
+        const sisaStokHtml = item.sisa <= 0 
+            ? `<span class="stok-habis-box">Habis</span>` 
+            : `<span class="stok-box">${formatAngka(item.sisa)}</span>`;
+
+        tr.innerHTML = `
+            <td><strong>${escapeHTML(item.kode)}</strong></td>
+            <td>${escapeHTML(item.nama)}</td>
+            <td>${escapeHTML(item.warna)}</td>
+            <td class="text-center">${sisaStokHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderTransaksi() {
+    const tbody = document.getElementById('transaksiBody');
+    if (!tbody) return;
+    const query = (document.getElementById('searchTransaksi').value || '').toLowerCase();
+    const filterJenis = document.getElementById('filterJenis').value;
+
+    const tglAwalVal = document.getElementById('tglAwalTransaksi').value;
+    const tglAkhirVal = document.getElementById('tglAkhirTransaksi').value;
+    
+    let tglAwal = null;
+    let tglAkhir = null;
+
+    if (tglAwalVal) {
+        const p = tglAwalVal.split('-');
+        tglAwal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0);
+    }
+    if (tglAkhirVal) {
+        const p = tglAkhirVal.split('-');
+        tglAkhir = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999);
+    }
+
+    tbody.innerHTML = '';
+    const filtered = transaksi.filter(item => {
+        const matchQuery = item.kode.toLowerCase().includes(query) ||
+                           item.nama.toLowerCase().includes(query) ||
+                           item.warna.toLowerCase().includes(query) ||
+                           (item.customer || '').toLowerCase().includes(query);
+        const matchJenis = (filterJenis === 'semua') || (item.jenis === filterJenis);
+
+        // Filter Rentang Tanggal
+        let matchDate = true;
+        const itemDate = parseDateDDMMYYYY(item.tanggal);
+        if (itemDate) {
+            if (tglAwal && itemDate < tglAwal) matchDate = false;
+            if (tglAkhir && itemDate > tglAkhir) matchDate = false;
+        }
+
+        return matchQuery && matchJenis && matchDate;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="empty">Belum ada riwayat transaksi recorded.</td></tr>`;
+        return;
+    }
+
+    filtered.forEach((item, index) => {
+        const realIndex = transaksi.indexOf(item);
+        const badgeClass = item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar';
+        const jenisLabel = item.jenis === 'masuk' ? 'Masuk' : 'Keluar';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="text-center">${index + 1}</td>
+            <td>${escapeHTML(formatTanggalIndonesia(item.tanggal))}</td>
+            <td>${escapeHTML(item.jam)}</td>
+            <td><span class="badge ${badgeClass}">${jenisLabel}</span></td>
+            <td><strong>${escapeHTML(item.kode)}</strong></td>
+            <td>${escapeHTML(item.nama)}</td>
+            <td>${escapeHTML(item.warna)}</td>
+            <td>${escapeHTML(item.customer || '-')}</td>
+            <td class="text-center">${formatAngka(item.jumlah)}</td>
+            <td class="text-center">
+                <button class="btn-edit" onclick="bukaEdit(${realIndex})">Edit</button>
+                <button class="btn-delete" onclick="konfirmasiHapusPin(${realIndex})">Hapus</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* 10. MODAL EDIT & DELETE DENGAN PROTEKSI PIN */
+function bukaEdit(index) {
+    editIndex = index;
+    const item = transaksi[index];
+
+    document.getElementById('editTanggal').value = formatTanggalIndonesia(item.tanggal);
+    document.getElementById('editJam').value = item.jam;
+    document.getElementById('editJenis').value = item.jenis;
+    document.getElementById('editCustomer').value = item.customer || '';
+    document.getElementById('editKode').value = item.kode;
+    document.getElementById('editNama').value = item.nama;
+    document.getElementById('editWarna').value = item.warna;
+    document.getElementById('editJumlah').value = item.jumlah;
+
+    document.getElementById('editModal').classList.add('active');
+}
+
+function tutupEdit() {
+    editIndex = null;
+    document.getElementById('editModal').classList.remove('active');
+}
+
+function simpanEdit() {
+    if (editIndex === null) return;
+
+    const jenis = document.getElementById('editJenis').value;
+    const customer = document.getElementById('editCustomer').value.trim();
+    const kode = normalizeKode(document.getElementById('editKode').value);
+    const nama = document.getElementById('editNama').value.trim();
+    const warna = document.getElementById('editWarna').value.trim();
+    const jumlah = parseInt(document.getElementById('editJumlah').value) || 0;
+
+    if (!kode || !nama || !warna || jumlah <= 0) {
+        alert("Mohon periksa kembali isian form edit!");
+        return;
+    }
+
+    if (jenis === 'keluar') {
+        if (!customer) {
+            alert("Mohon isi Nama Customer untuk Barang Keluar!");
+            return;
+        }
+        const mapStokLuar = hitungStokPerBarang(editIndex);
+        const key = getStockKey(kode, warna);
+        const stokTersedia = mapStokLuar[key] ? mapStokLuar[key].sisa : 0;
+
+        if (jumlah > stokTersedia) {
+            alert(`Jumlah melebihi stok yang ada!\nSisa stok [${kode} - ${warna}] saat ini hanya: ${stokTersedia}`);
+            document.getElementById('editJumlah').value = stokTersedia > 0 ? stokTersedia : 1;
+            return;
+        }
+    } else {
+        const mapStokLuar = hitungStokPerBarang(editIndex);
+        const key = getStockKey(kode, warna);
+        const totalMasukLain = mapStokLuar[key] ? mapStokLuar[key].masuk : 0;
+        const totalKeluar = mapStokLuar[key] ? mapStokLuar[key].keluar : 0;
+        
+        if ((totalMasukLain + jumlah) < totalKeluar) {
+            alert(`Jumlah barang masuk tidak boleh lebih kecil dari total barang yang sudah terjual (${totalKeluar})!\nUbah menjadi minimal: ${totalKeluar - totalMasukLain}`);
+            document.getElementById('editJumlah').value = totalKeluar - totalMasukLain;
+            return;
+        }
+    }
+
+    transaksi[editIndex] = {
+        ...transaksi[editIndex],
+        jenis, kode, nama, warna, customer: jenis === 'keluar' ? customer : '-', jumlah
+    };
+
+    saveData();
+    tutupEdit();
+    updateApp();
+    alert("Data transaksi berhasil diperbarui!");
+}
+
+/* LOGIKA HAPUS SATUAN DENGAN VERIFIKASI PIN */
+function konfirmasiHapusPin(index) {
+    deleteTargetIndex = index;
+    const inputPin = document.getElementById('inputPinDelete');
+    if (inputPin) {
+        inputPin.value = '';
+        inputPin.type = 'password';
+    }
+    const eyeBtn = document.querySelector('#deletePinModal .toggle-password');
+    if (eyeBtn) eyeBtn.textContent = '👀';
+
+    document.getElementById('deletePinModal').classList.add('active');
+    setTimeout(() => {
+        if (inputPin) inputPin.focus();
+    }, 100);
+}
+
+function tutupModalDeletePin() {
+    deleteTargetIndex = null;
+    document.getElementById('deletePinModal').classList.remove('active');
+}
+
+function eksekusiHapusDenganPin() {
+    if (deleteTargetIndex === null) return;
+
+    const inputPin = document.getElementById('inputPinDelete').value;
+    const storedPin = getStoredPin();
+
+    if (inputPin === storedPin) {
+        const itemDihapus = transaksi[deleteTargetIndex];
+        if (itemDihapus.jenis === 'masuk') {
+            const mapStokLuar = hitungStokPerBarang(deleteTargetIndex);
+            const key = getStockKey(itemDihapus.kode, itemDihapus.warna);
+            const totalMasukLain = mapStokLuar[key] ? mapStokLuar[key].masuk : 0;
+            const totalKeluar = mapStokLuar[key] ? mapStokLuar[key].keluar : 0;
+
+            if (totalMasukLain < totalKeluar) {
+                alert(`Data barang masuk ini tidak dapat dihapus karena barang sudah terjual sebanyak ${totalKeluar} unit!\nHapus atau kurangi dulu transaksi penjualan terkait.`);
+                tutupModalDeletePin();
+                return;
+            }
+        }
+
+        transaksi.splice(deleteTargetIndex, 1);
+        saveData();
+        updateApp();
+        tutupModalDeletePin();
+        alert("Catatan transaksi berhasil dihapus!");
+    } else {
+        alert("Kode PIN salah! Penghapusan dibatalkan.");
+        document.getElementById('inputPinDelete').value = '';
+    }
+}
+
+/* LOGIKA HAPUS SEMUA TRANSAKSI DENGAN PROTEKSI PIN */
+function konfirmasiHapusSemuaTransaksi() {
+    if (transaksi.length === 0) {
+        alert("Riwayat transaksi sudah kosong!");
+        return;
+    }
+
+    if (!confirm("⚠️ APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH TRANSAKSI?\n\nSemua riwayat barang masuk, penjualan, dan sisa stok akan dikosongkan secara permanen!")) {
+        return;
+    }
+
+    const inputPin = document.getElementById('inputPinClearAll');
+    if (inputPin) {
+        inputPin.value = '';
+        inputPin.type = 'password';
+    }
+    const eyeBtn = document.querySelector('#clearAllModal .toggle-password');
+    if (eyeBtn) eyeBtn.textContent = '👀';
+
+    document.getElementById('clearAllModal').classList.add('active');
+    setTimeout(() => {
+        if (inputPin) inputPin.focus();
+    }, 100);
+}
+
+function tutupModalClearAll() {
+    document.getElementById('clearAllModal').classList.remove('active');
+}
+
+function eksekusiHapusSemuaDenganPin() {
+    const inputPin = document.getElementById('inputPinClearAll').value;
+    const storedPin = getStoredPin();
+
+    if (inputPin === storedPin) {
+        transaksi = [];
+        saveData();
+        updateApp();
+        tutupModalClearAll();
+        alert("Seluruh riwayat transaksi berhasil dikosongkan!");
+    } else {
+        alert("Kode PIN salah! Penghapusan seluruh transaksi dibatalkan.");
+        document.getElementById('inputPinClearAll').value = '';
+    }
+}
+
+/* 11. EXPORT & IMPORT EXCEL / BACKUP */
+function exportExcel() {
+    if (transaksi.length === 0) {
+        alert("Tidak ada data transaksi untuk di-export!");
+        return;
+    }
+
+    const tglAwalVal = document.getElementById('tglAwalTransaksi').value;
+    const tglAkhirVal = document.getElementById('tglAkhirTransaksi').value;
+    
+    let tglAwal = null;
+    let tglAkhir = null;
+
+    if (tglAwalVal) {
+        const p = tglAwalVal.split('-');
+        tglAwal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0);
+    }
+    if (tglAkhirVal) {
+        const p = tglAkhirVal.split('-');
+        tglAkhir = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999);
+    }
+
+    const dataFiltered = transaksi.filter(item => {
+        let matchDate = true;
+        const itemDate = parseDateDDMMYYYY(item.tanggal);
+        if (itemDate) {
+            if (tglAwal && itemDate < tglAwal) matchDate = false;
+            if (tglAkhir && itemDate > tglAkhir) matchDate = false;
+        }
+        return matchDate;
+    });
+
+    if (dataFiltered.length === 0) {
+        alert("Tidak ada data transaksi pada rentang tanggal yang dipilih!");
+        return;
+    }
+
+    const dataExcel = dataFiltered.map((item, idx) => ({
+        "No": idx + 1,
+        "Tanggal": formatTanggalIndonesia(item.tanggal),
+        "Jam": item.jam,
+        "Jenis": item.jenis === 'masuk' ? 'Barang Masuk' : 'Barang Keluar',
+        "Nama Customer": item.customer || '-',
+        "Kode Barang": item.kode,
+        "Nama Barang": item.nama,
+        "Warna": item.warna,
+        "Jumlah": item.jumlah
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Stok");
+    XLSX.writeFile(workbook, `Report_Stok_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+function importExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet);
+
+            let counter = 0;
+            json.forEach(row => {
+                const kode = normalizeKode(row["Kode Barang"] || row["kode"] || "");
+                const nama = String(row["Nama Barang"] || row["nama"] || "").trim();
+                const warna = String(row["Warna"] || row["warna"] || "").trim();
+                const customer = String(row["Nama Customer"] || row["customer"] || "-").trim();
+                const jumlah = parseInt(row["Jumlah"] || row["jumlah"] || 0);
+                const jenisRaw = String(row["Jenis"] || row["jenis"] || "").toLowerCase();
+                const jenis = jenisRaw.includes('keluar') ? 'keluar' : 'masuk';
+
+                if (kode && nama && jumlah > 0) {
+                    const time = getCurrentDateTime();
+                    transaksi.unshift({
+                        tanggal: row["Tanggal"] ? formatTanggalIndonesia(String(row["Tanggal"])) : time.tanggal,
+                        jam: row["Jam"] || time.jam,
+                        jenis, kode, nama, warna, customer, jumlah
+                    });
+                    counter++;
+                }
+            });
+
+            saveData();
+            updateApp();
+            alert(`Berhasil mengimpor ${counter} data transaksi dari Excel!`);
+        } catch (err) {
+            alert("Gagal membaca file Excel. Pastikan format kolom sesuai!");
+        }
+        event.target.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function backupJSON() {
+    if (transaksi.length === 0) {
+        alert("Tidak ada data untuk di-backup!");
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transaksi, null, 2));
+    const dl = document.createElement('a');
+    dl.setAttribute("href", dataStr);
+    dl.setAttribute("download", `backup_stok_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(dl);
+    dl.click();
+    dl.remove();
+}
+
+/* 12. SINKRONISASI APLIKASI */
+function updateApp() {
+    updateDashboard();
+   
+    if (document.getElementById('penjualanPage').classList.contains('active')) {
+        renderPenjualan();
+    }
+    if (document.getElementById('stokPage').classList.contains('active')) {
+        renderStok();
+    }
+    if (document.getElementById('transaksiPage').classList.contains('active')) {
+        renderTransaksi();
+    }
+    const jenis = document.getElementById('jenis') ? document.getElementById('jenis').value : 'masuk';
+    if (jenis === 'keluar') {
+        populateDatalistStok();
+    } else {
+        populateDatalistBarangMasuk();
+    }
+}
+
+/* INITIALIZATION */
+window.addEventListener('DOMContentLoaded', () => {
+    checkSession();
+    setInterval(updateClock, 1000);
+});
+
+</script>
+</body>
+</html>

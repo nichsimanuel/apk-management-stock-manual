@@ -238,7 +238,8 @@ body {
     display: block;
 }
 
-.auth-form input {
+.auth-form input,
+.auth-form select {
     width: 100%;
     padding: 10px 14px;
     border: 1.5px solid #cbd5e1;
@@ -250,7 +251,8 @@ body {
     transition: all 0.25s ease;
 }
 
-.auth-form input:focus {
+.auth-form input:focus,
+.auth-form select:focus {
     border-color: #1e88e5;
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
@@ -299,6 +301,24 @@ body {
     color: #0d47a1;
     text-decoration: underline;
 }
+
+/* STYLING VALIDASI PASSWORD REGISTRASI */
+.password-requirements {
+    font-size: 11px;
+    margin-top: 6px;
+    background: #f1f5f9;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+.password-requirements div {
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.req-invalid { color: #d32f2f; }
+.req-valid { color: #2e7d32; font-weight: 600; }
 
 /* USER BADGE DI PALING ATAS KANAN DENGAN GAMBAR PROFIL */
 .user-badge-top-right {
@@ -1173,8 +1193,6 @@ body.theme-dark .tab-btn.active {
     }
 }
 
-
-
 /* =========================================================
    ANIMASI BUTTON — VISUAL SAJA, TANPA MENGUBAH FUNGSI/LAYOUT
    ========================================================= */
@@ -1267,18 +1285,7 @@ input[type="reset"]:disabled,
     transition: none !important;
     will-change: auto;
   }
-  button:hover:not(:disabled), .btn:hover:not(:disabled),
-  .tab-btn:hover:not(:disabled), input[type="button"]:hover:not(:disabled),
-  input[type="submit"]:hover:not(:disabled), input[type="reset"]:hover:not(:disabled),
-  [role="button"]:hover:not([aria-disabled="true"]),
-  button:active:not(:disabled), .btn:active:not(:disabled),
-  .tab-btn:active:not(:disabled), input[type="button"]:active:not(:disabled),
-  input[type="submit"]:active:not(:disabled), input[type="reset"]:active:not(:disabled),
-  [role="button"]:active:not([aria-disabled="true"]) {
-    transform: none;
-  }
 }
-
 </style>
 </head>
 
@@ -1317,7 +1324,7 @@ input[type="reset"]:disabled,
         </div>
     </div>
 
-    <!-- 2. FORM BUAT AKUN (REGISTRASI TANPA PERTANYAAN KEAMANAN) -->
+    <!-- 2. FORM BUAT AKUN (REGISTRASI DENGAN VALIDASI & CEKLIS/SILANG) -->
     <div class="auth-card" id="registerCard" style="display: none;">
         <div class="auth-brand">
             <div class="brand-icon">📝</div>
@@ -1334,9 +1341,28 @@ input[type="reset"]:disabled,
             <div class="form-group">
                 <label>Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="regPassword" placeholder="Minimal 4 karakter" required autocomplete="off">
+                    <input type="password" id="regPassword" placeholder="Minimal 8 karakter" required autocomplete="off" oninput="validasiPasswordRealtime(this.value)">
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👀</button>
                 </div>
+                <!-- Peringatan & Ceklis/Silang -->
+                <div class="password-requirements" id="regPasswordReqs">
+                    <div id="reqLength" class="req-invalid">❌ Minimal 8 Karakter</div>
+                    <div id="reqUpper" class="req-invalid">❌ Mengandung Huruf Besar (A-Z)</div>
+                    <div id="reqNumber" class="req-invalid">❌ Mengandung Angka (0-9)</div>
+                    <div id="reqSpecial" class="req-invalid">❌ Mengandung Karakter Khusus (!@#$%^&*)</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Pertanyaan Keamanan (Untuk Reset Password)</label>
+                <select id="regSecurityQuestion">
+                    <option value="Apa nama hewan peliharaan pertama Anda?">Apa nama hewan peliharaan pertama Anda?</option>
+                    <option value="Apa kota kelahiran ibu kandung Anda?">Apa kota kelahiran ibu kandung Anda?</option>
+                    <option value="Apa makanan favorit masa kecil Anda?">Apa makanan favorit masa kecil Anda?</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jawaban Keamanan</label>
+                <input type="text" id="regSecurityAnswer" placeholder="Jawaban rahasia Anda" required autocomplete="off">
             </div>
             <button type="submit" class="btn-primary">DAFTAR SEKARANG</button>
         </form>
@@ -1345,14 +1371,14 @@ input[type="reset"]:disabled,
         </div>
     </div>
 
-    <!-- 3. FORM LUPA PASSWORD (BERBERAPAKAN TAHAP VERIFIKASI) -->
+    <!-- 3. FORM LUPA PASSWORD (BERBASIS KEAMANAN GANDA / PERTANYAAN KEAMANAN) -->
     <div class="auth-card" id="forgotCard" style="display: none;">
         <div class="auth-brand">
             <div class="brand-icon">🔑</div>
         </div>
         <div class="auth-header">
             <h2>Lupa Password</h2>
-            <p>Reset password akun Anda melalui verifikasi username</p>
+            <p>Reset password akun Anda melalui verifikasi keamanan</p>
         </div>
         
         <!-- STEP 1: CARI USERNAME -->
@@ -1361,24 +1387,36 @@ input[type="reset"]:disabled,
                 <label>Username Anda</label>
                 <input type="text" id="forgotUsername" placeholder="Masukkan Username terdaftar" required autocomplete="off">
             </div>
-            <button type="submit" class="btn-primary">VERIFIKASI AKUN</button>
+            <button type="submit" class="btn-primary">LANJUTKAN VERIFIKASI</button>
         </form>
 
-        <!-- STEP 2: KONFIRMASI VERIFIKASI SEBELUM UBAH PASSWORD -->
-        <div id="forgotStep2Confirm" style="display: none; text-align: center; margin-bottom: 12px;">
-            <p style="font-size:12px; font-weight:600; color:#1e88e5; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:12px;">
-                Akun ditemukan! Klik tombol di bawah untuk melanjutkan pembaruan password.
-            </p>
-            <button type="button" class="btn-primary" onclick="lanjutkanKeFormReset()">LANJUTKAN RESET PASSWORD</button>
-        </div>
+        <!-- STEP 2: JAWAB PERTANYAAN KEAMANAN -->
+        <form class="auth-form" id="forgotStep2" style="display: none;" onsubmit="event.preventDefault(); verifikasiJawabanKeamanan();">
+            <div class="form-group">
+                <label>Pertanyaan Keamanan Anda:</label>
+                <p id="displaySecurityQuestion" style="font-size: 12px; font-weight: 700; color: #1e88e5; background: #e3f2fd; padding: 8px; border-radius: 8px; margin-bottom: 8px;"></p>
+            </div>
+            <div class="form-group">
+                <label>Jawaban Keamanan</label>
+                <input type="text" id="forgotSecurityAnswer" placeholder="Masukkan jawaban rahasia" required autocomplete="off">
+            </div>
+            <button type="submit" class="btn-primary">KONFIRMASI JAWABAN</button>
+        </form>
 
         <!-- STEP 3: UBAH PASSWORD BARU -->
         <form class="auth-form" id="forgotStep3" style="display: none;" onsubmit="event.preventDefault(); prosesResetPassword();">
             <div class="form-group">
                 <label>Password Baru</label>
                 <div class="password-wrapper">
-                    <input type="password" id="forgotNewPassword" placeholder="Masukkan Password Baru" required autocomplete="off">
+                    <input type="password" id="forgotNewPassword" placeholder="Minimal 8 karakter" required autocomplete="off" oninput="validasiPasswordResetRealtime(this.value)">
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👀</button>
+                </div>
+                <!-- Peringatan & Ceklis/Silang Reset Password -->
+                <div class="password-requirements" id="resetPasswordReqs">
+                    <div id="resetReqLength" class="req-invalid">❌ Minimal 8 Karakter</div>
+                    <div id="resetReqUpper" class="req-invalid">❌ Mengandung Huruf Besar (A-Z)</div>
+                    <div id="resetReqNumber" class="req-invalid">❌ Mengandung Angka (0-9)</div>
+                    <div id="resetReqSpecial" class="req-invalid">❌ Mengandung Karakter Khusus (!@#$%^&*)</div>
                 </div>
             </div>
             <button type="submit" class="btn-primary">SIMPAN PASSWORD BARU</button>
@@ -1907,16 +1945,16 @@ const namaBulan = [
    GENERATE FOTO PROFIL PEMANDANGAN ALAM (RANDOM & ESTETIK)
 ========================================================= */
 const avatarList = [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=150&q=80", // Gunung & Danau
-    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=150&q=80", // Hutan Pinus
-    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=150&q=80", // Kabut Kabut Lembah
-    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=150&q=80", // Lembah & Sungai
-    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=150&q=80", // Padang Rumput Hijau
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80", // Pantai Sunset
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=150&q=80", // Puncak Gunung Salju
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=150&q=80", // Danau Biru
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=150&q=80", // Hutan Pepohonan Rindang
-    "https://images.unsplash.com/photo-1439853949127-fa647821eba0?auto=format&fit=crop&w=150&q=80"  // Air Terjun Sejuk
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=150&q=80",
+    "https://images.unsplash.com/photo-1439853949127-fa647821eba0?auto=format&fit=crop&w=150&q=80"
 ];
 
 function getUserAvatarUrl(username, offset = 0) {
@@ -1970,7 +2008,7 @@ window.addEventListener('keydown', function (e) {
 });
 
 /* =========================================================
-   LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD)
+   LOGIKA AUTENTIKASI (LOGIN, BUAT AKUN, RESET PASSWORD AMAN)
 ========================================================= */
 function getUsers() {
     try {
@@ -1991,21 +2029,91 @@ function showAuthCard(cardId) {
     document.getElementById('forgotCard').style.display = 'none';
     document.getElementById(cardId).style.display = 'block';
 
+    if (cardId === 'registerCard') {
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regSecurityAnswer').value = '';
+        validasiPasswordRealtime('');
+    }
+
     if (cardId === 'forgotCard') {
         document.getElementById('forgotStep1').style.display = 'block';
-        document.getElementById('forgotStep2Confirm').style.display = 'none';
+        document.getElementById('forgotStep2').style.display = 'none';
         document.getElementById('forgotStep3').style.display = 'none';
         document.getElementById('forgotUsername').value = '';
+        document.getElementById('forgotSecurityAnswer').value = '';
+        document.getElementById('forgotNewPassword').value = '';
         forgotTargetUser = null;
     }
+}
+
+/* VALIDASI REALTIME PASSWORD REGISTRASI */
+function validasiPasswordRealtime(password) {
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    const updateReq = (id, isValid, text) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (isValid) {
+            el.className = "req-valid";
+            el.textContent = "✔ " + text;
+        } else {
+            el.className = "req-invalid";
+            el.textContent = "❌ " + text;
+        }
+    };
+
+    updateReq('reqLength', minLength, 'Minimal 8 Karakter');
+    updateReq('reqUpper', hasUpper, 'Mengandung Huruf Besar (A-Z)');
+    updateReq('reqNumber', hasNumber, 'Mengandung Angka (0-9)');
+    updateReq('reqSpecial', hasSpecial, 'Mengandung Karakter Khusus (!@#$%^&*)');
+}
+
+/* VALIDASI REALTIME PASSWORD RESET */
+function validasiPasswordResetRealtime(password) {
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    const updateReq = (id, isValid, text) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (isValid) {
+            el.className = "req-valid";
+            el.textContent = "✔ " + text;
+        } else {
+            el.className = "req-invalid";
+            el.textContent = "❌ " + text;
+        }
+    };
+
+    updateReq('resetReqLength', minLength, 'Minimal 8 Karakter');
+    updateReq('resetReqUpper', hasUpper, 'Mengandung Huruf Besar (A-Z)');
+    updateReq('resetReqNumber', hasNumber, 'Mengandung Angka (0-9)');
+    updateReq('resetReqSpecial', hasSpecial, 'Mengandung Karakter Khusus (!@#$%^&*)');
 }
 
 function prosesRegister() {
     const username = document.getElementById('regUsername').value.trim();
     const password = document.getElementById('regPassword').value;
+    const securityQuestion = document.getElementById('regSecurityQuestion').value;
+    const securityAnswer = document.getElementById('regSecurityAnswer').value.trim().toLowerCase();
 
-    if (!username || !password) {
-        alert("Mohon lengkapi username dan password!");
+    if (!username || !password || !securityAnswer) {
+        alert("Mohon lengkapi username, password, dan jawaban keamanan!");
+        return;
+    }
+
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!minLength || !hasUpper || !hasNumber || !hasSpecial) {
+        alert("Password belum memenuhi syarat keamanan yang ditentukan (minimal 8 karakter, ada Huruf Besar, Angka, dan Karakter Khusus).");
         return;
     }
 
@@ -2015,7 +2123,7 @@ function prosesRegister() {
         return;
     }
 
-    users.push({ username, password });
+    users.push({ username, password, securityQuestion, securityAnswer });
     saveUsers(users);
     alert("Akun berhasil dibuat! Silakan login.");
     showAuthCard('loginCard');
@@ -2043,18 +2151,29 @@ function verifikasiUsernameLupa() {
     const userFound = users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
     if (!userFound) {
-        alert("Username tidak ditemukan!");
+        alert("Username tidak ditemukan di sistem!");
         return;
     }
 
     forgotTargetUser = userFound;
+    document.getElementById('displaySecurityQuestion').textContent = userFound.securityQuestion || "Apa nama hewan peliharaan pertama Anda?";
     document.getElementById('forgotStep1').style.display = 'none';
-    document.getElementById('forgotStep2Confirm').style.display = 'block';
+    document.getElementById('forgotStep2').style.display = 'block';
 }
 
-function lanjutkanKeFormReset() {
-    document.getElementById('forgotStep2Confirm').style.display = 'none';
-    document.getElementById('forgotStep3').style.display = 'block';
+function verifikasiJawabanKeamanan() {
+    const answer = document.getElementById('forgotSecurityAnswer').value.trim().toLowerCase();
+    if (!forgotTargetUser) return;
+
+    if (answer === forgotTargetUser.securityAnswer) {
+        document.getElementById('forgotStep2').style.display = 'none';
+        document.getElementById('forgotStep3').style.display = 'block';
+        document.getElementById('forgotNewPassword').value = '';
+        validasiPasswordResetRealtime('');
+    } else {
+        alert("Jawaban keamanan salah! Akses reset password ditolak.");
+        document.getElementById('forgotSecurityAnswer').value = '';
+    }
 }
 
 function prosesResetPassword() {
@@ -2062,8 +2181,13 @@ function prosesResetPassword() {
 
     if (!forgotTargetUser) return;
 
-    if (!newPassword || newPassword.length < 3) {
-        alert("Password baru terlalu pendek!");
+    const minLength = newPassword.length >= 8;
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+    if (!minLength || !hasUpper || !hasNumber || !hasSpecial) {
+        alert("Password baru belum memenuhi syarat keamanan yang ditentukan (minimal 8 karakter, ada Huruf Besar, Angka, dan Karakter Khusus).");
         return;
     }
 
@@ -2073,7 +2197,7 @@ function prosesResetPassword() {
     if (userIndex !== -1) {
         users[userIndex].password = newPassword;
         saveUsers(users);
-        alert("Password berhasil diubah! Silakan login dengan password baru.");
+        alert("Password berhasil diubah dengan aman! Silakan login dengan password baru Anda.");
         showAuthCard('loginCard');
     }
 }
@@ -2088,20 +2212,17 @@ function checkSession() {
         mainApp.style.display = 'block';
         document.getElementById('displayLoggedInUser').textContent = loggedUser;
         
-        // Pasang foto profil acak manusia yang keren & estetik
         setupAvatarImages(loggedUser);
 
         initTheme();
         loadData();
         updateClock();
         
-        // Membaca status otorisasi PIN yang tersimpan
         if (sessionStorage.getItem(AUTH_STATUS_KEY) === 'true') {
             isAuthorized = true;
             document.getElementById('tabTransaksiBtn').innerHTML = "Riwayat Transaksi";
         }
 
-        // Buka halaman terakhir yang tersimpan saat di-refresh
         const savedPage = localStorage.getItem(PAGE_KEY) || 'inputPage';
         if (savedPage === 'transaksiPage' && !isAuthorized) {
             switchPage('inputPage');
@@ -2127,7 +2248,6 @@ function prosesLogout() {
     }
 }
 
-/* FUNKSI TOGGLE SHOW/HIDE PASSWORD PIN */
 function togglePasswordVisibility(inputId, btn) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -2140,7 +2260,6 @@ function togglePasswordVisibility(inputId, btn) {
     }
 }
 
-/* 1. SISTEM GANTI TEMA WARNA */
 function initTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
     changeTheme(savedTheme);
@@ -2156,7 +2275,6 @@ function changeTheme(themeName) {
     localStorage.setItem(THEME_KEY, themeName);
 }
 
-/* 2. KEAMANAN & VERIFIKASI PIN */
 function getStoredPin() {
     return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
 }
@@ -2244,7 +2362,6 @@ function simpanPinBaru() {
     tutupModalUbahPin();
 }
 
-/* 3. MANAGEMENT NAVIGASI TABS & MENYIMPAN HALAMAN TERAKHIR */
 function switchPage(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -2271,7 +2388,6 @@ function switchPage(pageId) {
     }
 }
 
-/* 4. LOCAL STORAGE MANAGEMENT */
 function loadData() {
     try {
         const dataUtama = localStorage.getItem(STORAGE_KEY);
@@ -2296,7 +2412,6 @@ function loadData() {
         }
         transaksi = [];
     } catch (e) {
-        console.error("Gagal membaca storage:", e);
         transaksi = [];
     }
 }
@@ -2309,7 +2424,6 @@ function saveData() {
     }
 }
 
-/* 5. FORMATTER & HELPERS */
 function formatAngka(num) {
     return Number(num || 0).toLocaleString("id-ID");
 }
@@ -2323,10 +2437,8 @@ function normalizeWarna(val) { return String(val || "").trim().toLowerCase(); }
 function getStockKey(kode, warna) { return normalizeKode(kode) + "||" + normalizeWarna(warna); }
 function pad(num) { return String(num).padStart(2, "0"); }
 
-/* CONVERT/FORMAT TANGGAL DENGAN FORMAT "9 OKTOBER 2026" */
 function formatTanggalIndonesia(strTanggal) {
     if (!strTanggal) return '-';
-    // Jika tanggal sudah dalam format DD-MM-YYYY
     const parts = strTanggal.split('-');
     if (parts.length === 3) {
         const tgl = parseInt(parts[0], 10);
@@ -2339,14 +2451,12 @@ function formatTanggalIndonesia(strTanggal) {
     return strTanggal;
 }
 
-/* PARSE FORMAT TANGGAL TEKS KEMBALI KE OBJECT DATE (UNTUK KOMPARASI TANGGAL FILTER) */
 function parseDateDDMMYYYY(str) {
     if (!str) return null;
     const parts = str.split('-');
     if (parts.length === 3) {
         return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
     }
-    // Jika format tanggal disimpan sebagai "9 Oktober 2026"
     const words = str.split(' ');
     if (words.length === 3) {
         const tgl = parseInt(words[0], 10);
@@ -2360,7 +2470,6 @@ function parseDateDDMMYYYY(str) {
     return null;
 }
 
-/* RESET INPUT FILTER TANGGAL */
 function resetFilterTanggal(tipe) {
     document.getElementById('tglAwal' + tipe).value = '';
     document.getElementById('tglAkhir' + tipe).value = '';
@@ -2368,12 +2477,10 @@ function resetFilterTanggal(tipe) {
     if (tipe === 'Transaksi') renderTransaksi();
 }
 
-/* FORMAT HEADER UTAMA (Contoh: 9 Oktober 2026) */
 function formatHeaderDate(date) {
     return date.getDate() + " " + namaBulan[date.getMonth()] + " " + date.getFullYear();
 }
 
-/* FORMAT TANGGAL DIUBAH KE TANGGAL BULAN TAHUN (Sesuai Permintaan) */
 function getCurrentDateTime() {
     const now = new Date();
     return {
@@ -2391,7 +2498,6 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-/* FUNKSI CETAK RAPI UNTUK STOK BARANG DENGAN VALIDASI CEK DATA KOSONG */
 function cetakLaporanStok() {
     const mapStok = hitungStokPerBarang();
     const totalItem = Object.keys(mapStok).length;
@@ -2410,7 +2516,6 @@ function cetakLaporanStok() {
     window.print();
 }
 
-/* 6. LOGIKA HITUNG STOK & TAMPILAN TOTAL STOK HASIL LANGSUNG */
 function hitungStokPerBarang(excludeIndex = null) {
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
@@ -2463,7 +2568,6 @@ function updateDashboard() {
     }
 }
 
-/* 7. SEARCHABLE DATALIST BARANG KELUAR / BARANG MASUK & VALIDASI STOK MAX */
 function handleJenisChange() {
     const jenis = document.getElementById('jenis').value;
     const containerCustomer = document.getElementById('containerCustomer');
@@ -2595,7 +2699,6 @@ function handleBarangKeluarSelect(selectedVal) {
     }
 }
 
-/* VALIDASI REALTIME JUMLAH BARANG KELUAR TIDAK BISA MELEBIHI SISA STOK */
 function validateJumlahStok(inputElem) {
     const jenis = document.getElementById('jenis').value;
     if (jenis !== 'keluar') return;
@@ -2609,7 +2712,6 @@ function validateJumlahStok(inputElem) {
     }
 }
 
-/* 8. PROSES SIMPAN TRANSAKSI */
 function simpanTransaksi() {
     const jenis = document.getElementById('jenis').value;
     const kode = normalizeKode(document.getElementById('kode').value);
@@ -2690,7 +2792,6 @@ function resetForm() {
     resetFormInput();
 }
 
-/* 9. RENDERING TABEL PENJUALAN, STOK & TRANSAKSI */
 function renderPenjualan() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
@@ -2715,13 +2816,11 @@ function renderPenjualan() {
     const filtered = transaksi.filter(item => {
         if (item.jenis !== 'keluar') return false;
 
-        // Filter Teks
         const matchQuery = (item.customer || '').toLowerCase().includes(query) ||
                            item.nama.toLowerCase().includes(query) ||
                            item.kode.toLowerCase().includes(query) ||
                            item.warna.toLowerCase().includes(query);
 
-        // Filter Rentang Tanggal
         let matchDate = true;
         const itemDate = parseDateDDMMYYYY(item.tanggal);
         if (itemDate) {
@@ -2779,8 +2878,6 @@ function renderStok() {
 
     listStok.forEach(item => {
         const tr = document.createElement('tr');
-        
-        // TAMPILAN SISA STOK: JIKA 0 TAMPILKAN 'HABIS' DENGAN BADGE MERAH
         const sisaStokHtml = item.sisa <= 0 
             ? `<span class="stok-habis-box">Habis</span>` 
             : `<span class="stok-box">${formatAngka(item.sisa)}</span>`;
@@ -2824,7 +2921,6 @@ function renderTransaksi() {
                            (item.customer || '').toLowerCase().includes(query);
         const matchJenis = (filterJenis === 'semua') || (item.jenis === filterJenis);
 
-        // Filter Rentang Tanggal
         let matchDate = true;
         const itemDate = parseDateDDMMYYYY(item.tanggal);
         if (itemDate) {
@@ -2865,7 +2961,6 @@ function renderTransaksi() {
     });
 }
 
-/* 10. MODAL EDIT & DELETE DENGAN PROTEKSI PIN */
 function bukaEdit(index) {
     editIndex = index;
     const item = transaksi[index];
@@ -2940,7 +3035,6 @@ function simpanEdit() {
     alert("Data transaksi berhasil diperbarui!");
 }
 
-/* LOGIKA HAPUS SATUAN DENGAN VERIFIKASI PIN */
 function konfirmasiHapusPin(index) {
     deleteTargetIndex = index;
     const inputPin = document.getElementById('inputPinDelete');
@@ -2994,7 +3088,6 @@ function eksekusiHapusDenganPin() {
     }
 }
 
-/* LOGIKA HAPUS SEMUA TRANSAKSI DENGAN PROTEKSI PIN */
 function konfirmasiHapusSemuaTransaksi() {
     if (transaksi.length === 0) {
         alert("Riwayat transaksi sudah kosong!");
@@ -3039,7 +3132,6 @@ function eksekusiHapusSemuaDenganPin() {
     }
 }
 
-/* 11. EXPORT & IMPORT EXCEL / BACKUP */
 function exportExcel() {
     if (transaksi.length === 0) {
         alert("Tidak ada data transaksi untuk di-export!");
@@ -3152,7 +3244,6 @@ function backupJSON() {
     dl.remove();
 }
 
-/* 12. SINKRONISASI APLIKASI */
 function updateApp() {
     updateDashboard();
    
@@ -3173,7 +3264,6 @@ function updateApp() {
     }
 }
 
-/* INITIALIZATION */
 window.addEventListener('DOMContentLoaded', () => {
     checkSession();
     setInterval(updateClock, 1000);

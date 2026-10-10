@@ -1057,6 +1057,228 @@ tbody tr:hover { background: var(--table-hover); }
         min-width: auto !important;
     }
 }
+
+/* =========================================================
+   NAVIGASI PREMIUM — PERUBAHAN VISUAL SAJA
+   Alur halaman, ID tombol, onclick, dan susunan tombol tetap.
+========================================================= */
+.nav-tabs {
+    gap: 9px;
+    padding: 7px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 18px 18px 0 0;
+    background: rgba(8, 25, 55, .18);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    align-items: stretch;
+    scroll-behavior: smooth;
+}
+.tab-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 11px 19px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: rgba(255,255,255,.105);
+    color: rgba(255,255,255,.94);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .15px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    transition: background .22s ease, color .22s ease, transform .22s ease,
+                box-shadow .22s ease, border-color .22s ease;
+}
+.tab-btn::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.02));
+    opacity: 0;
+    transition: opacity .22s ease;
+}
+.tab-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,.22);
+    border-color: rgba(255,255,255,.2);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(2, 12, 35, .16);
+}
+.tab-btn:hover::before { opacity: 1; }
+.tab-btn.active {
+    color: var(--primary-dark);
+    background: var(--bg-main);
+    border-color: rgba(255,255,255,.7);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -3px 14px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.8);
+    transform: translateY(0);
+}
+.tab-btn.active::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 0;
+    height: 3px;
+    border-radius: 4px 4px 0 0;
+    background: var(--primary);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+body.theme-dark .tab-btn.active {
+    color: var(--primary);
+    border-color: rgba(148,163,184,.18);
+    box-shadow: 0 -3px 14px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.tab-btn:focus-visible {
+    outline: 3px solid rgba(255,255,255,.85);
+    outline-offset: 2px;
+}
+.header-bottom-row {
+    align-items: flex-end;
+}
+.header-controls-bottom {
+    padding-bottom: 7px;
+}
+.header-time,
+.theme-select {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.24);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    transition: background .2s ease, border-color .2s ease;
+}
+.theme-select:hover { background: rgba(255,255,255,.28); }
+@media (max-width: 768px) {
+    .nav-tabs {
+        gap: 7px;
+        padding: 6px;
+        border-radius: 15px 15px 0 0;
+    }
+    .tab-btn {
+        min-height: 42px;
+        padding: 10px 14px;
+        font-size: 12px;
+        border-radius: 10px;
+    }
+    .tab-btn.active { border-radius: 10px 10px 0 0; }
+    .header-controls-bottom { padding-bottom: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .nav-tabs, .tab-btn, .tab-btn::before, .header-time, .theme-select {
+        scroll-behavior: auto;
+        transition: none;
+    }
+}
+
+
+
+/* =========================================================
+   ANIMASI BUTTON — VISUAL SAJA, TANPA MENGUBAH FUNGSI/LAYOUT
+   ========================================================= */
+@keyframes buttonAppearSmooth {
+  0%   { opacity: 0; transform: translateY(9px) scale(.975); }
+  70%  { opacity: 1; transform: translateY(-1px) scale(1.005); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes buttonAttention {
+  0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+  50%  { box-shadow: 0 0 0 4px rgba(59,130,246,.12); }
+  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+}
+
+button,
+.btn,
+.tab-btn,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"] {
+  transition:
+    transform .2s cubic-bezier(.2,.8,.2,1),
+    box-shadow .22s ease,
+    filter .22s ease,
+    background-color .22s ease,
+    border-color .22s ease,
+    color .22s ease;
+  transform-origin: center;
+  -webkit-tap-highlight-color: transparent;
+  animation: buttonAppearSmooth .48s cubic-bezier(.2,.8,.2,1) both;
+  will-change: transform;
+}
+
+button:hover:not(:disabled),
+.btn:hover:not(:disabled),
+.tab-btn:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+input[type="reset"]:hover:not(:disabled),
+[role="button"]:hover:not([aria-disabled="true"]) {
+  transform: translateY(-3px) scale(1.015);
+  filter: brightness(1.045) saturate(1.04);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, .15);
+}
+
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.tab-btn:active:not(:disabled),
+input[type="button"]:active:not(:disabled),
+input[type="submit"]:active:not(:disabled),
+input[type="reset"]:active:not(:disabled),
+[role="button"]:active:not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(.965);
+  filter: brightness(.98);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, .12);
+  transition-duration: .08s;
+}
+
+button:focus-visible,
+.btn:focus-visible,
+.tab-btn:focus-visible,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus-visible,
+input[type="reset"]:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid rgba(59,130,246,.5);
+  outline-offset: 3px;
+  animation: buttonAttention .7s ease-out;
+}
+
+button:disabled,
+.btn:disabled,
+.tab-btn:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+  transform: none;
+  filter: saturate(.72);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button, .btn, .tab-btn,
+  input[type="button"], input[type="submit"], input[type="reset"],
+  [role="button"] {
+    animation: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+  button:hover:not(:disabled), .btn:hover:not(:disabled),
+  .tab-btn:hover:not(:disabled), input[type="button"]:hover:not(:disabled),
+  input[type="submit"]:hover:not(:disabled), input[type="reset"]:hover:not(:disabled),
+  [role="button"]:hover:not([aria-disabled="true"]),
+  button:active:not(:disabled), .btn:active:not(:disabled),
+  .tab-btn:active:not(:disabled), input[type="button"]:active:not(:disabled),
+  input[type="submit"]:active:not(:disabled), input[type="reset"]:active:not(:disabled),
+  [role="button"]:active:not([aria-disabled="true"]) {
+    transform: none;
+  }
+}
+
 </style>
 </head>
 

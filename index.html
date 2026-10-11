@@ -464,6 +464,11 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    cursor: grab;
+    user-select: none;
+}
+.nav-tabs:active {
+    cursor: grabbing;
 }
 .nav-tabs::-webkit-scrollbar {
     display: none;
@@ -796,11 +801,12 @@ tbody tr {
 
 tbody tr:hover { background: var(--table-hover); }
 
-/* GARIS PEMISAH HORIZONTAL (TIDURAN) TIPIS ANTAR BARIS PADA REPORT PENJUALAN */
-#penjualanBody tr {
+#penjualanBody tr,
+#transaksiBody tr {
     border-bottom: 1px solid #cbd5e1;
 }
-body.theme-dark #penjualanBody tr {
+body.theme-dark #penjualanBody tr,
+body.theme-dark #transaksiBody tr {
     border-bottom: 1px solid #334155;
 }
 
@@ -1012,7 +1018,6 @@ body.theme-dark #penjualanBody tr {
         display: none !important;
     }
 
-    /* KARTU STOCK PRINT STYLING */
     .print-only-header {
         display: block !important;
         margin-bottom: 15px;
@@ -1087,7 +1092,6 @@ body.theme-dark #penjualanBody tr {
         color: #000000 !important;
     }
 
-    /* HILANGKAN KOTAK DI CETAK KARTU STOCK DAN UBAH KE ANGKA BIASA TANPA ROLL */
     body:not(.printing-surat-jalan) .stok-box,
     body:not(.printing-surat-jalan) .stok-habis-box {
         background: transparent !important;
@@ -1195,7 +1199,6 @@ body.theme-dark #penjualanBody tr {
     text-transform: uppercase;
 }
 
-/* URUTAN TANDA TANGAN: PENERIMA, ADMIN, MANDOR, SUPIR */
 .sj-signatures {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1408,7 +1411,7 @@ input[type="reset"]:disabled,
 <div id="authContainer" class="auth-wrapper">
     <div class="auth-card" id="loginCard">
         <div class="auth-brand">
-            <div class="brand-icon">KYN</div>
+            <div class="brand-icon">NS</div>
         </div>
         <div class="auth-header">
             <h2>Selamat Datang</h2>
@@ -1553,7 +1556,7 @@ input[type="reset"]:disabled,
     </div>
 
     <div class="header-bottom-row">
-        <div class="nav-tabs">
+        <div class="nav-tabs" id="navTabsContainer">
             <button class="tab-btn active" id="tabInputBtn" onclick="switchPage('inputPage')">
                 Form Input
             </button>
@@ -1607,7 +1610,7 @@ input[type="reset"]:disabled,
         <div class="sj-container">
             <div class="sj-header">
                 <div class="sj-company">
-                    <h2>KYN</h2>
+                    <h2>NS</h2>
                 </div>
                 <div class="sj-title-box">
                     <h1>Surat Jalan</h1>
@@ -1636,12 +1639,9 @@ input[type="reset"]:disabled,
                         <th style="width: 10%; text-align: center;">Jumlah</th>
                     </tr>
                 </thead>
-                <tbody id="sjPrintTableBody">
-                    <!-- Dinamis Diisi Script -->
-                </tbody>
+                <tbody id="sjPrintTableBody"></tbody>
             </table>
 
-            <!-- URUTAN TANDA TANGAN: HANYA PENERIMA, ADMIN, MANDOR, SUPIR DAN GARIS DI BAWAHNYA -->
             <div class="sj-signatures">
                 <div class="sj-sig-box">
                     <strong>Penerima</strong>
@@ -1786,7 +1786,7 @@ input[type="reset"]:disabled,
                     <thead>
                         <tr>
                             <th style="width: 13%;">Tanggal</th>
-                            <th style="width: 20%;">Nama Customer</th>
+                            <th style="width: 20%;">Customer</th>
                             <th style="width: 17%;">No Surat Jalan</th>
                             <th style="width: 38%;">Barang Terjual</th>
                             <th style="width: 12%; text-align: center;">Print Surat Jalan</th>
@@ -1799,7 +1799,7 @@ input[type="reset"]:disabled,
     </div>
 
     <!-- =========================================================
-         HALAMAN 2: SISA STOK BARANG
+         HALAMAN 2: SISA STOK BARANG (DENGAN TOTAL MENYESUAIKAN FILTER & KODE)
     ========================================================= -->
     <div class="page" id="stokPage">
         <div class="card">
@@ -1846,8 +1846,8 @@ input[type="reset"]:disabled,
             <div class="card-title">
                 <span>Riwayat Transaksi Barang</span>
                 <div>
-                    <button class="btn-reset" onclick="bukaModalUbahPin()" style="font-size:12px;">Change PIN</button>
-                    <button class="btn-lock" onclick="kunciAkses()" style="font-size:12px;">Lock</button>
+                    <button class="btn-reset" onclick="bukaModalUbahPin()" style="font-size:12px;">Change PIN Access</button>
+                    <button class="btn-lock" onclick="kunciAkses()" style="font-size:12px;">Lock Riwayat Transaksi</button>
                 </div>
             </div>
 
@@ -1882,17 +1882,14 @@ input[type="reset"]:disabled,
                 <table>
                     <thead>
                         <tr>
-                            <th class="text-center">No</th>
-                            <th>Tanggal</th>
-                            <th>Jam</th>
-                            <th>Jenis</th>
-                            <th>No Surat Jalan</th>
-                            <th>Kode Barang</th>
-                            <th>Nama Barang</th>
-                            <th>Warna</th>
-                            <th>Customer</th>
-                            <th class="text-center">Jumlah Barang</th>
-                            <th class="text-center">Edit / Hapus</th>
+                            <th class="text-center" style="width: 5%;">No</th>
+                            <th style="width: 12%;">Tanggal</th>
+                            <th style="width: 8%;">Jam</th>
+                            <th style="width: 12%;">Jenis Barang</th>
+                            <th style="width: 12%;">No Surat Jalan</th>
+                            <th style="width: 30%;">Rincian Penjualan</th>
+                            <th style="width: 14%;">Customer</th>
+                            <th class="text-center" style="width: 10%;">Edit / Hapus</th>
                         </tr>
                     </thead>
                     <tbody id="transaksiBody"></tbody>
@@ -1907,7 +1904,7 @@ input[type="reset"]:disabled,
 <div class="modal" id="pinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
-            <h2>🔒︎ Verifikasi Akses Masuk</h2>
+            <h2>🔒︎ Login Access Verification</h2>
             <button class="close-modal" onclick="tutupModalPin()">⛌</button>
         </div>
         <div class="modal-body">
@@ -1917,7 +1914,7 @@ input[type="reset"]:disabled,
             <div class="form-group">
                 <label>PIN Akses</label>
                 <div class="password-wrapper">
-                    <input type="password" id="inputPinAkses" placeholder="Masukkan 4 Digit PIN" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
+                    <input type="password" id="inputPinAkses" placeholder="Masukkan PIN Access" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👁</button>
                 </div>
             </div>
@@ -1981,7 +1978,7 @@ input[type="reset"]:disabled,
 <div class="modal" id="ubahPinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
-            <h2>Ubah PIN Akses</h2>
+            <h2>Change PIN Access</h2>
             <button class="close-modal" onclick="tutupModalUbahPin()">⛌</button>
         </div>
         <div class="modal-body">
@@ -2014,14 +2011,15 @@ input[type="reset"]:disabled,
     </div>
 </div>
 
+<!-- MODAL EDIT MULTI-ITEM -->
 <div class="modal" id="editModal">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 850px;">
         <div class="modal-header">
-            <h2>Edit Data Transaksi</h2>
+            <h2 id="editModalTitle">Edit Data Transaksi</h2>
             <button class="close-modal" onclick="tutupEdit()">⛌</button>
         </div>
         <div class="modal-body">
-            <div class="form-grid">
+            <div class="form-grid" style="margin-bottom: 16px;">
                 <div class="form-group">
                     <label>Tanggal</label>
                     <input type="text" id="editTanggal" readonly>
@@ -2032,10 +2030,8 @@ input[type="reset"]:disabled,
                 </div>
                 <div class="form-group">
                     <label>Jenis Barang</label>
-                    <select id="editJenis">
-                        <option value="masuk">Barang Masuk</option>
-                        <option value="keluar">Barang Keluar</option>
-                    </select>
+                    <input type="text" id="editJenisDisplay" readonly style="background: var(--readonly-bg); color: var(--text-muted); cursor: not-allowed; font-weight: 700;">
+                    <input type="hidden" id="editJenis">
                 </div>
                 <div class="form-group">
                     <label>Nama Customer</label>
@@ -2043,23 +2039,77 @@ input[type="reset"]:disabled,
                 </div>
                 <div class="form-group">
                     <label>No Surat Jalan</label>
-                    <input type="text" id="editNoSuratJalan" placeholder="Kosongkan jika auto">
+                    <input type="text" id="editNoSuratJalan" placeholder="-">
                 </div>
-                <div class="form-group">
-                    <label>Kode Barang</label>
-                    <input type="text" id="editKode">
+            </div>
+
+            <div id="containerEditItemSingle" style="display:none;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Kode Barang</label>
+                        <input type="text" id="editSingleKode">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Barang</label>
+                        <input type="text" id="editSingleNama">
+                    </div>
+                    <div class="form-group">
+                        <label>Warna</label>
+                        <input type="text" id="editSingleWarna">
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Barang <span style="font-size:10px; color:var(--text-muted);">(Terkunci)</span></label>
+                        <input type="number" id="editSingleJumlah" readonly style="background: var(--readonly-bg); color: var(--text-muted); cursor: not-allowed;" title="Jumlah dikunci untuk menjaga keamanan stok">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Nama Barang</label>
-                    <input type="text" id="editNama">
+            </div>
+
+            <div id="containerEditItemMulti" style="display:none;">
+                <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--primary);">Daftar Barang Keluar (Penjualan)</h3>
+                
+                <!-- KOTAK INPUT/PILIH BARANG DENGAN DATALIST SEPERTI PENJUALAN ASLI -->
+                <div style="margin-bottom: 14px; background: var(--thead-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div class="form-group pilih-stok-highlight" style="margin-bottom: 8px;">
+                        <label style="font-size: 12px; font-weight: 700; color: var(--primary);">Cari Barang Stok (Tersedia)</label>
+                        <input type="text" id="editSearchBarangKeluar" list="editListBarangStok" placeholder="Ketik kode, nama, atau warna..." oninput="handleEditBarangKeluarSelect(this.value)">
+                        <datalist id="editListBarangStok"></datalist>
+                    </div>
+                    <div class="form-grid" style="grid-template-columns: 2fr 2fr 2fr 1fr; gap: 10px; align-items: flex-end;">
+                        <div class="form-group">
+                            <label style="font-size: 11px;">Kode</label>
+                            <input type="text" id="editInputKode" readonly style="background: var(--readonly-bg);">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 11px;">Nama Barang</label>
+                            <input type="text" id="editInputNama" readonly style="background: var(--readonly-bg);">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 11px;">Warna</label>
+                            <input type="text" id="editInputWarna" readonly style="background: var(--readonly-bg);">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 11px;">Jumlah</label>
+                            <input type="number" id="editInputJumlah" min="1" placeholder="Qty" oninput="validateEditJumlahStok(this)">
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; text-align: right;">
+                        <button type="button" class="btn-save" onclick="tambahItemEditKeranjangBaru()" style="padding: 8px 16px; background: #0284c7;">+ Tambah Barang Ini ke Keranjang</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Warna</label>
-                    <input type="text" id="editWarna">
-                </div>
-                <div class="form-group">
-                    <label>Jumlah Barang</label>
-                    <input type="number" id="editJumlah" min="1" step="1">
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kode Barang</th>
+                                <th>Nama Barang</th>
+                                <th>Warna</th>
+                                <th class="text-center" style="width: 130px;">Jumlah Roll</th>
+                                <th class="text-center" style="width: 80px;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editKeranjangBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -2096,7 +2146,9 @@ const OLD_STORAGE_KEYS = [
 
 let transaksi = [];
 let keranjangBelanja = [];
-let editIndex = null;
+let editGroupKey = null;
+let editSingleIndex = null;
+let editKeranjangTemp = [];
 let deleteTargetIndex = null;
 let isAuthorized = false;
 let forgotTargetUser = null;
@@ -2650,7 +2702,6 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-/* FUNGSI CETAK KARTU STOCK LANGSUNG BERFUNGSI SEPENUHNYA TANPA FIELD PILIHAN */
 function eksekusiCetakKartuStock() {
     const mapStok = hitungStokPerBarang();
     const uniqueKodes = [...new Set(Object.values(mapStok).map(item => item.kode))];
@@ -2671,7 +2722,6 @@ function eksekusiCetakKartuStock() {
     window.print();
 }
 
-/* FUNGSI CETAK SURAT JALAN SPESIFIK BERDASARKAN TANGGAL, JAM, DAN CUSTOMER */
 function printSuratJalan(tanggal, customer, jam) {
     const groupItems = transaksi.filter(item => item.jenis === 'keluar' && item.tanggal === tanggal && item.jam === jam && (item.customer || '-').trim() === customer);
     
@@ -2695,9 +2745,8 @@ function printSuratJalan(tanggal, customer, jam) {
 
     let totalJumlahBarang = 0;
 
+    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA
     groupItems.sort((a, b) => {
-        let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
-        if (compNama !== 0) return compNama;
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
         return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
@@ -2758,11 +2807,15 @@ function updateNoSuratJalanBaris(tanggal, customer, jam, newNoSJ) {
     renderPenjualan();
 }
 
-function hitungStokPerBarang(excludeIndex = null) {
+function hitungStokPerBarang(excludeGroupKey = null, excludeIndex = null) {
     const mapNamaUtama = {};
     for (let i = transaksi.length - 1; i >= 0; i--) {
-        if (excludeIndex !== null && i === excludeIndex) continue;
         const item = transaksi[i];
+        if (excludeIndex !== null && i === excludeIndex) continue;
+        if (excludeGroupKey !== null) {
+            const itemGroupKey = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+            if (itemGroupKey === excludeGroupKey) continue;
+        }
         const kodeKey = normalizeKode(item.kode);
         if (kodeKey && item.nama && item.nama.trim() !== '') {
             mapNamaUtama[kodeKey] = item.nama.trim();
@@ -2772,6 +2825,10 @@ function hitungStokPerBarang(excludeIndex = null) {
     const mapStok = {};
     transaksi.forEach((item, index) => {
         if (excludeIndex !== null && index === excludeIndex) return;
+        if (excludeGroupKey !== null) {
+            const itemGroupKey = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+            if (itemGroupKey === excludeGroupKey) return;
+        }
         const kodeKey = normalizeKode(item.kode);
         const key = getStockKey(item.kode, item.warna);
         const namaBarangSeragam = mapNamaUtama[kodeKey] || item.nama;
@@ -2794,6 +2851,15 @@ function hitungStokPerBarang(excludeIndex = null) {
 
     if (keranjangBelanja.length > 0) {
         keranjangBelanja.forEach(kItem => {
+            const key = getStockKey(kItem.kode, kItem.warna);
+            if (mapStok[key]) {
+                mapStok[key].sisa -= kItem.jumlah;
+            }
+        });
+    }
+
+    if (editGroupKey !== null && editKeranjangTemp.length > 0) {
+        editKeranjangTemp.forEach(kItem => {
             const key = getStockKey(kItem.kode, kItem.warna);
             if (mapStok[key]) {
                 mapStok[key].sisa -= kItem.jumlah;
@@ -2871,7 +2937,14 @@ function populateDatalistStok() {
     list.innerHTML = '';
     const mapStok = hitungStokPerBarang();
 
-    Object.values(mapStok).forEach(item => {
+    // URUTKAN BERDASARKAN ABJAD KODE BARANG, LALU WARNA
+    const sortedStok = Object.values(mapStok).sort((a, b) => {
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
+
+    sortedStok.forEach(item => {
         const isAlreadyInCart = keranjangBelanja.some(k => getStockKey(k.kode, k.warna) === getStockKey(item.kode, item.warna));
         if (item.sisa > 0 && !isAlreadyInCart) {
             const option = document.createElement('option');
@@ -2887,7 +2960,14 @@ function populateDatalistBarangMasuk() {
     list.innerHTML = '';
     const mapStok = hitungStokPerBarang();
 
-    Object.values(mapStok).forEach(item => {
+    // URUTKAN BERDASARKAN ABJAD KODE BARANG, LALU WARNA
+    const sortedStok = Object.values(mapStok).sort((a, b) => {
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
+
+    sortedStok.forEach(item => {
         const option = document.createElement('option');
         option.value = `${item.kode} - ${item.nama} (${item.warna})`;
         list.appendChild(option);
@@ -3005,6 +3085,13 @@ function tambahItemKeKeranjang() {
     } else {
         keranjangBelanja.push({ kode, nama, warna, jumlah });
     }
+
+    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA DI KERANJANG
+    keranjangBelanja.sort((a, b) => {
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
 
     if (document.getElementById('searchBarangKeluar')) document.getElementById('searchBarangKeluar').value = '';
     document.getElementById('kode').value = '';
@@ -3275,9 +3362,8 @@ function renderPenjualan() {
     }
 
     groupList.forEach((group, index) => {
+        // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA
         group.items.sort((a, b) => {
-            let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
-            if (compNama !== 0) return compNama;
             let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
             if (compKode !== 0) return compKode;
             return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
@@ -3359,6 +3445,22 @@ function renderStok() {
             return a.kode.localeCompare(b.kode, 'id', { sensitivity: 'base' });
         });
 
+    let totalFilteredSisa = 0;
+    listStok.forEach(item => {
+        totalFilteredSisa += item.sisa;
+    });
+
+    const displayElement = document.getElementById('displayTotalStok');
+    if (displayElement) {
+        let labelKeterangan = "Grand Total Stock";
+        if (selectedKode) {
+            labelKeterangan = `Grand Total Stock  ${selectedKode.toUpperCase()} : `;
+        } else if (query) {
+            labelKeterangan = `Total Stock (Filter: "${query}")`;
+        }
+        displayElement.innerHTML = `${labelKeterangan} <strong>${formatAngka(totalFilteredSisa)} Roll</strong>`;
+    }
+
     if (listStok.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stock barang yang cocok.</td></tr>`;
         return;
@@ -3403,13 +3505,13 @@ function renderTransaksi() {
     }
 
     tbody.innerHTML = '';
-    const filtered = transaksi.filter(item => {
-        const matchQuery = item.kode.toLowerCase().includes(query) ||
-                           item.nama.toLowerCase().includes(query) ||
-                           item.warna.toLowerCase().includes(query) ||
-                           (item.customer || '').toLowerCase().includes(query) ||
-                           (item.noSuratJalan || '').toLowerCase().includes(query);
+
+    let displayList = [];
+    const groupedKeluarMap = {};
+
+    transaksi.forEach((item, index) => {
         const matchJenis = (filterJenis === 'semua') || (item.jenis === filterJenis);
+        if (!matchJenis) return;
 
         let matchDate = true;
         const itemDate = parseDateDDMMYYYY(item.tanggal);
@@ -3417,117 +3519,504 @@ function renderTransaksi() {
             if (tglAwal && itemDate < tglAwal) matchDate = false;
             if (tglAkhir && itemDate > tglAkhir) matchDate = false;
         }
+        if (!matchDate) return;
 
-        return matchQuery && matchJenis && matchDate;
+        const matchQuery = item.kode.toLowerCase().includes(query) ||
+                           item.nama.toLowerCase().includes(query) ||
+                           item.warna.toLowerCase().includes(query) ||
+                           (item.customer || '').toLowerCase().includes(query) ||
+                           (item.noSuratJalan || '').toLowerCase().includes(query);
+
+        if (item.jenis === 'keluar') {
+            const custName = (item.customer || '-').trim();
+            const groupKey = `${item.tanggal}___${custName}___${item.jam}`;
+            if (!groupedKeluarMap[groupKey]) {
+                groupedKeluarMap[groupKey] = {
+                    type: 'group_keluar',
+                    groupKey: groupKey,
+                    tanggal: item.tanggal,
+                    jam: item.jam,
+                    jenis: 'keluar',
+                    noSuratJalan: item.noSuratJalan || '',
+                    customer: custName,
+                    items: []
+                };
+            }
+            groupedKeluarMap[groupKey].items.push({ ...item, originalIndex: index });
+        } else {
+            if (matchQuery) {
+                displayList.push({
+                    type: 'single_masuk',
+                    originalIndex: index,
+                    tanggal: item.tanggal,
+                    jam: item.jam,
+                    jenis: 'masuk',
+                    noSuratJalan: item.noSuratJalan || '-',
+                    kode: item.kode,
+                    nama: item.nama,
+                    warna: item.warna,
+                    customer: '-',
+                    jumlah: item.jumlah
+                });
+            }
+        }
     });
 
-    if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="empty">Belum ada riwayat transaksi.</td></tr>`;
+    Object.values(groupedKeluarMap).forEach(group => {
+        const matchGroupQuery = query === '' || group.customer.toLowerCase().includes(query) ||
+            group.noSuratJalan.toLowerCase().includes(query) ||
+            group.items.some(it => it.kode.toLowerCase().includes(query) || it.nama.toLowerCase().includes(query) || it.warna.toLowerCase().includes(query));
+        
+        if (matchGroupQuery) {
+            displayList.push(group);
+        }
+    });
+
+    displayList.sort((a, b) => {
+        const idxA = a.type === 'group_keluar' ? Math.max(...a.items.map(i => i.originalIndex)) : a.originalIndex;
+        const idxB = b.type === 'group_keluar' ? Math.max(...b.items.map(i => i.originalIndex)) : b.originalIndex;
+        return idxB - idxA;
+    });
+
+    if (displayList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">Belum ada riwayat transaksi.</td></tr>`;
         return;
     }
 
-    filtered.forEach((item, index) => {
-        const realIndex = transaksi.indexOf(item);
-        const badgeClass = item.jenis === 'masuk' ? 'badge-masuk' : 'badge-keluar';
-        const jenisLabel = item.jenis === 'masuk' ? 'Masuk' : 'Keluar';
+    displayList.forEach((rowObj, index) => {
+        const tr = document.createElement('tr');
+        if (rowObj.type === 'single_masuk') {
+            tr.innerHTML = `
+                <td class="text-center">${index + 1}</td>
+                <td>${escapeHTML(formatTanggalIndonesia(rowObj.tanggal))}</td>
+                <td>${escapeHTML(rowObj.jam)}</td>
+                <td><span class="badge badge-masuk">Masuk</span></td>
+                <td>${escapeHTML(rowObj.noSuratJalan)}</td>
+                <td><strong>${escapeHTML(rowObj.kode)}</strong> → ${escapeHTML(rowObj.nama)} (${escapeHTML(rowObj.warna)}) : <strong>${formatAngka(rowObj.jumlah)} Roll</strong></td>
+                <td>-</td>
+                <td class="text-center">
+                    <button class="btn-edit" onclick="bukaEditSingle(${rowObj.originalIndex})">Edit</button>
+                    <button class="btn-delete" onclick="konfirmasiHapusPin(${rowObj.originalIndex})">Hapus</button>
+                </td>
+            `;
+        } else {
+            // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA
+            rowObj.items.sort((a, b) => {
+                let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+                if (compKode !== 0) return compKode;
+                return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+            });
 
+            let subTableHtml = `<table class="penjualan-items-table"><tbody>`;
+            rowObj.items.forEach(it => {
+                subTableHtml += `
+                    <tr>
+                        <td><strong>${escapeHTML(it.kode)}</strong> → ${escapeHTML(it.nama)} (${escapeHTML(it.warna)})</td>
+                        <td style="text-align: right; font-weight: 700; width: 90px;">${formatAngka(it.jumlah)} Roll</td>
+                    </tr>
+                `;
+            });
+            subTableHtml += `</tbody></table>`;
+
+            const safeGroupKey = escapeHTML(rowObj.groupKey);
+
+            tr.innerHTML = `
+                <td class="text-center">${index + 1}</td>
+                <td>${escapeHTML(formatTanggalIndonesia(rowObj.tanggal))}</td>
+                <td>${escapeHTML(rowObj.jam)}</td>
+                <td><span class="badge badge-keluar">Keluar</span></td>
+                <td>${escapeHTML(rowObj.noSuratJalan || '-')}</td>
+                <td style="padding: 4px 8px;">${subTableHtml}</td>
+                <td><strong>${escapeHTML(rowObj.customer)}</strong></td>
+                <td class="text-center">
+                    <button class="btn-edit" onclick="bukaEditGroup('${safeGroupKey}')">Edit</button>
+                    <button class="btn-delete" onclick="konfirmasiHapusGrup('${safeGroupKey}')">Hapus</button>
+                </td>
+            `;
+        }
+        tbody.appendChild(tr);
+    });
+}
+
+function bukaEditSingle(index) {
+    editSingleIndex = index;
+    editGroupKey = null;
+    const item = transaksi[index];
+
+    document.getElementById('editModalTitle').textContent = 'Edit Data Barang Masuk';
+    document.getElementById('editTanggal').value = formatTanggalIndonesia(item.tanggal);
+    document.getElementById('editJam').value = item.jam;
+    document.getElementById('editJenis').value = item.jenis;
+    document.getElementById('editJenisDisplay').value = 'Barang Masuk';
+    document.getElementById('editCustomer').value = '-';
+    document.getElementById('editCustomer').readOnly = true;
+    document.getElementById('editNoSuratJalan').value = item.noSuratJalan || '';
+    document.getElementById('editNoSuratJalan').readOnly = true;
+
+    document.getElementById('containerEditItemSingle').style.display = 'block';
+    document.getElementById('containerEditItemMulti').style.display = 'none';
+
+    document.getElementById('editSingleKode').value = item.kode;
+    document.getElementById('editSingleNama').value = item.nama;
+    document.getElementById('editSingleWarna').value = item.warna;
+    document.getElementById('editSingleJumlah').value = item.jumlah;
+
+    document.getElementById('editModal').classList.add('active');
+}
+
+function bukaEditGroup(groupKey) {
+    editGroupKey = groupKey;
+    editSingleIndex = null;
+    const groupItems = transaksi.filter(item => {
+        const k = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+        return k === groupKey;
+    });
+
+    if (groupItems.length === 0) return;
+    const first = groupItems[0];
+
+    document.getElementById('editModalTitle').textContent = 'Edit Data Barang Keluar (Penjualan)';
+    document.getElementById('editTanggal').value = formatTanggalIndonesia(first.tanggal);
+    document.getElementById('editJam').value = first.jam;
+    document.getElementById('editJenis').value = first.jenis;
+    document.getElementById('editJenisDisplay').value = 'Barang Keluar';
+    document.getElementById('editCustomer').value = first.customer || '';
+    document.getElementById('editCustomer').readOnly = false;
+    document.getElementById('editNoSuratJalan').value = first.noSuratJalan || '';
+    document.getElementById('editNoSuratJalan').readOnly = false;
+
+    document.getElementById('containerEditItemSingle').style.display = 'none';
+    document.getElementById('containerEditItemMulti').style.display = 'block';
+
+    editKeranjangTemp = groupItems.map(it => ({
+        originalIndex: transaksi.indexOf(it),
+        kode: it.kode,
+        nama: it.nama,
+        warna: it.warna,
+        jumlah: it.jumlah
+    }));
+
+    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA SAAT DI-LOAD PADA EDIT
+    editKeranjangTemp.sort((a, b) => {
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
+
+    if (document.getElementById('editSearchBarangKeluar')) {
+        document.getElementById('editSearchBarangKeluar').value = '';
+    }
+    document.getElementById('editInputKode').value = '';
+    document.getElementById('editInputNama').value = '';
+    document.getElementById('editInputWarna').value = '';
+    document.getElementById('editInputJumlah').value = '';
+    document.getElementById('editInputJumlah').removeAttribute('max');
+
+    renderEditKeranjang();
+    populateEditDatalistStok();
+
+    document.getElementById('editModal').classList.add('active');
+}
+
+function populateEditDatalistStok() {
+    const list = document.getElementById('editListBarangStok');
+    if (!list) return;
+    list.innerHTML = '';
+    const mapStok = hitungStokPerBarang(editGroupKey);
+
+    // URUTKAN BERDASARKAN ABJAD KODE BARANG, LALU WARNA
+    const sortedStok = Object.values(mapStok).sort((a, b) => {
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
+
+    sortedStok.forEach(item => {
+        const isAlreadyInCart = editKeranjangTemp.some(k => getStockKey(k.kode, k.warna) === getStockKey(item.kode, item.warna));
+        if (item.sisa > 0 && !isAlreadyInCart) {
+            const option = document.createElement('option');
+            option.value = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+            list.appendChild(option);
+        }
+    });
+}
+
+function handleEditBarangKeluarSelect(selectedVal) {
+    const inputKode = document.getElementById('editInputKode');
+    const inputNama = document.getElementById('editInputNama');
+    const inputWarna = document.getElementById('editInputWarna');
+    const inputJumlah = document.getElementById('editInputJumlah');
+
+    if (!selectedVal) {
+        inputKode.value = '';
+        inputNama.value = '';
+        inputWarna.value = '';
+        inputJumlah.value = '';
+        inputJumlah.removeAttribute('max');
+        inputJumlah.placeholder = 'Qty';
+        return;
+    }
+
+    const mapStok = hitungStokPerBarang(editGroupKey);
+    const barangFound = Object.values(mapStok).find(item => {
+        const fullString = `${item.kode} - ${item.nama} (${item.warna}) [Sisa: ${item.sisa}]`;
+        const isAlreadyInCart = editKeranjangTemp.some(k => getStockKey(k.kode, k.warna) === getStockKey(item.kode, item.warna));
+        return item.sisa > 0 && !isAlreadyInCart && (
+            fullString.toLowerCase() === selectedVal.toLowerCase() || 
+            item.kode.toLowerCase() === selectedVal.toLowerCase() ||
+            selectedVal.toLowerCase().startsWith(item.kode.toLowerCase())
+        );
+    });
+
+    if (barangFound) {
+        inputKode.value = barangFound.kode;
+        inputNama.value = barangFound.nama;
+        inputWarna.value = barangFound.warna;
+        inputJumlah.placeholder = `Maks: ${barangFound.sisa}`;
+        inputJumlah.setAttribute('max', barangFound.sisa);
+        if (parseInt(inputJumlah.value) > barangFound.sisa) {
+            inputJumlah.value = barangFound.sisa;
+        }
+    }
+}
+
+function validateEditJumlahStok(inputElem) {
+    const maxVal = parseInt(inputElem.getAttribute('max'));
+    const val = parseInt(inputElem.value);
+
+    if (maxVal && val > maxVal) {
+        alert(`Jumlah barang tidak bisa melebihi sisa stok yang tersedia!\nSisa stok maksimum: ${maxVal}`);
+        inputElem.value = maxVal;
+    }
+}
+
+function tambahItemEditKeranjangBaru() {
+    const kode = normalizeKode(document.getElementById('editInputKode').value);
+    const nama = document.getElementById('editInputNama').value.trim();
+    const warna = document.getElementById('editInputWarna').value.trim();
+    const jumlah = parseInt(document.getElementById('editInputJumlah').value) || 0;
+
+    if (!kode || !nama || !warna || jumlah <= 0) {
+        alert("Pilih barang dan masukkan jumlah dengan benar!");
+        return;
+    }
+
+    const mapStok = hitungStokPerBarang(editGroupKey);
+    const key = getStockKey(kode, warna);
+    let stokTersedia = mapStok[key] ? mapStok[key].sisa : 0;
+
+    const existingIndex = editKeranjangTemp.findIndex(item => getStockKey(item.kode, item.warna) === key);
+    let totalQtyDiKeranjang = jumlah;
+    if (existingIndex !== -1) {
+        totalQtyDiKeranjang += editKeranjangTemp[existingIndex].jumlah;
+        if (editKeranjangTemp[existingIndex].originalIndex !== null && transaksi[editKeranjangTemp[existingIndex].originalIndex]) {
+            stokTersedia += parseInt(transaksi[editKeranjangTemp[existingIndex].originalIndex].jumlah) || 0;
+        }
+    }
+
+    if (totalQtyDiKeranjang > stokTersedia) {
+        alert(`Jumlah total di keranjang melebihi sisa stok (${stokTersedia})!`);
+        return;
+    }
+
+    if (existingIndex !== -1) {
+        editKeranjangTemp[existingIndex].jumlah = totalQtyDiKeranjang;
+    } else {
+        editKeranjangTemp.push({
+            originalIndex: null,
+            kode, nama, warna, jumlah
+        });
+    }
+
+    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA PADA KERANJANG EDIT
+    editKeranjangTemp.sort((a, b) => {
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
+
+    if (document.getElementById('editSearchBarangKeluar')) document.getElementById('editSearchBarangKeluar').value = '';
+    document.getElementById('editInputKode').value = '';
+    document.getElementById('editInputNama').value = '';
+    document.getElementById('editInputWarna').value = '';
+    document.getElementById('editInputJumlah').value = '';
+    document.getElementById('editInputJumlah').removeAttribute('max');
+    if (document.getElementById('editSearchBarangKeluar')) document.getElementById('editSearchBarangKeluar').focus();
+
+    renderEditKeranjang();
+    populateEditDatalistStok();
+}
+
+function renderEditKeranjang() {
+    const tbody = document.getElementById('editKeranjangBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    editKeranjangTemp.forEach((item, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="text-center">${index + 1}</td>
-            <td>${escapeHTML(formatTanggalIndonesia(item.tanggal))}</td>
-            <td>${escapeHTML(item.jam)}</td>
-            <td><span class="badge ${badgeClass}">${jenisLabel}</span></td>
-            <td>${escapeHTML(item.noSuratJalan || '-')}</td>
             <td><strong>${escapeHTML(item.kode)}</strong></td>
             <td>${escapeHTML(item.nama)}</td>
             <td>${escapeHTML(item.warna)}</td>
-            <td>${escapeHTML(item.customer || '-')}</td>
-            <td class="text-center">${formatAngka(item.jumlah)} Roll</td>
             <td class="text-center">
-                <button class="btn-edit" onclick="bukaEdit(${realIndex})">Edit</button>
-                <button class="btn-delete" onclick="konfirmasiHapusPin(${realIndex})">Hapus</button>
+                <input type="number" min="1" value="${item.jumlah}" style="width: 110px; padding: 4px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; background: var(--input-bg); color: var(--text-dark);" onchange="updateEditJumlahItem(${idx}, this.value)">
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn-delete" style="padding: 4px 8px; font-size:11px;" onclick="hapusEditKeranjangItem(${idx})">Hapus</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-function bukaEdit(index) {
-    editIndex = index;
-    const item = transaksi[index];
+function updateEditJumlahItem(idx, val) {
+    const qty = parseInt(val) || 0;
+    if (qty <= 0) {
+        alert("Jumlah barang minimal 1!");
+        renderEditKeranjang();
+        return;
+    }
 
-    document.getElementById('editTanggal').value = formatTanggalIndonesia(item.tanggal);
-    document.getElementById('editJam').value = item.jam;
-    document.getElementById('editJenis').value = item.jenis;
-    document.getElementById('editCustomer').value = item.customer || '';
-    document.getElementById('editNoSuratJalan').value = item.noSuratJalan || '';
-    document.getElementById('editKode').value = item.kode;
-    document.getElementById('editNama').value = item.nama;
-    document.getElementById('editWarna').value = item.warna;
-    document.getElementById('editJumlah').value = item.jumlah;
+    const item = editKeranjangTemp[idx];
+    const mapStok = hitungStokPerBarang(editGroupKey);
+    const key = getStockKey(item.kode, item.warna);
+    
+    let stokTersedia = mapStok[key] ? mapStok[key].sisa : 0;
+    if (item.originalIndex !== null && transaksi[item.originalIndex]) {
+        stokTersedia += parseInt(transaksi[item.originalIndex].jumlah) || 0;
+    }
 
-    document.getElementById('editModal').classList.add('active');
+    if (qty > stokTersedia) {
+        alert(`Jumlah melebihi sisa stok yang tersedia (${stokTersedia})!`);
+        renderEditKeranjang();
+        return;
+    }
+
+    editKeranjangTemp[idx].jumlah = qty;
+}
+
+function hapusEditKeranjangItem(idx) {
+    if (editKeranjangTemp.length <= 1) {
+        alert("Transaksi keluar minimal harus memiliki 1 barang!");
+        return;
+    }
+    editKeranjangTemp.splice(idx, 1);
+    renderEditKeranjang();
+    populateEditDatalistStok();
 }
 
 function tutupEdit() {
-    editIndex = null;
+    editGroupKey = null;
+    editSingleIndex = null;
+    editKeranjangTemp = [];
     document.getElementById('editModal').classList.remove('active');
 }
 
 function simpanEdit() {
-    if (editIndex === null) return;
+    if (editSingleIndex !== null) {
+        const item = transaksi[editSingleIndex];
+        const kode = normalizeKode(document.getElementById('editSingleKode').value);
+        const nama = document.getElementById('editSingleNama').value.trim();
+        const warna = document.getElementById('editSingleWarna').value.trim();
+        const jumlah = item.jumlah;
 
-    const jenis = document.getElementById('editJenis').value;
-    const customer = document.getElementById('editCustomer').value.trim();
-    const noSuratJalan = document.getElementById('editNoSuratJalan').value.trim();
-    const kode = normalizeKode(document.getElementById('editKode').value);
-    const nama = document.getElementById('editNama').value.trim();
-    const warna = document.getElementById('editWarna').value.trim();
-    const jumlah = parseInt(document.getElementById('editJumlah').value) || 0;
-
-    if (!kode || !nama || !warna || jumlah <= 0) {
-        alert("Mohon periksa kembali isian form edit!");
-        return;
-    }
-
-    if (noSuratJalan !== "") {
-        const isDuplicate = transaksi.some((item, idx) => {
-            return idx !== editIndex && (item.noSuratJalan || "").trim().toLowerCase() === noSuratJalan.toLowerCase();
-        });
-        if (isDuplicate) {
-            alert(`Nomor Surat Jalan "${noSuratJalan}" sudah digunakan pada transaksi lain!`);
+        if (!kode || !nama || !warna) {
+            alert("Mohon isi form dengan lengkap!");
             return;
         }
-    }
 
-    if (jenis === 'keluar') {
+        transaksi[editSingleIndex] = {
+            ...item,
+            kode, nama, warna, jumlah
+        };
+
+        saveData();
+        tutupEdit();
+        updateApp();
+        alert("Data barang masuk berhasil diperbarui!");
+
+    } else if (editGroupKey !== null) {
+        const customer = document.getElementById('editCustomer').value.trim();
+        const noSuratJalan = document.getElementById('editNoSuratJalan').value.trim();
+
         if (!customer) {
-            alert("Mohon isi Nama Customer!");
+            alert("Nama Customer tidak boleh kosong!");
             return;
         }
-        const mapStokLuar = hitungStokPerBarang(editIndex);
-        const key = getStockKey(kode, warna);
-        const stokTersedia = mapStokLuar[key] ? mapStokLuar[key].sisa : 0;
+        if (editKeranjangTemp.length === 0) {
+            alert("Daftar barang tidak boleh kosong!");
+            return;
+        }
 
-        if (jumlah > stokTersedia) {
-            alert(`Jumlah melebihi stok tersedia (${stokTersedia})!`);
-            return;
+        if (noSuratJalan !== "") {
+            const isDuplicate = transaksi.some((item) => {
+                const itemGroupKey = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+                return itemGroupKey !== editGroupKey && (item.noSuratJalan || "").trim().toLowerCase() === noSuratJalan.toLowerCase();
+            });
+            if (isDuplicate) {
+                alert(`Nomor Surat Jalan "${noSuratJalan}" sudah digunakan pada transaksi lain!`);
+                return;
+            }
         }
+
+        const existingGroupItems = transaksi.filter(item => {
+            const k = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+            return k === editGroupKey;
+        });
+
+        const first = existingGroupItems[0] || {};
+        const targetTanggal = first.tanggal || getCurrentDateTime().tanggal;
+        const targetJam = first.jam || getCurrentDateTime().jam;
+
+        transaksi = transaksi.filter(item => {
+            const k = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+            return k !== editGroupKey;
+        });
+
+        // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA SEBELUM DISIMPAN PERMANEN
+        editKeranjangTemp.sort((a, b) => {
+            let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+            if (compKode !== 0) return compKode;
+            return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+        });
+
+        editKeranjangTemp.forEach((editedItem) => {
+            transaksi.unshift({
+                tanggal: targetTanggal,
+                jam: targetJam,
+                jenis: 'keluar',
+                noSuratJalan: noSuratJalan,
+                kode: normalizeKode(editedItem.kode),
+                nama: editedItem.nama.trim(),
+                warna: editedItem.warna.trim(),
+                customer: customer,
+                jumlah: editedItem.jumlah
+            });
+        });
+
+        saveData();
+        tutupEdit();
+        updateApp();
+        alert("Data penjualan berhasil diperbarui!");
     }
-
-    transaksi[editIndex] = {
-        ...transaksi[editIndex],
-        jenis, noSuratJalan, kode, nama, warna, customer: jenis === 'keluar' ? customer : '-', jumlah
-    };
-
-    saveData();
-    tutupEdit();
-    updateApp();
-    alert("Data berhasil diperbarui!");
 }
 
 function konfirmasiHapusPin(index) {
     deleteTargetIndex = index;
+    const inputPin = document.getElementById('inputPinDelete');
+    if (inputPin) {
+        inputPin.value = '';
+        inputPin.type = 'password';
+    }
+    const eyeBtn = document.querySelector('#deletePinModal .toggle-password');
+    if (eyeBtn) eyeBtn.textContent = '👁';
+
+    document.getElementById('deletePinModal').classList.add('active');
+    setTimeout(() => { if (inputPin) inputPin.focus(); }, 100);
+}
+
+function konfirmasiHapusGrup(groupKey) {
+    deleteTargetIndex = groupKey;
     const inputPin = document.getElementById('inputPinDelete');
     if (inputPin) {
         inputPin.value = '';
@@ -3551,7 +4040,31 @@ function eksekusiHapusDenganPin() {
     const storedPin = getStoredPin();
 
     if (inputPin === storedPin) {
-        transaksi.splice(deleteTargetIndex, 1);
+        if (typeof deleteTargetIndex === 'number') {
+            const itemDihapus = transaksi[deleteTargetIndex];
+            if (itemDihapus && itemDihapus.jenis === 'masuk') {
+                const tempTransaksis = transaksi.filter((_, idx) => idx !== deleteTargetIndex);
+                const testMapStok = {};
+                tempTransaksis.forEach(t => {
+                    const key = getStockKey(t.kode, t.warna);
+                    if (!testMapStok[key]) testMapStok[key] = { masuk: 0, keluar: 0 };
+                    if (t.jenis === 'masuk') testMapStok[key].masuk += parseInt(t.jumlah) || 0;
+                    if (t.jenis === 'keluar') testMapStok[key].keluar += parseInt(t.jumlah) || 0;
+                });
+                for (let k in testMapStok) {
+                    if (testMapStok[k].masuk < testMapStok[k].keluar) {
+                        alert("Tidak dapat menghapus barang masuk ini karena jumlahnya sedang digunakan oleh transaksi barang keluar!");
+                        return;
+                    }
+                }
+            }
+            transaksi.splice(deleteTargetIndex, 1);
+        } else if (typeof deleteTargetIndex === 'string') {
+            transaksi = transaksi.filter(item => {
+                const k = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+                return k !== deleteTargetIndex;
+            });
+        }
         saveData();
         updateApp();
         tutupModalDeletePin();
@@ -3700,8 +4213,55 @@ function updateApp() {
     }
 }
 
+// Inisialisasi fitur drag-to-scroll (bisa digeser pakai mouse maupun touch HP di navigasi tab)
+function initDraggableTabs() {
+    const slider = document.getElementById('navTabsContainer');
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.add('active');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('active');
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('active');
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        slider.scrollLeft = scrollLeft - walk;
+    });
+
+    slider.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    }, {passive: true});
+
+    slider.addEventListener('touchmove', (e) => {
+        const x = e.touches[0].pageX - slider.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        slider.scrollLeft = scrollLeft - walk;
+    }, {passive: true});
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     checkSession();
+    initDraggableTabs();
     setInterval(updateClock, 1000);
 });
 

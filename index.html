@@ -1818,7 +1818,7 @@ input[type="reset"]:disabled,
                     </select>
                 </div>
                 <div class="button-area" style="margin-top:0;">
-                    <button class="btn-print" onclick="bukaModalPilihPrintStok()">PRINT KARTU STOCK</button>
+                    <button class="btn-print" onclick="eksekusiCetakKartuStock()">PRINT KARTU STOCK</button>
                 </div>
             </div>
 
@@ -1904,30 +1904,6 @@ input[type="reset"]:disabled,
 </div>
 
 <!-- MODALS -->
-<div class="modal" id="printStokModal">
-    <div class="modal-box" style="max-width: 420px;">
-        <div class="modal-header">
-            <h2>PRINT KARTU STOCK</h2>
-            <button class="close-modal" onclick="tutupModalPilihPrintStok()">⛌</button>
-        </div>
-        <div class="modal-body">
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
-                Print seluruh kartu stock atau hanya barang tertentu.
-            </p>
-            <div class="form-group">
-                <label>Choose Print</label>
-                <select id="selectPrintTarget">
-                    <option value="ALL">Print All Stock</option>
-                </select>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-reset" onclick="tutupModalPilihPrintStok()">BATAL</button>
-            <button class="btn-print" onclick="eksekusiCetakKartuStock()">PRINT</button>
-        </div>
-    </div>
-</div>
-
 <div class="modal" id="pinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
@@ -2674,55 +2650,22 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-function bukaModalPilihPrintStok() {
+/* FUNGSI CETAK KARTU STOCK LANGSUNG BERFUNGSI SEPENUHNYA TANPA FIELD PILIHAN */
+function eksekusiCetakKartuStock() {
     const mapStok = hitungStokPerBarang();
-    
     const uniqueKodes = [...new Set(Object.values(mapStok).map(item => item.kode))];
-    uniqueKodes.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }));
     
     if (uniqueKodes.length === 0) {
         alert("Tidak ada data stock barang untuk dicetak!");
         return;
     }
 
-    const selectTarget = document.getElementById('selectPrintTarget');
-    selectTarget.innerHTML = '<option value="ALL">Print All Stock</option>';
-
-    uniqueKodes.forEach(kode => {
-        const opt = document.createElement('option');
-        opt.value = kode;
-        opt.textContent = kode;
-        selectTarget.appendChild(opt);
-    });
-
-    document.getElementById('printStokModal').classList.add('active');
-}
-
-function tutupModalPilihPrintStok() {
-    document.getElementById('printStokModal').classList.remove('active');
-}
-
-function eksekusiCetakKartuStock() {
-    const targetKode = document.getElementById('selectPrintTarget').value;
-    tutupModalPilihPrintStok();
-
     const now = new Date();
     const userLog = localStorage.getItem(CURRENT_USER_KEY) || '-';
     
     document.getElementById('printHeaderDate').textContent = formatHeaderDate(now) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
     document.getElementById('printHeaderUser').textContent = userLog;
-
-    if (targetKode !== 'ALL') {
-        document.getElementById('printHeaderSubTitle').textContent = `Manual Stock Management System (Kode Barang: ${targetKode})`;
-    } else {
-        document.getElementById('printHeaderSubTitle').textContent = `Manual Stock Management System (Semua Barang)`;
-    }
-
-    if (targetKode !== 'ALL') {
-        const selectKodeStok = document.getElementById('filterKodeStok');
-        if (selectKodeStok) selectKodeStok.value = targetKode;
-        renderStok();
-    }
+    document.getElementById('printHeaderSubTitle').textContent = `Manual Stock Management System (Semua Barang)`;
 
     document.body.classList.remove('printing-surat-jalan');
     window.print();
@@ -2792,7 +2735,6 @@ function printSuratJalan(tanggal, customer, jam) {
 function updateNoSuratJalanBaris(tanggal, customer, jam, newNoSJ) {
     const cleanNewSJ = newNoSJ.trim();
     
-    // VALIDASI: Cek apakah No Surat Jalan sudah digunakan oleh transaksi grup lain (kecuali dikosongkan)
     if (cleanNewSJ !== "") {
         const isDuplicate = transaksi.some(item => {
             const itemGroupKey = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
@@ -2802,7 +2744,7 @@ function updateNoSuratJalanBaris(tanggal, customer, jam, newNoSJ) {
 
         if (isDuplicate) {
             alert(`Nomor Surat Jalan "${cleanNewSJ}" sudah digunakan di transaksi lain! Harap masukkan nomor yang berbeda.`);
-            renderPenjualan(); // Reset input ke nilai sebelumnya
+            renderPenjualan();
             return;
         }
     }
@@ -3333,7 +3275,6 @@ function renderPenjualan() {
     }
 
     groupList.forEach((group, index) => {
-        // Mengurutkan barang terjual sesuai abjad (nama barang, lalu kode, lalu warna)
         group.items.sort((a, b) => {
             let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
             if (compNama !== 0) return compNama;
@@ -3549,7 +3490,6 @@ function simpanEdit() {
         return;
     }
 
-    // VALIDASI EDIT: Cek duplikasi No Surat Jalan saat edit
     if (noSuratJalan !== "") {
         const isDuplicate = transaksi.some((item, idx) => {
             return idx !== editIndex && (item.noSuratJalan || "").trim().toLowerCase() === noSuratJalan.toLowerCase();

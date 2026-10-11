@@ -123,74 +123,6 @@ body {
 }
 
 /* =========================================================
-   ANIMASI BURUNG TERBANG (UI/UX DI PALING ATAS HEADER)
-========================================================= */
-.birds-header-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 10;
-}
-
-.bird {
-    position: absolute;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cpath d='M50,30 Q30,5 10,20 Q30,25 50,45 Q70,25 90,20 Q70,5 50,30 Z' fill='rgba(255,255,255,0.7)'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: contain;
-    opacity: 0.65;
-}
-
-.bird-1 {
-    width: 18px;
-    height: 12px;
-    top: 12px;
-    left: -30px;
-    animation: flyAcross 18s linear infinite;
-}
-
-.bird-2 {
-    width: 14px;
-    height: 10px;
-    top: 24px;
-    left: -50px;
-    animation: flyAcross 18s linear infinite;
-    animation-delay: 1.8s;
-    opacity: 0.45;
-}
-
-.bird-3 {
-    width: 12px;
-    height: 8px;
-    top: 8px;
-    left: -70px;
-    animation: flyAcross 18s linear infinite;
-    animation-delay: 3.5s;
-    opacity: 0.35;
-}
-
-@keyframes flyAcross {
-    0% {
-        transform: translateX(-50px) translateY(0) scale(0.8);
-    }
-    25% {
-        transform: translateX(calc(25vw)) translateY(-6px) scale(0.9);
-    }
-    50% {
-        transform: translateX(calc(50vw)) translateY(4px) scale(1);
-    }
-    75% {
-        transform: translateX(calc(75vw)) translateY(-4px) scale(0.95);
-    }
-    100% {
-        transform: translateX(calc(105vw + 50px)) translateY(0) scale(0.8);
-    }
-}
-
-/* =========================================================
    AUTHENTICATION PAGES (OPTIMIZED COMPACT VIEW)
 ========================================================= */
 .auth-wrapper {
@@ -1155,7 +1087,7 @@ body.theme-dark #penjualanBody tr {
         color: #000000 !important;
     }
 
-    /* HILANGKAN KOTAK DI CETAK KARTU STOCK DAN UBAH KE ANGKA BIASA */
+    /* HILANGKAN KOTAK DI CETAK KARTU STOCK DAN UBAH KE ANGKA BIASA TANPA ROLL */
     body:not(.printing-surat-jalan) .stok-box,
     body:not(.printing-surat-jalan) .stok-habis-box {
         background: transparent !important;
@@ -1607,13 +1539,6 @@ input[type="reset"]:disabled,
 <div id="mainApp" style="display: none;">
 
 <header class="header">
-    <!-- BURUNG TERBANG DI PALING ATAS HEADER -->
-    <div class="birds-header-container">
-        <div class="bird bird-1"></div>
-        <div class="bird bird-2"></div>
-        <div class="bird bird-3"></div>
-    </div>
-
     <div class="header-content">
         <div class="header-title">
             <h1>Manual Stock Management System</h1>
@@ -1668,7 +1593,7 @@ input[type="reset"]:disabled,
         <div class="print-header-top">
             <div class="print-header-brand">
                 <h1>KARTU STOCK</h1>
-                <p>Manual Stock Management System</p>
+                <p id="printHeaderSubTitle">Manual Stock Management System</p>
             </div>
             <div class="print-header-meta">
                 <div>Tanggal Cetak: <strong id="printHeaderDate">-</strong></div>
@@ -1841,7 +1766,10 @@ input[type="reset"]:disabled,
 
             <div class="toolbar">
                 <div class="search-area">
-                    <input type="text" id="searchPenjualan" placeholder="Cari nama customer, barang, warna, atau no surat jalan..." oninput="renderPenjualan()">
+                    <input type="text" id="searchPenjualan" placeholder="Cari bebas (nama customer, barang, warna, surat jalan)..." oninput="renderPenjualan()">
+                    <select id="filterCustomerPenjualan" onchange="renderPenjualan()" style="max-width: 220px;">
+                        <option value="">-- Semua Customer --</option>
+                    </select>
                     
                     <div class="date-filter-group">
                         <label>Dari:</label>
@@ -1884,10 +1812,13 @@ input[type="reset"]:disabled,
 
             <div class="toolbar">
                 <div class="search-area">
-                    <input type="text" id="searchStok" placeholder="Cari berdasarkan kode, nama barang, atau warna..." oninput="renderStok()">
+                    <input type="text" id="searchStok" placeholder="Cari bebas (kode, nama barang, atau warna)..." oninput="renderStok()">
+                    <select id="filterKodeStok" onchange="renderStok()" style="max-width: 220px;">
+                        <option value="">-- Semua Kode Barang --</option>
+                    </select>
                 </div>
                 <div class="button-area" style="margin-top:0;">
-                    <button class="btn-print" onclick="cetakLaporanStok()">PRINT KARTU STOCK</button>
+                    <button class="btn-print" onclick="bukaModalPilihPrintStok()">PRINT KARTU STOCK</button>
                 </div>
             </div>
 
@@ -1973,6 +1904,30 @@ input[type="reset"]:disabled,
 </div>
 
 <!-- MODALS -->
+<div class="modal" id="printStokModal">
+    <div class="modal-box" style="max-width: 420px;">
+        <div class="modal-header">
+            <h2>PRINT KARTU STOCK</h2>
+            <button class="close-modal" onclick="tutupModalPilihPrintStok()">⛌</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
+                Print seluruh kartu stock atau hanya barang tertentu.
+            </p>
+            <div class="form-group">
+                <label>Choose Print</label>
+                <select id="selectPrintTarget">
+                    <option value="ALL">Print All Stock</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-reset" onclick="tutupModalPilihPrintStok()">BATAL</button>
+            <button class="btn-print" onclick="eksekusiCetakKartuStock()">PRINT</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id="pinModal">
     <div class="modal-box" style="max-width: 420px;">
         <div class="modal-header">
@@ -2596,10 +2551,12 @@ function switchPage(pageId) {
         handleJenisChange();
     } else if (pageId === 'penjualanPage') {
         document.getElementById('tabPenjualanBtn').classList.add('active');
+        populateFilterCustomerDropdown();
         renderPenjualan();
     } else if (pageId === 'stokPage') {
         document.getElementById('tabStokBtn').classList.add('active');
         updateDashboard();
+        populateFilterStokDropdown();
         renderStok();
     } else if (pageId === 'transaksiPage') {
         document.getElementById('tabTransaksiBtn').classList.add('active');
@@ -2717,14 +2674,37 @@ function updateClock() {
     if (document.getElementById("jam")) document.getElementById("jam").value = dt.jam;
 }
 
-function cetakLaporanStok() {
+function bukaModalPilihPrintStok() {
     const mapStok = hitungStokPerBarang();
-    const totalItem = Object.keys(mapStok).length;
-
-    if (totalItem === 0) {
+    
+    const uniqueKodes = [...new Set(Object.values(mapStok).map(item => item.kode))];
+    uniqueKodes.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }));
+    
+    if (uniqueKodes.length === 0) {
         alert("Tidak ada data stock barang untuk dicetak!");
         return;
     }
+
+    const selectTarget = document.getElementById('selectPrintTarget');
+    selectTarget.innerHTML = '<option value="ALL">Print All Stock</option>';
+
+    uniqueKodes.forEach(kode => {
+        const opt = document.createElement('option');
+        opt.value = kode;
+        opt.textContent = kode;
+        selectTarget.appendChild(opt);
+    });
+
+    document.getElementById('printStokModal').classList.add('active');
+}
+
+function tutupModalPilihPrintStok() {
+    document.getElementById('printStokModal').classList.remove('active');
+}
+
+function eksekusiCetakKartuStock() {
+    const targetKode = document.getElementById('selectPrintTarget').value;
+    tutupModalPilihPrintStok();
 
     const now = new Date();
     const userLog = localStorage.getItem(CURRENT_USER_KEY) || '-';
@@ -2732,13 +2712,25 @@ function cetakLaporanStok() {
     document.getElementById('printHeaderDate').textContent = formatHeaderDate(now) + " " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
     document.getElementById('printHeaderUser').textContent = userLog;
 
+    if (targetKode !== 'ALL') {
+        document.getElementById('printHeaderSubTitle').textContent = `Manual Stock Management System (Kode Barang: ${targetKode})`;
+    } else {
+        document.getElementById('printHeaderSubTitle').textContent = `Manual Stock Management System (Semua Barang)`;
+    }
+
+    if (targetKode !== 'ALL') {
+        const selectKodeStok = document.getElementById('filterKodeStok');
+        if (selectKodeStok) selectKodeStok.value = targetKode;
+        renderStok();
+    }
+
     document.body.classList.remove('printing-surat-jalan');
     window.print();
 }
 
-/* FUNGSI CETAK SURAT JALAN DENGAN VALIDASI NOMOR SURAT JALAN */
-function printSuratJalan(tanggal, customer) {
-    const groupItems = transaksi.filter(item => item.jenis === 'keluar' && item.tanggal === tanggal && (item.customer || '-').trim() === customer);
+/* FUNGSI CETAK SURAT JALAN SPESIFIK BERDASARKAN TANGGAL, JAM, DAN CUSTOMER */
+function printSuratJalan(tanggal, customer, jam) {
+    const groupItems = transaksi.filter(item => item.jenis === 'keluar' && item.tanggal === tanggal && item.jam === jam && (item.customer || '-').trim() === customer);
     
     if (groupItems.length === 0) {
         alert("Data transaksi customer tidak ditemukan!");
@@ -2770,7 +2762,7 @@ function printSuratJalan(tanggal, customer) {
             <td><strong>${escapeHTML(it.kode)}</strong></td>
             <td>${escapeHTML(it.nama)}</td>
             <td>${escapeHTML(it.warna)}</td>
-            <td style="text-align: center; font-weight: 700;">${formatAngka(qty)} Roll</td>
+            <td style="text-align: center; font-weight: 700;">${formatAngka(qty)}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -2789,9 +2781,9 @@ function printSuratJalan(tanggal, customer) {
     }, 1000);
 }
 
-function updateNoSuratJalanBaris(tanggal, customer, newNoSJ) {
+function updateNoSuratJalanBaris(tanggal, customer, jam, newNoSJ) {
     transaksi.forEach(item => {
-        if (item.jenis === 'keluar' && item.tanggal === tanggal && (item.customer || '-').trim() === customer) {
+        if (item.jenis === 'keluar' && item.tanggal === tanggal && item.jam === jam && (item.customer || '-').trim() === customer) {
             item.noSuratJalan = newNoSJ.trim();
         }
     });
@@ -3192,10 +3184,48 @@ function resetForm() {
     resetFormInput();
 }
 
+function populateFilterCustomerDropdown() {
+    const select = document.getElementById('filterCustomerPenjualan');
+    if (!select) return;
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">-- Semua Customer --</option>';
+    
+    const customers = [...new Set(transaksi.filter(i => i.jenis === 'keluar' && i.customer && i.customer !== '-').map(i => i.customer.trim()))];
+    customers.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }));
+
+    customers.forEach(cust => {
+        const opt = document.createElement('option');
+        opt.value = cust;
+        opt.textContent = cust;
+        select.appendChild(opt);
+    });
+    select.value = currentVal;
+}
+
+function populateFilterStokDropdown() {
+    const select = document.getElementById('filterKodeStok');
+    if (!select) return;
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">-- Semua Kode Barang --</option>';
+    
+    const mapStok = hitungStokPerBarang();
+    const kodes = [...new Set(Object.values(mapStok).map(i => i.kode))];
+    kodes.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }));
+
+    kodes.forEach(kd => {
+        const opt = document.createElement('option');
+        opt.value = kd;
+        opt.textContent = kd;
+        select.appendChild(opt);
+    });
+    select.value = currentVal;
+}
+
 function renderPenjualan() {
     const tbody = document.getElementById('penjualanBody');
     if (!tbody) return;
-    const query = (document.getElementById('searchPenjualan').value || '').toLowerCase();
+    const query = (document.getElementById('searchPenjualan').value || '').toLowerCase().trim();
+    const selectedCustomer = document.getElementById('filterCustomerPenjualan').value.toLowerCase().trim();
     
     const tglAwalVal = document.getElementById('tglAwalPenjualan').value;
     const tglAkhirVal = document.getElementById('tglAkhirPenjualan').value;
@@ -3217,11 +3247,24 @@ function renderPenjualan() {
     const filteredKeluar = transaksi.filter(item => {
         if (item.jenis !== 'keluar') return false;
 
-        const matchQuery = (item.customer || '').toLowerCase().includes(query) ||
-                           (item.noSuratJalan || '').toLowerCase().includes(query) ||
-                           item.nama.toLowerCase().includes(query) ||
-                           item.kode.toLowerCase().includes(query) ||
-                           item.warna.toLowerCase().includes(query);
+        const custName = (item.customer || '').trim();
+        
+        if (selectedCustomer && custName.toLowerCase() !== selectedCustomer) {
+            return false;
+        }
+
+        if (query) {
+            const matchCust = custName.toLowerCase().includes(query);
+            const matchSJ = (item.noSuratJalan || '').toLowerCase().includes(query);
+            const matchNama = item.nama.toLowerCase().includes(query);
+            const matchKode = item.kode.toLowerCase().includes(query);
+            const matchWarna = item.warna.toLowerCase().includes(query);
+            const matchTgl = formatTanggalIndonesia(item.tanggal).toLowerCase().includes(query);
+
+            if (!matchCust && !matchSJ && !matchNama && !matchKode && !matchWarna && !matchTgl) {
+                return false;
+            }
+        }
 
         let matchDate = true;
         const itemDate = parseDateDDMMYYYY(item.tanggal);
@@ -3229,12 +3272,13 @@ function renderPenjualan() {
             if (tglAwal && itemDate < tglAwal) matchDate = false;
             if (tglAkhir && itemDate > tglAkhir) matchDate = false;
         }
+        if (!matchDate) return false;
 
-        return matchQuery && matchDate;
+        return true;
     });
 
     if (filteredKeluar.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty">Belum ada data penjualan recorded.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">Tidak ada data penjualan yang cocok.</td></tr>`;
         return;
     }
 
@@ -3248,6 +3292,7 @@ function renderPenjualan() {
             groupedMap[groupKey] = {
                 tanggal: tglStr,
                 customer: custName,
+                jam: item.jam,
                 noSuratJalan: item.noSuratJalan || '',
                 items: []
             };
@@ -3258,7 +3303,7 @@ function renderPenjualan() {
     const groupList = Object.values(groupedMap);
 
     if (groupList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty">Belum ada data penjualan recorded.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">Tidak ada data penjualan yang cocok.</td></tr>`;
         return;
     }
 
@@ -3286,17 +3331,18 @@ function renderPenjualan() {
 
         const safeTanggal = escapeHTML(group.tanggal);
         const safeCustomer = escapeHTML(group.customer).replace(/'/g, "\\'");
+        const safeJam = escapeHTML(group.jam);
         const currentNoSJ = escapeHTML(group.noSuratJalan || '');
 
         tr.innerHTML = `
             <td>${escapeHTML(formatTanggalIndonesia(group.tanggal))}</td>
             <td><strong>${escapeHTML(group.customer)}</strong></td>
             <td>
-                <input type="text" class="input-nosj" value="${currentNoSJ}" placeholder="Masukkan No SJ..." style="padding: 6px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-dark);" onchange="updateNoSuratJalanBaris('${safeTanggal}', '${safeCustomer}', this.value)">
+                <input type="text" class="input-nosj" value="${currentNoSJ}" placeholder="Masukkan No SJ..." style="padding: 6px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-dark);" onchange="updateNoSuratJalanBaris('${safeTanggal}', '${safeCustomer}', '${safeJam}', this.value)">
             </td>
             <td style="padding: 4px 8px;">${subTableHtml}</td>
             <td class="text-center">
-                <button class="btn-surat-jalan" onclick="printSuratJalan('${safeTanggal}', '${safeCustomer}')">Surat Jalan</button>
+                <button class="btn-surat-jalan" onclick="printSuratJalan('${safeTanggal}', '${safeCustomer}', '${safeJam}')">Surat Jalan</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -3306,16 +3352,30 @@ function renderPenjualan() {
 function renderStok() {
     const tbody = document.getElementById('stokBody');
     if (!tbody) return;
-    const query = (document.getElementById('searchStok').value || '').toLowerCase();
+    const query = (document.getElementById('searchStok').value || '').toLowerCase().trim();
+    const selectedKode = document.getElementById('filterKodeStok').value.toLowerCase().trim();
     const mapStok = hitungStokPerBarang();
 
     tbody.innerHTML = '';
     
     const listStok = Object.values(mapStok)
         .filter(item => {
-            return item.kode.toLowerCase().includes(query) ||
-                   item.nama.toLowerCase().includes(query) ||
-                   item.warna.toLowerCase().includes(query);
+            if (selectedKode && item.kode.toLowerCase() !== selectedKode) {
+                return false;
+            }
+
+            if (query) {
+                const matchKode = item.kode.toLowerCase().includes(query);
+                const matchNama = item.nama.toLowerCase().includes(query);
+                const matchWarna = item.warna.toLowerCase().includes(query);
+                const matchSisa = String(item.sisa).includes(query);
+
+                if (!matchKode && !matchNama && !matchWarna && !matchSisa) {
+                    return false;
+                }
+            }
+
+            return true;
         })
         .sort((a, b) => {
             if (a.kode === b.kode) {
@@ -3325,15 +3385,16 @@ function renderStok() {
         });
 
     if (listStok.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stock barang.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">Tidak ada data stock barang yang cocok.</td></tr>`;
         return;
     }
 
     listStok.forEach(item => {
         const tr = document.createElement('tr');
+        const sisaValue = formatAngka(item.sisa);
         const sisaStokHtml = item.sisa <= 0 
-            ? `<span class="stok-habis-box">Habis</span>` 
-            : `<span class="stok-box">${formatAngka(item.sisa)} Roll</span>`;
+            ? `<span class="stok-habis-box">0</span>` 
+            : `<span class="stok-box">${sisaValue}</span>`;
 
         tr.innerHTML = `
             <td><strong>${escapeHTML(item.kode)}</strong></td>
@@ -3639,6 +3700,8 @@ function backupJSON() {
 
 function updateApp() {
     updateDashboard();
+    populateFilterCustomerDropdown();
+    populateFilterStokDropdown();
     if (document.getElementById('penjualanPage').classList.contains('active')) renderPenjualan();
     if (document.getElementById('stokPage').classList.contains('active')) renderStok();
     if (document.getElementById('transaksiPage').classList.contains('active')) renderTransaksi();

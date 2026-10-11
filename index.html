@@ -1912,7 +1912,7 @@ input[type="reset"]:disabled,
                 Masukkan Kode PIN khusus untuk melihat atau mengedit riwayat transaksi.
             </p>
             <div class="form-group">
-                <label>PIN Akses</label>
+                <label>PIN Access</label>
                 <div class="password-wrapper">
                     <input type="password" id="inputPinAkses" placeholder="Masukkan PIN Access" maxlength="10" autocomplete="off" onkeyup="if(event.key==='Enter') verifikasiPin()">
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('inputPinAkses', this)">👁</button>
@@ -2745,7 +2745,6 @@ function printSuratJalan(tanggal, customer, jam) {
 
     let totalJumlahBarang = 0;
 
-    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA
     groupItems.sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -2937,7 +2936,6 @@ function populateDatalistStok() {
     list.innerHTML = '';
     const mapStok = hitungStokPerBarang();
 
-    // URUTKAN BERDASARKAN ABJAD KODE BARANG, LALU WARNA
     const sortedStok = Object.values(mapStok).sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -2960,7 +2958,6 @@ function populateDatalistBarangMasuk() {
     list.innerHTML = '';
     const mapStok = hitungStokPerBarang();
 
-    // URUTKAN BERDASARKAN ABJAD KODE BARANG, LALU WARNA
     const sortedStok = Object.values(mapStok).sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -3086,7 +3083,6 @@ function tambahItemKeKeranjang() {
         keranjangBelanja.push({ kode, nama, warna, jumlah });
     }
 
-    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA DI KERANJANG
     keranjangBelanja.sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -3362,7 +3358,6 @@ function renderPenjualan() {
     }
 
     groupList.forEach((group, index) => {
-        // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA
         group.items.sort((a, b) => {
             let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
             if (compKode !== 0) return compKode;
@@ -3399,7 +3394,7 @@ function renderPenjualan() {
             <td>${escapeHTML(formatTanggalIndonesia(group.tanggal))}</td>
             <td><strong>${escapeHTML(group.customer)}</strong></td>
             <td>
-                <input type="text" class="input-nosj" value="${currentNoSJ}" placeholder="Masukkan No SJ..." style="padding: 6px 10px; font-size: 12px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--input-bg); color: var(--text-dark);" onchange="updateNoSuratJalanBaris('${safeTanggal}', '${safeCustomer}', '${safeJam}', this.value)">
+                <input type="text" class="input-nosj" value="${currentNoSJ}" placeholder="Isi No Surat Jalan" style="padding: 6px 10px; font-size: 13px; width: 70%; border: 1px solid var(--border-color); border-radius: 10px; background: var(--input-bg); color: var(--text-dark);" onchange="updateNoSuratJalanBaris('${safeTanggal}', '${safeCustomer}', '${safeJam}', this.value)">
             </td>
             <td style="padding: 4px 8px;">${subTableHtml}</td>
             <td class="text-center">
@@ -3572,6 +3567,7 @@ function renderTransaksi() {
         }
     });
 
+    // PENGURUTAN RIWAYAT TRANSAKSI: Data terbaru (index terbesar atau waktu terbaru) tampil paling atas secara presisi
     displayList.sort((a, b) => {
         const idxA = a.type === 'group_keluar' ? Math.max(...a.items.map(i => i.originalIndex)) : a.originalIndex;
         const idxB = b.type === 'group_keluar' ? Math.max(...b.items.map(i => i.originalIndex)) : b.originalIndex;
@@ -3600,7 +3596,6 @@ function renderTransaksi() {
                 </td>
             `;
         } else {
-            // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA
             rowObj.items.sort((a, b) => {
                 let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
                 if (compKode !== 0) return compKode;
@@ -3696,7 +3691,6 @@ function bukaEditGroup(groupKey) {
         jumlah: it.jumlah
     }));
 
-    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA SAAT DI-LOAD PADA EDIT
     editKeranjangTemp.sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -3724,7 +3718,6 @@ function populateEditDatalistStok() {
     list.innerHTML = '';
     const mapStok = hitungStokPerBarang(editGroupKey);
 
-    // URUTKAN BERDASARKAN ABJAD KODE BARANG, LALU WARNA
     const sortedStok = Object.values(mapStok).sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -3828,7 +3821,6 @@ function tambahItemEditKeranjangBaru() {
         });
     }
 
-    // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA PADA KERANJANG EDIT
     editKeranjangTemp.sort((a, b) => {
         let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
         if (compKode !== 0) return compKode;
@@ -3973,7 +3965,6 @@ function simpanEdit() {
             return k !== editGroupKey;
         });
 
-        // URUTKAN SECARA ABJAD: KODE BARANG, LALU WARNA SEBELUM DISIMPAN PERMANEN
         editKeranjangTemp.sort((a, b) => {
             let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
             if (compKode !== 0) return compKode;
@@ -4213,7 +4204,6 @@ function updateApp() {
     }
 }
 
-// Inisialisasi fitur drag-to-scroll (bisa digeser pakai mouse maupun touch HP di navigasi tab)
 function initDraggableTabs() {
     const slider = document.getElementById('navTabsContainer');
     if (!slider) return;

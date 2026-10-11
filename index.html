@@ -2752,7 +2752,6 @@ function printSuratJalan(tanggal, customer, jam) {
 
     let totalJumlahBarang = 0;
 
-    // Urutkan barang sesuai abjad (nama barang, lalu kode, lalu warna) pada cetak surat jalan juga agar konsisten
     groupItems.sort((a, b) => {
         let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
         if (compNama !== 0) return compNama;
@@ -2791,9 +2790,26 @@ function printSuratJalan(tanggal, customer, jam) {
 }
 
 function updateNoSuratJalanBaris(tanggal, customer, jam, newNoSJ) {
+    const cleanNewSJ = newNoSJ.trim();
+    
+    // VALIDASI: Cek apakah No Surat Jalan sudah digunakan oleh transaksi grup lain (kecuali dikosongkan)
+    if (cleanNewSJ !== "") {
+        const isDuplicate = transaksi.some(item => {
+            const itemGroupKey = `${item.tanggal}___${(item.customer || '-').trim()}___${item.jam}`;
+            const targetGroupKey = `${tanggal}___${customer}___${jam}`;
+            return itemGroupKey !== targetGroupKey && (item.noSuratJalan || "").trim().toLowerCase() === cleanNewSJ.toLowerCase();
+        });
+
+        if (isDuplicate) {
+            alert(`Nomor Surat Jalan "${cleanNewSJ}" sudah digunakan di transaksi lain! Harap masukkan nomor yang berbeda.`);
+            renderPenjualan(); // Reset input ke nilai sebelumnya
+            return;
+        }
+    }
+
     transaksi.forEach(item => {
         if (item.jenis === 'keluar' && item.tanggal === tanggal && item.jam === jam && (item.customer || '-').trim() === customer) {
-            item.noSuratJalan = newNoSJ.trim();
+            item.noSuratJalan = cleanNewSJ;
         }
     });
     saveData();
@@ -3317,7 +3333,7 @@ function renderPenjualan() {
     }
 
     groupList.forEach((group, index) => {
-        // PERUBAHAN UTAMA: Mengurutkan barang terjual sesuai abjad (nama barang, lalu kode, lalu warna)
+        // Mengurutkan barang terjual sesuai abjad (nama barang, lalu kode, lalu warna)
         group.items.sort((a, b) => {
             let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
             if (compNama !== 0) return compNama;
@@ -3531,6 +3547,17 @@ function simpanEdit() {
     if (!kode || !nama || !warna || jumlah <= 0) {
         alert("Mohon periksa kembali isian form edit!");
         return;
+    }
+
+    // VALIDASI EDIT: Cek duplikasi No Surat Jalan saat edit
+    if (noSuratJalan !== "") {
+        const isDuplicate = transaksi.some((item, idx) => {
+            return idx !== editIndex && (item.noSuratJalan || "").trim().toLowerCase() === noSuratJalan.toLowerCase();
+        });
+        if (isDuplicate) {
+            alert(`Nomor Surat Jalan "${noSuratJalan}" sudah digunakan pada transaksi lain!`);
+            return;
+        }
     }
 
     if (jenis === 'keluar') {

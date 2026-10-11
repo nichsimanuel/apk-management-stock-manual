@@ -2752,6 +2752,15 @@ function printSuratJalan(tanggal, customer, jam) {
 
     let totalJumlahBarang = 0;
 
+    // Urutkan barang sesuai abjad (nama barang, lalu kode, lalu warna) pada cetak surat jalan juga agar konsisten
+    groupItems.sort((a, b) => {
+        let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
+        if (compNama !== 0) return compNama;
+        let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+        if (compKode !== 0) return compKode;
+        return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+    });
+
     groupItems.forEach((it, idx) => {
         const qty = parseInt(it.jumlah) || 0;
         totalJumlahBarang += qty;
@@ -3308,6 +3317,15 @@ function renderPenjualan() {
     }
 
     groupList.forEach((group, index) => {
+        // PERUBAHAN UTAMA: Mengurutkan barang terjual sesuai abjad (nama barang, lalu kode, lalu warna)
+        group.items.sort((a, b) => {
+            let compNama = (a.nama || "").localeCompare(b.nama || "", 'id', { sensitivity: 'base' });
+            if (compNama !== 0) return compNama;
+            let compKode = (a.kode || "").localeCompare(b.kode || "", 'id', { sensitivity: 'base' });
+            if (compKode !== 0) return compKode;
+            return (a.warna || "").localeCompare(b.warna || "", 'id', { sensitivity: 'base' });
+        });
+
         const tr = document.createElement('tr');
         
         let subTableHtml = `

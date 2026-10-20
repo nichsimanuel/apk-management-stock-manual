@@ -3910,7 +3910,7 @@ hr, .divider { border-color: var(--border-color); }
 
             <div class="toolbar">
                 <div class="search-area">
-                    <input type="text" id="searchTransaksi" placeholder="Cari kode barang, nama, warna, atau customer..." oninput="renderTransaksi()">
+                    <input type="text" id="searchTransaksi" placeholder="Search" oninput="renderTransaksi()">
                     <select id="filterJenis" onchange="renderTransaksi()">
                         <option value="semua">All Transaction</option>
                         <option value="masuk">Barang Masuk</option>
@@ -3939,12 +3939,12 @@ hr, .divider { border-color: var(--border-color); }
                 <table>
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 3%;">No</th>
+                            <th class="text-center" style="width: 5%;">No</th>
                             <th class="text-center" style="width: 9%;">Tanggal</th>
-                            <th class="text-center" style="width: 6%;">Jam</th>
-                            <th class="text-center" style="width: 8%;">Jenis Barang</th>
-                            <th class="text-center" style="width: 8%;">No Surat Jalan</th>
-                            <th class="text-center" style="width: 25%;">Rincian Transaction</th>
+                            <th class="text-center" style="width: 8%;">Jam</th>
+                            <th class="text-center" style="width: 11%;">Jenis Barang</th>
+                            <th class="text-center" style="width: 10%;">No Surat Jalan</th>
+                            <th class="text-center" style="width: 30%;">Rincian Transaction</th>
                             <th class="text-center" style="width: 10%;">Customer</th>
                             <th class="text-center" class="text-center" style="width: 10%;">Edit / Delete</th>
                         </tr>
@@ -3961,14 +3961,14 @@ hr, .divider { border-color: var(--border-color); }
 <div class="modal" id="allHistoryModal" aria-hidden="true">
   <div class="modal-box">
     <div class="modal-header">
-      <h2>Semua Data yang Pernah Diinput</h2>
+      <h2>ALL TRANSACTION</h2>
       <button class="close-modal" onclick="tutupSemuaRiwayat()" aria-label="Tutup">×</button>
     </div>
     <div class="modal-body">
       <p class="history-count" id="allHistoryCount">Memuat data...</p>
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>No</th><th>Tanggal</th><th>Jam</th><th>Jenis Transaksi</th><th>No Surat Jalan</th><th>Kode Barang</th><th>Nama Barang</th><th>Warna</th><th>Jumlah (Roll)</th><th>Yard & Total</th><th>Customer</th><th>Alamat Customer</th></tr></thead>
+          <thead><tr><th>No</th><th>Tanggal</th><th>Jam</th><th>Jenis Transaction</th><th>No Surat Jalan</th><th>Kode Barang</th><th>Nama Barang</th><th>Warna</th><th>Jumlah (Roll)</th><th>Yard & Total</th><th>Customer</th><th>Alamat Customer</th></tr></thead>
           <tbody id="allHistoryBody"></tbody>
         </table>
       </div>
@@ -6195,7 +6195,7 @@ function bukaSemuaRiwayat() {
             tbody.appendChild(tr);
         });
     }
-    count.textContent = `Total ${semua.length} data transaksi • Menampilkan seluruh data tanpa mengikuti filter pencarian/tanggal.`;
+    count.textContent = `Grand Total ${semua.length} data transaksi.`;
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
 }

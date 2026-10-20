@@ -6780,7 +6780,7 @@ function bukaModalInputYard(tanggal, customer, jam, kode, warna) {
     currentEditYardIndex = null;
 
     document.getElementById('yardModalItemInfo').textContent = `${item.kode} - ${item.nama} (${item.warna})`;
-    document.getElementById('yardModalQtyInfo').textContent = `Total Pembelian: ${qty} Roll`;
+    document.getElementById('yardModalQtyInfo').textContent = `Total Pembelian ${qty} Roll`;
 
     const container = document.getElementById('yardInputsContainer');
     container.innerHTML = '';
@@ -6810,7 +6810,7 @@ function bukaModalEditYardItem(idx) {
     currentYardTarget = null;
 
     document.getElementById('yardModalItemInfo').textContent = `${item.kode} - ${item.nama} (${item.warna})`;
-    document.getElementById('yardModalQtyInfo').textContent = `Total Pembelian: ${qty} Pc / Roll (Tersedia ${qty} input yard)`;
+    document.getElementById('yardModalQtyInfo').textContent = `Total Pembelian ${qty} Roll;
 
     const container = document.getElementById('yardInputsContainer');
     container.innerHTML = '';

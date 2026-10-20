@@ -4500,7 +4500,7 @@ function prosesRegister() {
 
     users.push({ username, password, securityQuestion, securityAnswer });
     saveUsers(users);
-    showCustomPopup('success', 'Akun Berhasil Dibuat!', () => {
+    showCustomPopup('success', 'Akun Berhasil Dibuat', () => {
         showAuthCard('loginCard');
         document.getElementById('loginUsername').value = username;
     });
